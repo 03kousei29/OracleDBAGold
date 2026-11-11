@@ -14,6 +14,26 @@
       "chapter": 3,
       "title": "ARCHIVELOGモード・高速リカバリ領域・RMANの永続設定",
       "description": "ARCHIVELOGモードの切替とアーカイブ先、FRA、保存ポリシー、CONFIGURE、バックアップ最適化、アーカイブログ削除ポリシー"
+    },
+    {
+      "chapter": 4,
+      "title": "リカバリカタログ",
+      "description": "構成・登録・DBID・同期・ストアドスクリプト・カタログ移行・仮想プライベートカタログ"
+    },
+    {
+      "chapter": 5,
+      "title": "バックアップの基本",
+      "description": "BACKUP DATABASEの対象、バックアップ形式、PLUS ARCHIVELOGとDELETE INPUT、処理順序"
+    },
+    {
+      "chapter": 6,
+      "title": "増分バックアップ・増分更新・RMANバックアップ管理",
+      "description": "増分レベル、ブロックチェンジトラッキング、増分更新コピー、SWITCH、LIST・REPORT・CROSSCHECK・DELETE"
+    },
+    {
+      "chapter": 7,
+      "title": "バックアップオプション",
+      "description": "圧縮、並列チャネル、マルチセクション、多重化、アーカイブバックアップ、リカバリ関連ファイル、手動バックアップ"
     }
   ],
   "questions": [
@@ -1728,6 +1748,1426 @@
       "explanation": "正解：C\n\nA（誤り）：必要なREDOを消すと復旧可能期間を満たせなくなる可能性がある。\nB（誤り）：保存ポリシーは必要ファイルの保持判断であり、物理ストレージ拡張は行わない。\nC（正しい）：復旧可能期間を維持しつつ、再利用可能ファイルの削除、容量追加、バックアップ先見直しなどを検討する。\nD（誤り）：保持する世代を増やす設定は通常保持対象が増え、空きを増やす保証はない。",
       "topic": "FRA・保持と容量のトレードオフ",
       "difficulty": "hard"
+    },
+    {
+      "id": "ch04q001",
+      "chapter": 4,
+      "question": "あるDBではCONTROL_FILE_RECORD_KEEP_TIME=7である。バックアップ履歴を数か月単位で照会したい。制御ファイルとリカバリカタログについて正しいものを2つ選べ。",
+      "choices": {
+        "A": "リカバリカタログを使えば、カタログへ転送済みの管理情報を制御ファイルのレコード再利用後も保持できる。",
+        "B": "リカバリカタログに接続していれば、制御ファイルにはバックアップ履歴が一切記録されなくなる。",
+        "C": "CONTROL_FILE_RECORD_KEEP_TIMEを長くすれば、制御ファイル容量にかかわらず指定日数の履歴は必ず保持される。",
+        "D": "7日は再利用可能レコードの最低保持日数の目安であり、7日経過と同時に履歴が必ず消えるわけではない。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "リカバリカタログを使えば、カタログへ転送済みの管理情報を制御ファイルのレコード再利用後も保持できる。、7日は再利用可能レコードの最低保持日数の目安であり、7日経過と同時に履歴が必ず消えるわけではない。",
+      "explanation": "正解：A、D\n\nA（正しい）：カタログは別データベースのスキーマに記録されるため、同期済みの履歴はターゲット制御ファイルの再利用可能領域から独立して管理できる。\nB（誤り）：リカバリカタログを利用してもRMANはターゲットDBの制御ファイルにリポジトリ情報を保持する。カタログはその情報を複製・拡張する。\nC（誤り）：制御ファイルのレコード数・容量上限に達した場合は保持期間内でも古いレコードが上書きされ得る。絶対保証ではない。\nD（正しい）：このパラメータは制御ファイル内の再利用可能なレコードを上書き候補にするまでの最小日数を指定する。上書きが実際に行われるかは容量などにも依存する。",
+      "topic": "履歴保持・制御ファイル",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch04q002",
+      "chapter": 4,
+      "question": "業務DB AとBのRMAN管理情報を一元化するためリカバリカタログを構築する。業務DB Aの記憶装置障害に対する管理情報の可用性を高めたい。最も妥当な構成はどれか。",
+      "choices": {
+        "A": "Aと同じ制御ファイルの別セクションにカタログを構成し、RMAN接続時のみ切り替える。",
+        "B": "Aとは障害領域を分離したカタログDBの専用スキーマに構成し、カタログDBも別途バックアップする。",
+        "C": "Aの同じデータファイルの別表領域にカタログを構成し、Aの制御ファイル障害に備える。",
+        "D": "AとBそれぞれの制御ファイルをバックアップすれば、カタログを同じディスクに置いても管理情報の独立性は同じである。"
+      },
+      "correctChoice": "B",
+      "correctText": "Aとは障害領域を分離したカタログDBの専用スキーマに構成し、カタログDBも別途バックアップする。",
+      "explanation": "正解：B\n\nA（誤り）：リカバリカタログは制御ファイル内の別領域ではなく、Oracleデータベースのスキーマ・オブジェクトとして構成する。\nB（正しい）：管理情報をターゲットDBから独立したDBと障害領域に置くことで、ターゲットの障害がカタログに波及するリスクを抑えられる。カタログDB自身の保護も必要となる。\nC（誤り）：同一DB・同一障害領域に置くと、業務DB全体の破損の影響を受ける。別表領域であるだけでは十分な独立性にならない。\nD（誤り）：ターゲット制御ファイルのバックアップと、独立したカタログDBの運用は代替関係ではない。障害領域が同じなら同時に失う可能性が残る。",
+      "topic": "構成と障害分離",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q003",
+      "chapter": 4,
+      "question": "カタログ用DBは準備済みで、所有者CATOWNERには必要な権限と表領域の割当てがある。まだカタログ・オブジェクトは存在しない。次に行う操作として適切なのはどれか。",
+      "choices": {
+        "A": "RMANでTARGETとして業務DBに接続し、CREATE CATALOGを実行する。",
+        "B": "RMANでTARGETとしてカタログ用DBに接続し、REGISTER DATABASEを実行する。",
+        "C": "SQL*PlusでCATOWNERに接続し、CREATE CATALOGをSQL文として実行する。",
+        "D": "RMANでCATALOGとしてCATOWNERに接続し、CREATE CATALOGを実行する。"
+      },
+      "correctChoice": "D",
+      "correctText": "RMANでCATALOGとしてCATOWNERに接続し、CREATE CATALOGを実行する。",
+      "explanation": "正解：D\n\nA（誤り）：カタログを作成する対象はターゲットではなくカタログDBの所有者スキーマである。\nB（誤り）：REGISTER DATABASEはカタログ作成後にターゲットDBを登録するRMANコマンドであり、カタログのスキーマ・オブジェクトを作成しない。\nC（誤り）：CREATE CATALOGはRMANコマンドであり、通常のSQL CREATE文としてSQL*Plusから発行するものではない。\nD（正しい）：カタログ所有者としてCATALOG接続し、RMANのCREATE CATALOGでその所有者のスキーマに必要な表・プロシージャなどを作成する。",
+      "topic": "カタログ作成・手順",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q004",
+      "chapter": 4,
+      "question": "リカバリカタログDBにCATOWNERユーザーを用意した。CREATE SESSIONと表領域割当ては設定済みだが、カタログ所有者の権限が不足している。教材に登場するロールを正しく追加する操作はどれか。",
+      "choices": {
+        "A": "GRANT RECOVERY_CATALOG TO CATOWNER;",
+        "B": "GRANT SYSDBA TO CATOWNER;",
+        "C": "GRANT RECOVERY_CATALOG_OWNER TO CATOWNER;",
+        "D": "GRANT SYSBACKUP TO CATOWNER;"
+      },
+      "correctChoice": "C",
+      "correctText": "GRANT RECOVERY_CATALOG_OWNER TO CATOWNER;",
+      "explanation": "正解：C\n\nA（誤り）：この名前のロールではなくRECOVERY_CATALOG_OWNERを使用する。所有者ロールとCATALOG接続キーワードは別物である。\nB（誤り）：SYSDBAは強い管理権限だが、カタログ所有者に要求される専用ロールを指定する回答にはならない。\nC（正しい）：RECOVERY_CATALOG_OWNERはリカバリカタログの所有・管理に必要なロールであり、カタログDBの所有者へ付与する。\nD（誤り）：SYSBACKUPはバックアップやリカバリに関係する管理権限で、カタログ所有者用ロールの代わりではない。",
+      "topic": "所有者・権限",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q005",
+      "chapter": 4,
+      "question": "RMANのリカバリカタログCATDBにはCREATE CATALOGが完了したが、業務DB PRODはまだ登録していない。PRODの管理情報をカタログへ登録するために必要な接続とコマンドの組合せはどれか。",
+      "choices": {
+        "A": "TARGETだけに接続してREGISTER DATABASEを実行する。",
+        "B": "TARGETとCATALOGの両方に接続してREGISTER DATABASEを実行する。",
+        "C": "TARGETとCATALOGの両方に接続してCREATE CATALOGを再実行する。",
+        "D": "CATALOGだけに接続してREGISTER DATABASEを実行する。"
+      },
+      "correctChoice": "B",
+      "correctText": "TARGETとCATALOGの両方に接続してREGISTER DATABASEを実行する。",
+      "explanation": "正解：B\n\nA（誤り）：登録情報を書き込むカタログへの接続も必要であり、TARGET接続だけでは登録先がない。\nB（正しい）：REGISTER DATABASEは現在接続しているターゲットのメタデータをカタログへ登録する。両方の接続が必要である。\nC（誤り）：CREATE CATALOGはカタログのスキーマを生成する処理であり、既存カタログへターゲットを登録する操作ではない。\nD（誤り）：登録対象のDBを識別し、その制御ファイルの情報を取得するにはTARGET接続が必要となる。",
+      "topic": "接続と登録",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q006",
+      "chapter": 4,
+      "question": "PRODはリカバリカタログに登録済みだが、ネットワーク障害でCATDBに接続できない。PRODはOPENで、その制御ファイルは正常である。カタログなしでRMANバックアップを実行した場合の説明として正しいものはどれか。",
+      "choices": {
+        "A": "バックアップは実行でき、管理情報は少なくともPRODの制御ファイルに記録される。",
+        "B": "バックアップは実行できるが、管理情報はCATDBにしか保存できないため記録されない。",
+        "C": "登録済みDBではCATDBへの接続が失敗するとRMANによるバックアップは必ず禁止される。",
+        "D": "バックアップは実行できるが、CATDBと再接続すると制御ファイルの情報はすべて破棄される。"
+      },
+      "correctChoice": "A",
+      "correctText": "バックアップは実行でき、管理情報は少なくともPRODの制御ファイルに記録される。",
+      "explanation": "正解：A\n\nA（正しい）：RMANはリカバリカタログの有無にかかわらずターゲット制御ファイルにリポジトリ情報を保持する。カタログ未接続でも通常のバックアップ操作は可能である。\nB（誤り）：カタログ未接続時にも制御ファイルに記録されるため、情報が未記録になるわけではない。\nC（誤り）：リカバリカタログは必須ではない。カタログ固有の機能は利用できなくてもバックアップ自体は行える。\nD（誤り）：その後カタログへ接続した際には必要な再同期を行い、ターゲット制御ファイルの情報を取り込む。破棄する処理ではない。",
+      "topic": "リポジトリ・カタログ接続",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q007",
+      "chapter": 4,
+      "question": "元DB PRODのデータファイル等をOSコピーして検証DB TESTを構築した。両DBは同じDBIDを持ち、PRODは既に同一のカタログへ登録されている。両方を通常の独立DBとして登録したい。適切な対応はどれか。",
+      "choices": {
+        "A": "TESTでCREATE CATALOGを実行すると、DBIDが新しくなるので同一カタログへ登録できる。",
+        "B": "TESTでREGISTER DATABASEを実行すれば、DB_NAMEの相違を検知してDBIDを自動採番する。",
+        "C": "TESTでRMANのRESYNC CATALOGを実行すると、DBIDが自動的に再採番される。",
+        "D": "TESTのDBIDをDBNEWIDユーティリティで変更した上で、カタログに登録する。"
+      },
+      "correctChoice": "D",
+      "correctText": "TESTのDBIDをDBNEWIDユーティリティで変更した上で、カタログに登録する。",
+      "explanation": "正解：D\n\nA（誤り）：CREATE CATALOGはカタログのオブジェクトを作るコマンドでありターゲットDBIDは変更しない。\nB（誤り）：REGISTER DATABASEはDBIDを変更するコマンドではなく、DBIDの重複を解決しない。\nC（誤り）：RESYNC CATALOGは管理情報の再同期であり、データベースの識別子を変更しない。\nD（正しい）：OSコピーによる複製ではDBIDが保持される場合がある。DBNEWIDで識別子を変更すれば、同一カタログで独立したDBとして区別できる。",
+      "topic": "DBID・ファイルコピー",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q008",
+      "chapter": 4,
+      "question": "同じリカバリカタログにソースDBと独立した複製DBを登録したい。元DBのDBIDと複製DBのDBIDの扱いとして正しいものを2つ選べ（Data Guardのスタンバイ構成ではない）。",
+      "choices": {
+        "A": "RMAN DUPLICATEを使う場合、ソースと複製は同じDBIDを維持しなければならない。",
+        "B": "DB名が異なればDBIDが同じでも、独立した2つのDBとして同一カタログに通常登録できる。",
+        "C": "RMAN DUPLICATEで独立した複製DBを作成する場合、通常は新しいDBIDが割り当てられる。",
+        "D": "ファイルの単純コピーでDBを作成した場合はDBIDが重複する可能性がある。"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "RMAN DUPLICATEで独立した複製DBを作成する場合、通常は新しいDBIDが割り当てられる。、ファイルの単純コピーでDBを作成した場合はDBIDが重複する可能性がある。",
+      "explanation": "正解：C、D\n\nA（誤り）：独立した複製DBでは同一DBIDを維持することは要件ではない。スタンバイ構成など別の文脈と混同しない。\nB（誤り）：同一カタログに独立DBを登録する際、DBIDの一意性が必要であり、DB_NAMEが違うだけでは重複を解消できない。\nC（正しい）：独立DBを作るRMAN DUPLICATEでは新しいDBIDが割り当てられるため、元DBと識別できる。\nD（正しい）：OSなどによるファイル単純コピーではDBIDがそのまま複製されることがあり、登録時に問題となる。",
+      "topic": "DBID・DUPLICATE",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch04q009",
+      "chapter": 4,
+      "question": "PRODでは新規データファイル追加後、カタログへの同期が必要になった。通常の物理構造の変更と、アーカイブログのバックアップ記録の同期について正しいものを2つ選べ。",
+      "choices": {
+        "A": "部分再同期ではバックアップやアーカイブログの記録を同期できるが、データファイル追加などの物理構造は対象外となる。",
+        "B": "部分再同期ではデータファイル追加を同期できるが、バックアップ履歴は同期できない。",
+        "C": "完全再同期はカタログDB内のバックアップファイルの実体を複製する処理である。",
+        "D": "完全再同期ではデータファイルなどの物理構造に関するメタデータの変更を取り込める。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "部分再同期ではバックアップやアーカイブログの記録を同期できるが、データファイル追加などの物理構造は対象外となる。、完全再同期ではデータファイルなどの物理構造に関するメタデータの変更を取り込める。",
+      "explanation": "正解：A、D\n\nA（正しい）：部分再同期はバックアップ・アーカイブログ記録などを対象とし、物理スキーマ変更は取り込まない。\nB（誤り）：物理スキーマの変更は完全再同期の対象であり、部分再同期の範囲と逆になっている。\nC（誤り）：再同期で複製するのは管理メタデータであり、バックアップピースそのものではない。\nD（正しい）：完全再同期は物理スキーマ等の情報も含むため、構造変更後のカタログ更新に対応する。",
+      "topic": "再同期・完全／部分",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch04q010",
+      "chapter": 4,
+      "question": "ターゲットPRODはMOUNT状態で、CATDBに接続できる。RMANで両方に接続後、明示的にカタログの情報を現在の制御ファイルに合わせたい。使用するコマンドはどれか。",
+      "choices": {
+        "A": "CATALOG START WITH ...;",
+        "B": "RESYNC CATALOG;",
+        "C": "REGISTER DATABASE;",
+        "D": "UPGRADE CATALOG;"
+      },
+      "correctChoice": "B",
+      "correctText": "RESYNC CATALOG;",
+      "explanation": "正解：B\n\nA（誤り）：CATALOG START WITHはディスク上のバックアップ等をRMANリポジトリに登録するためのコマンドで、通常の制御ファイル→カタログ同期とは用途が異なる。\nB（正しい）：RESYNC CATALOGは、ターゲット制御ファイル側の管理情報をカタログへ明示的に反映するRMANコマンドである。\nC（誤り）：REGISTER DATABASEは未登録のターゲットをカタログに登録する処理であり、登録済みの通常の再同期には使用しない。\nD（誤り）：UPGRADE CATALOGはリカバリカタログのスキーマのバージョン更新に使用する。",
+      "topic": "再同期・接続条件",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q011",
+      "chapter": 4,
+      "question": "RMANバックアップをCATDB未接続で数週間実施していた。PRODのCONTROL_FILE_RECORD_KEEP_TIMEは7日で、制御ファイルの古い再利用可能レコードは既に上書きされている。この時点でカタログに接続してRESYNC CATALOGを実施した場合、妥当な説明はどれか。",
+      "choices": {
+        "A": "再同期ではバックアップのデータブロックを読み取って、失われた履歴を必ず再生成する。",
+        "B": "再同期は制御ファイルに残る情報を反映できるが、既に上書きされた記録を制御ファイルから復元することはできない。",
+        "C": "再同期によってRMANは制御ファイルの上書き済みレコードをREDOから自動復元し、すべて取り込む。",
+        "D": "再同期はカタログ上の古い記録をPROD制御ファイルへ全件書き戻すため、上書き済み情報も復元できる。"
+      },
+      "correctChoice": "B",
+      "correctText": "再同期は制御ファイルに残る情報を反映できるが、既に上書きされた記録を制御ファイルから復元することはできない。",
+      "explanation": "正解：B\n\nA（誤り）：バックアップファイルの手動CATALOG登録などは別機能である。通常の再同期に全バックアップ実体の再解析・履歴再生成は含まれない。\nB（正しい）：制御ファイルのレコードが再利用された後では、元の履歴が存在しないためカタログへの後追い同期だけで復元できない。定期的な同期が重要となる。\nC（誤り）：REDOはデータベース変更のリカバリ用であり、上書きされたRMAN履歴を再同期時に復元する仕組みではない。\nD（誤り）：通常のRESYNC CATALOGはターゲットの管理情報をカタログへ同期する。失われたターゲット履歴を必ず再生する操作ではない。",
+      "topic": "同期タイミング・履歴損失",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q012",
+      "chapter": 4,
+      "question": "リカバリカタログへの完全再同期が必要になった。Oracleが内部的にスナップショット制御ファイルを使用する目的として最も適切なのはどれか。",
+      "choices": {
+        "A": "ターゲットのデータファイルをイメージコピーして、バックアップの代わりにするため。",
+        "B": "カタログに格納されたRMANスクリプトをファイルシステムへ複製するため。",
+        "C": "カタログDBの制御ファイルを一時コピーし、ターゲットDBの物理ファイルを置き換えるため。",
+        "D": "ターゲットの制御ファイル情報を一貫したスナップショットから読み取り、カタログへ構造情報を同期するため。"
+      },
+      "correctChoice": "D",
+      "correctText": "ターゲットの制御ファイル情報を一貫したスナップショットから読み取り、カタログへ構造情報を同期するため。",
+      "explanation": "正解：D\n\nA（誤り）：データファイルのコピーやバックアップデータの作成とは別のメタデータ処理である。\nB（誤り）：スクリプトはカタログのオブジェクトであり、スナップショット制御ファイルの用途ではない。\nC（誤り）：スナップショットの対象はターゲット制御ファイルであり、カタログDBの制御ファイルを置き換えるものではない。\nD（正しい）：制御ファイルの一貫した読み取り用コピーを用い、完全再同期に必要な物理スキーマ等の情報を取得する。",
+      "topic": "スナップショット制御ファイル",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q013",
+      "chapter": 4,
+      "question": "CATDBにはPRODとTESTが登録され、PRODに接続してローカルストアドスクリプト DAILY を作成した。TESTにTARGET接続を変更して同じスクリプトを実行したい。最も適切な説明はどれか。",
+      "choices": {
+        "A": "DAILYを同名のグローバルスクリプトとして作成すれば、TESTからも利用できる。",
+        "B": "TESTからDAILYを実行するには、PRODのDBIDをTESTと同じ値に変更する必要がある。",
+        "C": "DAILYはRMANクライアントのローカルファイルとして保存されるので、RMAN起動ホストを統一すればTESTでも利用できる。",
+        "D": "DAILYはリカバリカタログにあるので、登録済みのTESTでも同一のローカルスクリプトを実行できる。"
+      },
+      "correctChoice": "A",
+      "correctText": "DAILYを同名のグローバルスクリプトとして作成すれば、TESTからも利用できる。",
+      "explanation": "正解：A\n\nA（正しい）：グローバルストアドスクリプトはリカバリカタログの登録対象DBで共有して利用できる。\nB（誤り）：スクリプトのスコープ制限はDBIDを一致させて解消するものではない。DBIDの重複はカタログ登録に別の問題を起こす。\nC（誤り）：ストアドスクリプトはカタログのスキーマに保存され、RMAN実行ホストのファイルで管理されるものとは異なる。\nD（誤り）：ローカルストアドスクリプトは作成時のターゲットDBに紐づき、すべての登録DBから使用できるわけではない。",
+      "topic": "ストアドスクリプト・対象範囲",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q014",
+      "chapter": 4,
+      "question": "カタログに保存済みのローカルスクリプト WEEKLY の内容を確認し、変更後に実行したい。処理の組合せとして適切なのはどれか。",
+      "choices": {
+        "A": "PRINT SCRIPTで内容を確認し、REPLACE SCRIPTで更新し、EXECUTE SCRIPTで実行する。",
+        "B": "LIST SCRIPT NAMESで内容を確認し、CREATE SCRIPTで上書きし、PRINT SCRIPTで実行する。",
+        "C": "PRINT SCRIPTで内容を確認し、EXECUTE SCRIPTで更新し、REPLACE SCRIPTで実行する。",
+        "D": "REPLACE SCRIPTで内容を確認し、PRINT SCRIPTで更新し、LIST SCRIPT NAMESで実行する。"
+      },
+      "correctChoice": "A",
+      "correctText": "PRINT SCRIPTで内容を確認し、REPLACE SCRIPTで更新し、EXECUTE SCRIPTで実行する。",
+      "explanation": "正解：A\n\nA（正しい）：PRINTは定義表示、REPLACEは定義作成・更新、EXECUTEはスクリプト実行を担当する。\nB（誤り）：LIST SCRIPT NAMESは名前の一覧で内容表示ではない。また既存名での更新はREPLACEを使い、PRINTは実行しない。\nC（誤り）：EXECUTEは保存済みスクリプトの実行で、定義変更には使わない。REPLACEは実行コマンドではない。\nD（誤り）：REPLACEは内容変更、PRINTは表示、LISTは名前一覧であり、各操作の役割が異なる。",
+      "topic": "スクリプト・表示更新実行",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q015",
+      "chapter": 4,
+      "question": "RMANのストアドスクリプトを使って日次バックアップを定型化したい。正しいものを2つ選べ。",
+      "choices": {
+        "A": "グローバルストアドスクリプトは一つのターゲットDBに固定され、他の登録DBでは実行できない。",
+        "B": "カタログ接続なしで作成したローカルRMANストアドスクリプトは、ターゲット制御ファイルに登録され永続利用できる。",
+        "C": "リカバリカタログに接続して作成したストアドスクリプトは、カタログのスキーマ内で管理される。",
+        "D": "ストアドスクリプトにはRUNブロック内で許可されるRMANコマンドを記述できるが、RUNコマンドそのものを内部に入れることはできない。"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "リカバリカタログに接続して作成したストアドスクリプトは、カタログのスキーマ内で管理される。、ストアドスクリプトにはRUNブロック内で許可されるRMANコマンドを記述できるが、RUNコマンドそのものを内部に入れることはできない。",
+      "explanation": "正解：C、D\n\nA（誤り）：グローバルスクリプトはカタログに登録された複数のターゲットから利用できる。\nB（誤り）：ストアドスクリプトはリカバリカタログの機能で、カタログなしの制御ファイルだけに格納するものではない。\nC（正しい）：コマンド列をカタログに保存し、別セッションでも名前を指定して利用できる。\nD（正しい）：保存スクリプトの本体にはRUNブロックで許可されるコマンドを記述するが、RUNや@などを直接含めることはできない。",
+      "topic": "ストアドスクリプト・制約",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch04q016",
+      "chapter": 4,
+      "question": "バックアップピース /backup/prod_01.bkp はディスク上に存在するが、制御ファイルから履歴が失われている。RMANに使用対象として認識させたい。適切なコマンドはどれか。",
+      "choices": {
+        "A": "REGISTER BACKUPPIECE '/backup/prod_01.bkp';",
+        "B": "IMPORT CATALOG BACKUPPIECE '/backup/prod_01.bkp';",
+        "C": "CATALOG BACKUPPIECE '/backup/prod_01.bkp';",
+        "D": "RESYNC CATALOG BACKUPPIECE '/backup/prod_01.bkp';"
+      },
+      "correctChoice": "C",
+      "correctText": "CATALOG BACKUPPIECE '/backup/prod_01.bkp';",
+      "explanation": "正解：C\n\nA（誤り）：REGISTER DATABASEはデータベースのカタログ登録用であり、バックアップピースをREGISTER BACKUPPIECEする構文ではない。\nB（誤り）：IMPORT CATALOGは別のリカバリカタログからメタデータを取り込む処理で、ディスク上のピース登録には使わない。\nC（正しい）：CATALOG BACKUPPIECEはディスク上の既存のバックアップピースをRMANリポジトリへ登録するコマンドである。\nD（誤り）：RESYNC CATALOGはターゲット制御ファイルとリカバリカタログのメタデータ同期であり、指定ファイルを個別登録する構文ではない。",
+      "topic": "バックアップファイル・カタログ化",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q017",
+      "chapter": 4,
+      "question": "/backup/arc/以下に複数のアーカイブログが置かれている。RMANリポジトリに未登録のファイルを、ファイル名の共通先頭文字列を使って一括認識させたい。適切な方法はどれか。",
+      "choices": {
+        "A": "RESYNC CATALOG START WITH '/backup/arc/';",
+        "B": "REGISTER DATABASE START WITH '/backup/arc/';",
+        "C": "IMPORT CATALOG START WITH '/backup/arc/';",
+        "D": "CATALOG START WITH '/backup/arc/';"
+      },
+      "correctChoice": "D",
+      "correctText": "CATALOG START WITH '/backup/arc/';",
+      "explanation": "正解：D\n\nA（誤り）：RESYNC CATALOGは制御ファイルとカタログ間の同期であり、ファイル名接頭辞の探索は行わない。\nB（誤り）：REGISTER DATABASEはターゲットDBを登録するコマンドで、既存ファイルのパス探索には使用しない。\nC（誤り）：IMPORT CATALOGは異なるカタログ・スキーマ間のメタデータ移行でありディレクトリ探索ではない。\nD（正しい）：CATALOG START WITHは指定した文字列で始まるファイルを探索してRMANリポジトリへ登録する。",
+      "topic": "CATALOG START WITH",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q018",
+      "chapter": 4,
+      "question": "OSコマンドでデータファイルを別ディレクトリにコピーし、そのファイルをRMANにバックアップとして利用させたい。コピーはDBの整合性を保った方法で取得済みとする。正しい説明はどれか。",
+      "choices": {
+        "A": "OSコピーをCATALOG DATAFILECOPYで登録すると、そのコピーをRMANのイメージコピーとして管理できる。",
+        "B": "OSコピーをCATALOG BACKUPPIECEで登録すると、RMANバックアップセットへ自動変換される。",
+        "C": "OSコピーをREGISTER DATABASEで登録すると、そのファイルをRMANのイメージコピーとして扱える。",
+        "D": "OSコピーをRESYNC CATALOGで指定すると、バックアップセットに変換して保存される。"
+      },
+      "correctChoice": "A",
+      "correctText": "OSコピーをCATALOG DATAFILECOPYで登録すると、そのコピーをRMANのイメージコピーとして管理できる。",
+      "explanation": "正解：A\n\nA（正しい）：データファイルの物理コピーはRMANのイメージコピーとしてカタログ化できる。元の取得方法が整合性を満たす必要がある。\nB（誤り）：BACKUPPIECEはRMANバックアップピースの登録用であり、単純コピーをバックアップセットへ変換する処理ではない。\nC（誤り）：REGISTER DATABASEはDBID単位でターゲットDBをカタログへ登録するもので、コピー・ファイルの登録には使用しない。\nD（誤り）：RESYNC CATALOGはRMANリポジトリ情報の同期であり、OSコピーの実体形式を変換しない。",
+      "topic": "OSコピー・イメージコピー",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q019",
+      "chapter": 4,
+      "question": "CATDBからPRODをUNREGISTER DATABASEで登録解除した後、同じPRODを再登録する。解除前だけカタログに存在した古いバックアップ履歴やストアドスクリプトについて正しいものはどれか。",
+      "choices": {
+        "A": "UNREGISTER DATABASEはカタログ接続情報だけを消すため、カタログ内の全記録とストアドスクリプトは無条件で残る。",
+        "B": "再登録すると解除前のカタログ固有の履歴とストアドスクリプトがすべて自動復元される。",
+        "C": "再登録で制御ファイル内に残る情報は取り込めるが、解除で失われたカタログ固有の記録やスクリプトを自動復元できるとは限らない。",
+        "D": "UNREGISTER DATABASEはターゲット制御ファイルも初期化するため、再登録に使える情報が必ずなくなる。"
+      },
+      "correctChoice": "C",
+      "correctText": "再登録で制御ファイル内に残る情報は取り込めるが、解除で失われたカタログ固有の記録やスクリプトを自動復元できるとは限らない。",
+      "explanation": "正解：C\n\nA（誤り）：UNREGISTERでは登録対象に属するカタログ記録が削除され、接続情報だけの操作ではない。\nB（誤り）：登録解除はカタログの管理記録を消し、再登録は現在の制御ファイルが持つ情報を基礎とする。失われた古い記録を復元する保証はない。\nC（正しい）：再登録できても、古い記録やカタログ専用のスクリプトは戻らない場合がある。カタログと制御ファイルの保持範囲が異なるためである。\nD（誤り）：UNREGISTERはリカバリカタログから登録情報を削除する操作であり、ターゲットの制御ファイルを初期化するわけではない。",
+      "topic": "カタログ登録解除・影響",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q020",
+      "chapter": 4,
+      "question": "古いカタログOLDから新カタログNEWへ管理情報を移行する。両カタログ・スキーマのバージョンは同じで、NEWは既に作成済みである。IMPORT CATALOGの実行時に適切な接続関係はどれか。",
+      "choices": {
+        "A": "RMANでNEWにTARGET接続し、IMPORT CATALOGでOLDの接続文字列を指定する。",
+        "B": "RMANでOLDにTARGET接続し、IMPORT CATALOGでNEWの接続文字列を指定する。",
+        "C": "RMANでNEWにCATALOG接続し、IMPORT CATALOGでOLDの接続文字列を指定する。",
+        "D": "RMANでOLDにCATALOG接続し、IMPORT CATALOGでNEWの接続文字列を指定する。"
+      },
+      "correctChoice": "C",
+      "correctText": "RMANでNEWにCATALOG接続し、IMPORT CATALOGでOLDの接続文字列を指定する。",
+      "explanation": "正解：C\n\nA（誤り）：NEWはカタログデータベースなのでCATALOG接続が必要であり、TARGET接続の役割とは異なる。\nB（誤り）：取り込み元をTARGETとしたうえで移行先を指定する構文ではない。\nC（正しい）：IMPORT CATALOGの接続先は取り込み先の既存カタログであり、コマンド引数で取り込み元を指定する。\nD（誤り）：IMPORTの実行主体は取り込み先のカタログで、取り込み元にCATALOG接続して実行するのは方向が逆になる。",
+      "topic": "カタログ移行・接続",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q021",
+      "chapter": 4,
+      "question": "同一バージョンのOLDとNEWのカタログ間で、OLDの情報をNEWにIMPORT CATALOGで取り込みたい。取り込み成功後もOLD側のDB登録を残したい場合の指定はどれか。",
+      "choices": {
+        "A": "IMPORT CATALOGのUNREGISTER句を使用する。",
+        "B": "IMPORT CATALOG実行前にOLDでUNREGISTER DATABASEを実行する。",
+        "C": "IMPORT CATALOG実行後にNEWでUNREGISTER DATABASEを実行する。",
+        "D": "IMPORT CATALOGのNO UNREGISTER句を使用する。"
+      },
+      "correctChoice": "D",
+      "correctText": "IMPORT CATALOGのNO UNREGISTER句を使用する。",
+      "explanation": "正解：D\n\nA（誤り）：UNREGISTERを付けると登録を残すという指定ではない。残したい場合の明示的オプションはNO UNREGISTERである。\nB（誤り）：事前に元カタログから登録解除すると、取り込みたい管理情報を失いかねず、移行目的と逆になる。\nC（誤り）：移行先の登録を解除すればNEWに移す目的自体を損なう。\nD（正しい）：IMPORT CATALOGは通常、取り込んだDB登録を元カタログから解除する。NO UNREGISTERを指定すると元の登録を維持できる。",
+      "topic": "カタログ移行・NO UNREGISTER",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q022",
+      "chapter": 4,
+      "question": "IMPORT CATALOGでOLDからNEWへ移行したい。NEWはリカバリカタログとして作成済みだが、OLDとNEWのカタログ・スキーマのバージョンが異なる。適切な対応はどれか。",
+      "choices": {
+        "A": "バージョンの違いを無視し、IMPORT CATALOGのNO UNREGISTERを付けて実行する。",
+        "B": "取り込み前にカタログ・スキーマのバージョンをそろえてからIMPORT CATALOGを行う。",
+        "C": "RESYNC CATALOGをOLDで実行するとNEWのカタログ・スキーマのバージョンも一致する。",
+        "D": "NEWにターゲットをREGISTER DATABASEしてからIMPORT CATALOGを実行すれば、バージョンの差異は自動吸収される。"
+      },
+      "correctChoice": "B",
+      "correctText": "取り込み前にカタログ・スキーマのバージョンをそろえてからIMPORT CATALOGを行う。",
+      "explanation": "正解：B\n\nA（誤り）：NO UNREGISTERは元カタログから登録を解除するかどうかの制御であり、バージョン互換性を変えない。\nB（正しい）：IMPORT CATALOGでは元と先のカタログ・スキーマの現行バージョンが一致することが前提となる。必要に応じてUPGRADE CATALOGでそろえる。\nC（誤り）：RESYNCはターゲットメタデータ同期であり、別カタログのスキーマバージョンを変更しない。\nD（誤り）：既存DBの登録やスキーマバージョンの不一致は別問題であり、REGISTERは互換性解決の操作ではない。",
+      "topic": "カタログ移行・障害条件",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q023",
+      "chapter": 4,
+      "question": "共通カタログには業務DB A、B、Cが登録されている。管理者U1にはAとBだけ、U2にはCだけのバックアップ管理を委任し、同じ基盤の管理情報を利用したい。最も適切な設計はどれか。",
+      "choices": {
+        "A": "ターゲットDBのCONTROL_FILE_RECORD_KEEP_TIMEを別々に設定してカタログ閲覧範囲を制御する。",
+        "B": "同一カタログのDBごとにDBIDを変更し、管理者ごとに識別子を分ける。",
+        "C": "各管理者にRECOVERY_CATALOG_OWNERロールを与え、同一カタログのすべてのDBを管理させる。",
+        "D": "仮想プライベートカタログを使用し、管理者に対象DB単位のカタログ権限を与える。"
+      },
+      "correctChoice": "D",
+      "correctText": "仮想プライベートカタログを使用し、管理者に対象DB単位のカタログ権限を与える。",
+      "explanation": "正解：D\n\nA（誤り）：レコード保持設定はメタデータの再利用時期に関係する。ユーザーごとのアクセス制御は行わない。\nB（誤り）：DBIDはDB識別子であり、カタログの閲覧権限を切り分けるための値ではない。\nC（誤り）：基本カタログ所有者には広範な管理権限があり、DB単位に管理範囲を分離したい要求に合わない。\nD（正しい）：仮想プライベートカタログは共通カタログのメタデータを利用しつつ、割当対象DBにアクセスを限定できる。",
+      "topic": "仮想プライベートカタログ",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q024",
+      "chapter": 4,
+      "question": "仮想プライベートカタログを用いて、管理者UにはDB Aだけを割り当てている。基本カタログにはグローバルストアドスクリプトが存在する。Uの制約として正しいものを2つ選べ。",
+      "choices": {
+        "A": "Uは仮想プライベートカタログに接続すると、割り当てられていないDB Bも自動的に管理できる。",
+        "B": "Uはグローバルスクリプトを利用するには、基本カタログの所有者になる必要がある。",
+        "C": "Uは割り当てられたDB Aについて、許可範囲内のカタログ管理情報にアクセスできる。",
+        "D": "Uは基本カタログに存在するグローバルスクリプトを参照できるが、自分で新規グローバルスクリプトを作成できない。"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "Uは割り当てられたDB Aについて、許可範囲内のカタログ管理情報にアクセスできる。、Uは基本カタログに存在するグローバルスクリプトを参照できるが、自分で新規グローバルスクリプトを作成できない。",
+      "explanation": "正解：C、D\n\nA（誤り）：割当のないDBへの管理権限は付与されない。カタログ共有と無制限アクセスは異なる。\nB（誤り）：グローバルスクリプトの参照・利用と、基本カタログを所有して作成・変更する権限は異なる。\nC（正しい）：VPCユーザーは基本カタログから許可されたターゲットDBに限ってメタデータを利用できる。\nD（正しい）：グローバルスクリプトは基本カタログで管理され、VPCユーザーは参照専用で、新規作成や変更ができない。",
+      "topic": "VPC・グローバルスクリプト",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch04q025",
+      "chapter": 4,
+      "question": "Oracle Database 19cの基本リカバリカタログで仮想プライベートカタログを構成する。管理者ごとのアクセス制限に使う基盤と、教材中で指定された有効化用スクリプトの組合せとして正しいものはどれか。",
+      "choices": {
+        "A": "DBIDモデルを使用し、dbmsrmansys.sqlだけで管理者ごとのVPDサポートを有効化する。",
+        "B": "共有UNDOモデルを使用し、DBNEWIDで基本カタログのVPDサポートを有効化する。",
+        "C": "RMANリポジトリモデルを使用し、RESYNC CATALOGでVPDサポートを有効化する。",
+        "D": "VPDモデルを使用し、dbmsrmanvpc.sqlで基本カタログのVPDサポートを有効化する。"
+      },
+      "correctChoice": "D",
+      "correctText": "VPDモデルを使用し、dbmsrmanvpc.sqlで基本カタログのVPDサポートを有効化する。",
+      "explanation": "正解：D\n\nA（誤り）：DBIDはDBの識別子でありアクセス制御モデルではない。dbmsrmansys.sqlは別の権限準備に関係する。\nB（誤り）：UNDOモードとDBNEWIDはVPDアクセス制御の有効化に関係しない。\nC（誤り）：RESYNC CATALOGはメタデータ同期で、VPDの有効化を行う機能ではない。\nD（正しい）：19cの仮想プライベートカタログはOracle VPDを基盤とし、基本カタログでdbmsrmanvpc.sqlを用いてVPDのサポートを有効化する。",
+      "topic": "VPC・VPDサポート",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q026",
+      "chapter": 4,
+      "question": "カタログDB障害時にも業務DBのバックアップ管理を維持したい。カタログに保管される情報と可用性の関係として正しいものを2つ選べ。",
+      "choices": {
+        "A": "リカバリカタログは複数ターゲットの履歴を一元管理できるが、カタログ用DB自身のバックアップ・監視は必要である。",
+        "B": "ターゲットの制御ファイルはカタログ利用中も管理情報を持つため、カタログ障害時にも一部のRMAN作業をカタログなしで実行できる。",
+        "C": "カタログに登録した時点でターゲット制御ファイルからバックアップ記録は削除され、CATDB以外から参照できなくなる。",
+        "D": "カタログ用DBを同じディスクに置くと、ターゲット制御ファイルの障害から自動的に保護される。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "リカバリカタログは複数ターゲットの履歴を一元管理できるが、カタログ用DB自身のバックアップ・監視は必要である。、ターゲットの制御ファイルはカタログ利用中も管理情報を持つため、カタログ障害時にも一部のRMAN作業をカタログなしで実行できる。",
+      "explanation": "正解：A、B\n\nA（正しい）：カタログは独立したDBのスキーマ内にあるため、カタログDB自体が管理・保護対象となる。\nB（正しい）：カタログは追加の管理情報源だが、ターゲット制御ファイルにもRMAN管理情報が残る。\nC（誤り）：登録によってターゲット制御ファイルから情報がすべて移動するわけではない。\nD（誤り）：同一ディスク上ではメディア障害が共通原因となりうる。保存先を分けるなどの障害分離を考慮する。",
+      "topic": "カタログDB管理",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch04q027",
+      "chapter": 4,
+      "question": "同じカタログ内でPROD用のローカルスクリプト DAILY が存在する。TEST用にも同名のローカルスクリプト DAILY を作成したい。正しい説明はどれか。",
+      "choices": {
+        "A": "TESTでDAILYを作成するには、必ずPRODのDAILYをグローバルスクリプトに変換してから作成する。",
+        "B": "ローカルスクリプトはDB単位に関連付くため、TESTをTARGET接続して同名スクリプトを作成できる。",
+        "C": "ローカルスクリプト名はカタログ全体で一意なので、TEST側では同名を作成できない。",
+        "D": "TESTでDAILYを作成すると、同名のPROD用ローカルスクリプトは必ず上書きされる。"
+      },
+      "correctChoice": "B",
+      "correctText": "ローカルスクリプトはDB単位に関連付くため、TESTをTARGET接続して同名スクリプトを作成できる。",
+      "explanation": "正解：B\n\nA（誤り）：グローバルへの変換は必要ない。異なるターゲットのローカルスクリプトは同名でも区別できる。\nB（正しい）：ローカルスクリプトは接続したターゲットごとに管理されるため、異なるターゲットで同じ名前を使うことができる。\nC（誤り）：グローバルスクリプトはカタログ全体に適用されるが、ローカルスクリプトの同名制約はターゲット単位である。\nD（誤り）：他のターゲットに関連付いた同名ローカルスクリプトを自動で上書きしない。",
+      "topic": "スクリプト名衝突",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q028",
+      "chapter": 4,
+      "question": "PROD向けのローカルスクリプト DAILY が既に存在する。既存の名前を維持したままコマンド列を変更する最も適切なコマンドはどれか。",
+      "choices": {
+        "A": "EXECUTE SCRIPT DAILY { ... }",
+        "B": "PRINT SCRIPT DAILY { ... }",
+        "C": "CREATE SCRIPT DAILY { ... }",
+        "D": "REPLACE SCRIPT DAILY { ... }"
+      },
+      "correctChoice": "D",
+      "correctText": "REPLACE SCRIPT DAILY { ... }",
+      "explanation": "正解：D\n\nA（誤り）：EXECUTE SCRIPTは保存済み定義の実行用であり、定義の本体を変更するコマンドではない。\nB（誤り）：PRINT SCRIPTは保存済み定義の表示用であり、変更用コマンドではない。\nC（誤り）：CREATE SCRIPTは通常、新規スクリプト作成に使い、同じターゲットに既存の同名ローカルスクリプトがある場合は既存定義の上書き用ではない。\nD（正しい）：REPLACE SCRIPTは既存スクリプト定義の更新に用いる。スクリプトがまだ存在しない場合には新規作成としても機能する。",
+      "topic": "スクリプト・REPLACE",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch04q029",
+      "chapter": 4,
+      "question": "CATDBにカタログは存在するがPRODはREGISTER DATABASEを実行していない。PRODの制御ファイルは正常で、RMANクライアントはPRODへ接続できる。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "カタログにPRODの履歴を継続的に蓄積するには、PRODをカタログへ登録する必要がある。",
+        "B": "CATDBにカタログが存在する以上、PRODのバックアップを行う前にCREATE CATALOGを必ず再実行する。",
+        "C": "PRODが未登録なら、RMANはTARGETへ接続できても制御ファイルにバックアップ履歴を残せない。",
+        "D": "PRODはカタログ未登録でも、制御ファイルを使用してRMANでバックアップできる。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "カタログにPRODの履歴を継続的に蓄積するには、PRODをカタログへ登録する必要がある。、PRODはカタログ未登録でも、制御ファイルを使用してRMANでバックアップできる。",
+      "explanation": "正解：A、D\n\nA（正しい）：カタログ側にターゲットDBの管理情報を保持するには登録処理を行う。\nB（誤り）：カタログ自体は既に作成されており、DB追加ごとにCREATE CATALOGするものではない。\nC（誤り）：RMANのメタデータはターゲットの制御ファイルに保存される。未登録であってもその基本動作は変わらない。\nD（正しい）：カタログはオプションのため、ターゲット制御ファイルを使用する通常のRMANバックアップは可能である。",
+      "topic": "作成済・未登録DB",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch04q030",
+      "chapter": 4,
+      "question": "まだリカバリカタログが存在しないCATDBへ、PRODを登録する。CATDBのデータベースと表領域は作成済みとする。次の処理の順序として正しいものはどれか。\n\n① カタログ所有者にRECOVERY_CATALOG_OWNERロールと必要な表領域割当てを設定\n② RMANで所有者としてCATDBへCATALOG接続しCREATE CATALOG\n③ RMANでPRODへTARGET接続、CATDBへCATALOG接続してREGISTER DATABASE",
+      "choices": {
+        "A": "① → ② → ③",
+        "B": "① → ③ → ②",
+        "C": "② → ① → ③",
+        "D": "③ → ② → ①"
+      },
+      "correctChoice": "A",
+      "correctText": "① → ② → ③",
+      "explanation": "正解：A\n\nA（正しい）：カタログ作成に必要な所有者の権限と領域を準備してからカタログを作り、その後ターゲットDBを登録する。\nB（誤り）：カタログ作成前にはREGISTER DATABASEの登録先オブジェクトがない。\nC（誤り）：所有者の権限を確保してからCREATE CATALOGを実行する必要がある。\nD（誤り）：カタログオブジェクトの作成前にターゲット登録を行うことはできず、必要な順序が逆である。",
+      "topic": "登録手順の順序",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch05q001",
+      "chapter": 5,
+      "question": "19cのCDBをARCHIVELOGモードで運用し、RMANで次のコマンドを実行した。制御ファイル自動バックアップはOFF、SPFILEを使用して起動している。バックアップ対象について正しいものを2つ選べ。\n\nBACKUP DATABASE;",
+      "choices": {
+        "A": "オンラインREDOログはデータファイルとともにバックアップセットへ格納される。",
+        "B": "データファイルだけでなく制御ファイルもバックアップ対象となる。",
+        "C": "SPFILEはバックアップに含まれるが、テキスト形式のPFILEは含まれない。",
+        "D": "アーカイブREDOログもコマンドだけで必ず同時にバックアップされる。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "データファイルだけでなく制御ファイルもバックアップ対象となる。、SPFILEはバックアップに含まれるが、テキスト形式のPFILEは含まれない。",
+      "explanation": "正解：B、C\n\nA（誤り）：オンラインREDOログそのものはBACKUP DATABASEのバックアップ対象外であり、復旧用のREDOは別に保護する。\nB（正しい）：RMANはデータベース全体のバックアップで制御ファイルを含められる。自動バックアップ設定OFFとは異なる論点である。\nC（正しい）：使用中SPFILEはRMANがバックアップできる。一方、OS上のテキストPFILEはBACKUP DATABASEの対象外である。\nD（誤り）：アーカイブログを同時にバックアップするにはPLUS ARCHIVELOG等の指定が必要である。",
+      "topic": "バックアップ対象",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch05q002",
+      "chapter": 5,
+      "question": "DBAはデータベース全体のRMANバックアップのみを別ディスクに保存している。障害後に必要となる構成の保護について、正しいものはどれか。",
+      "choices": {
+        "A": "Oracle Homeのソフトウェアとネットワーク設定は、RMANのDB全体バックアップとは別の保護策を検討する。",
+        "B": "TEMP表領域の一時ファイルをリストアできない限り、データベースのOPENは不可能である。",
+        "C": "オンラインREDOログのバックアップを取得しないと、BACKUP DATABASEコマンド自体が失敗する。",
+        "D": "パスワードファイルとlistener.oraはBACKUP DATABASEに含まれるため別途保護不要である。"
+      },
+      "correctChoice": "A",
+      "correctText": "Oracle Homeのソフトウェアとネットワーク設定は、RMANのDB全体バックアップとは別の保護策を検討する。",
+      "explanation": "正解：A\n\nA（正しい）：RMANのDBバックアップはDBファイル中心で、Oracle Homeやlistener.ora等のOS管理対象は別の再導入・バックアップ方針が必要となる。\nB（誤り）：一時ファイルはRMANの通常バックアップ対象ではなく、必要に応じて再作成できる。\nC（誤り）：オンラインREDOログは通常RMANのバックアップ対象に含まれず、バックアップコマンド成功の前提ではない。\nD（誤り）：認証ファイルやOracle Net構成ファイルは通常のBACKUP DATABASEに含まれず、再作成や別のOSバックアップを検討する。",
+      "topic": "バックアップの範囲",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch05q003",
+      "chapter": 5,
+      "question": "ディスクチャネルのデフォルトはBACKUPSETである。今回だけデータファイル7をイメージコピー形式で取得したい。適切なコマンドはどれか。",
+      "choices": {
+        "A": "BACKUP AS BACKUPSET DATAFILE 7;",
+        "B": "BACKUP AS COPY DATAFILE 7;",
+        "C": "CONFIGURE DEVICE TYPE DISK BACKUP TYPE TO COPY;",
+        "D": "BACKUP DATABASE PLUS ARCHIVELOG;"
+      },
+      "correctChoice": "B",
+      "correctText": "BACKUP AS COPY DATAFILE 7;",
+      "explanation": "正解：B\n\nA（誤り）：AS BACKUPSETは既定どおりバックアップセットを生成する。\nB（正しい）：BACKUP AS COPYはその実行に対してイメージコピーを明示するため、永続的なBACKUPSET設定を上書きする。\nC（誤り）：これは永続設定の変更であり、今回の実行だけイメージコピーにするという要求を満たさない。\nD（誤り）：データベース全体とアーカイブログが対象となり、データファイル7だけをイメージコピーにする指定ではない。",
+      "topic": "BACKUPの明示指定",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch05q004",
+      "chapter": 5,
+      "question": "USERSとDATAの2表領域がある。DBAは今回DATAのみをバックアップした後、DATA以外の表領域の障害にも今回のバックアップだけで備えられると考えた。正しい評価はどれか。",
+      "choices": {
+        "A": "BACKUP TABLESPACE DATAは全データファイルを自動的に含むので問題ない。",
+        "B": "BACKUP TABLESPACE DATAは必ずDATAのデータファイルとオンラインREDOログを一緒にバックアップする。",
+        "C": "BACKUP TABLESPACE DATAではDATAのデータファイルを対象にできるが、他表領域を守るには別途バックアップが必要である。",
+        "D": "BACKUP TABLESPACE DATAは必ずイメージコピーで、BACKUP DATABASEは必ずバックアップセットになる。"
+      },
+      "correctChoice": "C",
+      "correctText": "BACKUP TABLESPACE DATAではDATAのデータファイルを対象にできるが、他表領域を守るには別途バックアップが必要である。",
+      "explanation": "正解：C\n\nA（誤り）：対象表領域内のデータファイルに限られ、他の表領域のデータファイルは含まれない。\nB（誤り）：表領域バックアップはオンラインREDOログそのものをバックアップしない。\nC（正しい）：表領域単位のバックアップは部分バックアップであり、データベース全体の保護とは区別する。\nD（誤り）：いずれも明示指定やデバイスごとの既定形式によって形式を選べる。",
+      "topic": "表領域と全体",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch05q005",
+      "chapter": 5,
+      "question": "ARCHIVELOGモードのDBをOPENした状態でRMANのBACKUP DATABASEを実行した。バックアップの整合性と復旧について正しいものを2つ選べ。",
+      "choices": {
+        "A": "OPEN中に取得したデータファイルはファイル間で完全に同一SCNが保証されるのでREDOは不要である。",
+        "B": "RMANのバックアップ自体は実行できるが、取得されるデータファイルは非一貫性バックアップとして扱う。",
+        "C": "ARCHIVELOG運用なら、必要なREDOを確保することがオンラインバックアップからの復旧で重要になる。",
+        "D": "OPEN中のバックアップは、必ずSHUTDOWN ABORTを実行してからRESTOREする必要がある。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "RMANのバックアップ自体は実行できるが、取得されるデータファイルは非一貫性バックアップとして扱う。、ARCHIVELOG運用なら、必要なREDOを確保することがオンラインバックアップからの復旧で重要になる。",
+      "explanation": "正解：B、C\n\nA（誤り）：オンラインバックアップでは取得時点が揃わないため、復旧時にREDOを利用して整合性を合わせる。\nB（正しい）：OPEN中は更新と並行して取得するため、一貫性のある停止状態から取得したバックアップとは異なる。\nC（正しい）：バックアップ中の更新を含む変更を適用するため、必要なアーカイブREDOやオンラインREDOを利用できる必要がある。\nD（誤り）：バックアップ取得時に異常停止は不要で、復旧時の操作は障害の種類で決まる。",
+      "topic": "ARCHIVELOGとOPEN",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch05q006",
+      "chapter": 5,
+      "question": "NOARCHIVELOGモードのDBで停止時間を確保して一貫性バックアップを取得したい。直前の停止はSHUTDOWN ABORTであった。最も適切な対応はどれか。",
+      "choices": {
+        "A": "直ちにSTARTUP MOUNTし、未回復のままBACKUP DATABASEを実行すれば一貫性バックアップになる。",
+        "B": "SHUTDOWN ABORTの直後はバックアップセットなら一貫性、イメージコピーなら非一貫性と判定する。",
+        "C": "BACKUP DATABASE PLUS ARCHIVELOGで、NOARCHIVELOGモードでもOPEN中に一貫性バックアップを取得できる。",
+        "D": "OPENでインスタンスリカバリを完了させた後、正常停止し、MOUNTしてバックアップする。"
+      },
+      "correctChoice": "D",
+      "correctText": "OPENでインスタンスリカバリを完了させた後、正常停止し、MOUNTしてバックアップする。",
+      "explanation": "正解：D\n\nA（誤り）：ABORT停止後は回復を要する可能性があり、MOUNTしただけで一貫性が保証されるわけではない。\nB（誤り）：整合性は停止状態とデータファイルの回復要否に関係し、保存形式だけで決まらない。\nC（誤り）：PLUS ARCHIVELOGはNOARCHIVELOGでのオンラインバックアップを一貫性バックアップへ変えるものではない。\nD（正しい）：異常停止後の回復を完了し、整合した停止状態でバックアップを取得する手順が適切である。",
+      "topic": "NOARCHIVELOGの一貫性",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch05q007",
+      "chapter": 5,
+      "question": "ARCHIVELOGモードのOPEN中に、バックアップ最適化OFFで次を実行する。内部で行われる主要処理の順序として正しいものはどれか。\n\nBACKUP DATABASE PLUS ARCHIVELOG;\n\n① データベースファイルをバックアップ\n② ログスイッチし、直近のREDOをアーカイブ\n③ 既存アーカイブログをバックアップ\n④ 再度ログスイッチし、バックアップ中のアーカイブログをバックアップ",
+      "choices": {
+        "A": "② → ③ → ① → ④",
+        "B": "② → ① → ③ → ④",
+        "C": "① → ② → ③ → ④",
+        "D": "③ → ① → ② → ④"
+      },
+      "correctChoice": "A",
+      "correctText": "② → ③ → ① → ④",
+      "explanation": "正解：A\n\nA（正しい）：最初にログをアーカイブし、既存アーカイブログを保護してからDBをバックアップし、末尾のログを改めて保護する。\nB（誤り）：最初のログスイッチの後に、既存アーカイブログのバックアップを先に行う。\nC（誤り）：DBバックアップ前に直近REDOを確定し、その時点のアーカイブログを先に取得するのが主な流れである。\nD（誤り）：既存アーカイブログのバックアップ前に最初のログスイッチを実行するため、この順序ではない。",
+      "topic": "PLUS ARCHIVELOG処理順",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch05q008",
+      "chapter": 5,
+      "question": "DBAはARCHIVELOGモードのOPEN DBで、通常のBACKUP DATABASEではなくBACKUP DATABASE PLUS ARCHIVELOGを定期実行する方針とした。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "アーカイブログをDB本体のバックアップ前後に取得し、バックアップ中に生成されたREDOを保護しやすくする。",
+        "B": "オンラインREDOログの物理ファイルもDBバックアップセットに直接含められる。",
+        "C": "元のアーカイブログはDELETE INPUTがなければ必ず削除される。",
+        "D": "コマンド開始前のカレントREDOをアーカイブ対象にするため、ログスイッチを実施する。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "アーカイブログをDB本体のバックアップ前後に取得し、バックアップ中に生成されたREDOを保護しやすくする。、コマンド開始前のカレントREDOをアーカイブ対象にするため、ログスイッチを実施する。",
+      "explanation": "正解：A、D\n\nA（正しい）：PLUS ARCHIVELOGでは前後にアーカイブログを取得することで、DBバックアップを復旧するためのログをまとめて保護できる。\nB（誤り）：オンラインREDOそのものをバックアップする指定ではなく、アーカイブされたREDOを取得する。\nC（誤り）：削除はDELETE INPUT等の指定や別途の管理方針に依存し、PLUS ARCHIVELOGだけで削除を指示しない。\nD（正しい）：最初のアーカイブログ取得に先立って現行ログをアーカイブする。",
+      "topic": "PLUS ARCHIVELOGの目的",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch05q009",
+      "chapter": 5,
+      "question": "ARCHIVELOGモードのDBで次を実行し、正常終了した。コマンドの効果について正しいものはどれか。\n\nBACKUP DATABASE PLUS ARCHIVELOG DELETE INPUT;",
+      "choices": {
+        "A": "DBの元データファイルと、バックアップ済みのアーカイブログの双方を削除する。",
+        "B": "正常にバックアップされた入力アーカイブログを削除し、アーカイブ先の空き領域を確保できる。",
+        "C": "アーカイブログはバックアップ対象になるが、DELETE INPUTはバックアップピースを削除する。",
+        "D": "既存の制御ファイル・SPFILEだけを削除し、データファイルは残す。"
+      },
+      "correctChoice": "B",
+      "correctText": "正常にバックアップされた入力アーカイブログを削除し、アーカイブ先の空き領域を確保できる。",
+      "explanation": "正解：B\n\nA（誤り）：DELETE INPUTの対象はバックアップされた入力アーカイブログであり、元データファイルは削除しない。\nB（正しい）：取得したアーカイブログの入力ファイルを削除するので、バックアップを保持しつつ元の保管先を解放できる。\nC（誤り）：BACKUPのDELETE INPUTは原本のアーカイブログを削除する指定で、出力済みバックアップを消す意味ではない。\nD（誤り）：DELETE INPUTは制御ファイルやSPFILEを削除する指定ではない。",
+      "topic": "DELETE INPUT",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch05q010",
+      "chapter": 5,
+      "question": "DBAが次の2つのコマンドについて比較した。バックアップ最適化OFF、同じARCHIVELOGモードのDBとする。正しいものを2つ選べ。\n\n① BACKUP DATABASE;\n② BACKUP DATABASE PLUS ARCHIVELOG;",
+      "choices": {
+        "A": "①でもアーカイブREDOログはデータファイルと一緒に必ず取得される。",
+        "B": "②はDBとアーカイブログ双方をバックアップし、前後にログスイッチを伴う。",
+        "C": "②を実行するとオンラインREDOログのファイルをそのままイメージコピーとして取得する。",
+        "D": "①のバックアップをリカバリに用いる場合、必要なアーカイブREDOを別途保持しているかが重要になる。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "②はDBとアーカイブログ双方をバックアップし、前後にログスイッチを伴う。、①のバックアップをリカバリに用いる場合、必要なアーカイブREDOを別途保持しているかが重要になる。",
+      "explanation": "正解：B、D\n\nA（誤り）：①はデータベースファイル主体であり、アーカイブログを同時取得する指定ではない。\nB（正しい）：PLUS ARCHIVELOGではDBバックアップ前後のアーカイブログ取得を伴う。\nC（誤り）：REDOの内容をアーカイブして取得するのであり、オンラインログファイルを直接コピーするわけではない。\nD（正しい）：オンラインバックアップから変更を追いつかせるために必要なREDOの保管状況が復旧可能性を左右する。",
+      "topic": "バックアップ対象と復旧",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch05q011",
+      "chapter": 5,
+      "question": "デバイスDISKの既定形式がBACKUPSETで、次の2つを同じDBで実行する。正しい説明はどれか。\n\n① BACKUP DATABASE;\n② BACKUP AS COPY DATABASE;",
+      "choices": {
+        "A": "①も②も、デバイス既定がBACKUPSETなのでバックアップセットになる。",
+        "B": "①はイメージコピー、②はバックアップセットとなる。",
+        "C": "①はバックアップセット、②はイメージコピーとなる。",
+        "D": "①と②は同じバックアップ形式だが、ファイル名だけ異なる。"
+      },
+      "correctChoice": "C",
+      "correctText": "①はバックアップセット、②はイメージコピーとなる。",
+      "explanation": "正解：C\n\nA（誤り）：②の明示的なAS COPYがデバイス既定より優先される。\nB（誤り）：設定およびAS COPYの意味が逆である。\nC（正しい）：明示指定のない①にはデフォルトを適用し、②では実行単位の指定が優先する。\nD（誤り）：バックアップセットとイメージコピーは物理的な形式が異なる。",
+      "topic": "BACKUPの形式設定",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch05q012",
+      "chapter": 5,
+      "question": "ARCHIVELOGモードで毎夜BACKUP DATABASEだけを取得する。データファイル破損を翌夕に検出した。バックアップ以降の変更をできるだけ失わず復旧したい。適切な評価はどれか。",
+      "choices": {
+        "A": "BACKUP DATABASEが完了しているので、その後のREDO保管状況に関係なく障害直前まで回復できる。",
+        "B": "ARCHIVELOGモードではバックアップ以降の変更が制御ファイルにすべて保存されるためREDOは不要である。",
+        "C": "翌夕の障害であればRESTOREを省略し、昨日のBACKUP DATABASEをそのままMOUNTする。",
+        "D": "前夜のDBバックアップとは別に必要なアーカイブREDOとオンラインREDOを確保できているか確認する。"
+      },
+      "correctChoice": "D",
+      "correctText": "前夜のDBバックアップとは別に必要なアーカイブREDOとオンラインREDOを確保できているか確認する。",
+      "explanation": "正解：D\n\nA（誤り）：バックアップ後の変更を再適用するためのREDOがなければ、その時点までの回復を保証できない。\nB（誤り）：制御ファイルは管理情報を持つが、データ変更のロールフォワードに必要なREDOの代わりではない。\nC（誤り）：バックアップセットはそのまま現用ファイルとしてMOUNTする構造ではなく、必要に応じてリストアする。\nD（正しい）：データファイルをバックアップから戻した後、変更を再適用するには必要なREDO系列を利用できる必要がある。",
+      "topic": "復旧に必要なファイル",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch06q001",
+      "chapter": 6,
+      "question": "DBAは日曜にレベル0、月〜土曜にレベル1差分バックアップを取得する。レベル0について正しい説明を2つ選べ。",
+      "choices": {
+        "A": "レベル0は変更されたブロックのみを含み、未変更ブロックはレベル1で取得する。",
+        "B": "レベル0はバックアップセット形式でもイメージコピー形式でも取得できる。",
+        "C": "レベル0と通常の全体バックアップは常に同じ増分チェーンの基点として扱われる。",
+        "D": "レベル0はその後のレベル1増分を利用した復旧の基点になる。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "レベル0はバックアップセット形式でもイメージコピー形式でも取得できる。、レベル0はその後のレベル1増分を利用した復旧の基点になる。",
+      "explanation": "正解：B、D\n\nA（誤り）：レベル0は増分の基点として必要なブロック全体を取得する。\nB（正しい）：増分の基点となるレベル0は両方の形式を利用できる。\nC（誤り）：通常の全体バックアップはレベル0として認識されず、レベル1の増分基点とは別である。\nD（正しい）：レベル1の変更ブロックを適用する先として、レベル0のバックアップが基準となる。",
+      "topic": "レベル0と全体",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch06q002",
+      "chapter": 6,
+      "question": "日曜にレベル0、月曜にレベル1差分、火曜にレベル1差分を取得した。水曜にレベル1累積を取得するとき、主にどの変更を対象とするか。",
+      "choices": {
+        "A": "日曜のレベル0取得後に変更されたブロック。",
+        "B": "月曜のレベル1差分取得後の変更だけ。",
+        "C": "火曜のレベル1差分取得後の変更だけ。",
+        "D": "日曜以前の全データブロックと水曜までの変更ブロック。"
+      },
+      "correctChoice": "A",
+      "correctText": "日曜のレベル0取得後に変更されたブロック。",
+      "explanation": "正解：A\n\nA（正しい）：累積レベル1は直近レベル0を基準に変更ブロックを取り込む。\nB（誤り）：累積は直近のレベル1差分を基準にはしない。\nC（誤り）：直近増分以降は差分方式の基準であり、累積はレベル0を基準にする。\nD（誤り）：累積レベル1はレベル0相当の全ブロックを再取得する方式ではない。",
+      "topic": "差分と累積",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch06q003",
+      "chapter": 6,
+      "question": "日曜レベル0、月曜・火曜・水曜レベル1差分があり、木曜にデータファイルを失った。水曜以降の必要なREDOも利用可能。適切な復旧の考え方はどれか。",
+      "choices": {
+        "A": "日曜のレベル0だけをリストアし、レベル1を無視することがRMANの通常選択である。",
+        "B": "日曜のレベル0を復元後、必要なレベル1を順に適用し、残りのREDOでリカバリする。",
+        "C": "水曜のレベル1差分だけをRESTOREすれば、レベル0は不要である。",
+        "D": "月曜・火曜・水曜のレベル1を復元した時点で、木曜までのREDO適用は不要となる。"
+      },
+      "correctChoice": "B",
+      "correctText": "日曜のレベル0を復元後、必要なレベル1を順に適用し、残りのREDOでリカバリする。",
+      "explanation": "正解：B\n\nA（誤り）：レベル1に変更ブロックが含まれているため、適用して回復作業を効率化できる。\nB（正しい）：差分増分は直近増分以降の変更を含むので、連続した増分を適用し残りをREDOで追いつかせる。\nC（誤り）：レベル1差分には全データブロックがなく、基点となるバックアップが必要である。\nD（誤り）：最後のレベル1後に発生した変更は必要なREDOで回復する。",
+      "topic": "復旧時の増分適用",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch06q004",
+      "chapter": 6,
+      "question": "日曜レベル0、月〜木曜は毎日レベル1累積を取得している。木曜の累積が正常に取得できた後、金曜に障害が発生した。水曜の累積が使用できない場合について正しいものはどれか。",
+      "choices": {
+        "A": "日曜のレベル0は木曜の累積に取り込まれるので、金曜のリストア時には不要となる。",
+        "B": "木曜の累積は水曜の累積を前提に作られているため水曜がなければ使えない。",
+        "C": "木曜の累積には日曜以降の変更が含まれるため、水曜累積がなくてもレベル0との組み合わせで利用できる。",
+        "D": "木曜の累積と木曜以降のREDOだけで、日曜のレベル0を一切使わずに復元できる。"
+      },
+      "correctChoice": "C",
+      "correctText": "木曜の累積には日曜以降の変更が含まれるため、水曜累積がなくてもレベル0との組み合わせで利用できる。",
+      "explanation": "正解：C\n\nA（誤り）：累積レベル1だけでは全データブロックを保持しないので、レベル0の基点は必要である。\nB（誤り）：これは差分方式と累積方式の基準を混同した説明である。\nC（正しい）：累積は直近レベル0以降の変更ブロックを含むので、中間の累積がなくても最新累積を適用できる。\nD（誤り）：累積増分は元のデータファイル全体の代替にはならない。",
+      "topic": "差分累積の運用",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch06q005",
+      "chapter": 6,
+      "question": "DBは毎日レベル1差分を取得するが、変更ブロックが少ないにもかかわらずバックアップ時間が長い。ブロックチェンジトラッキング（BCT）について正しいものを2つ選べ。",
+      "choices": {
+        "A": "BCTを有効にすると、レベル1バックアップ時の変更ブロック探索のための読み取りを減らせる。",
+        "B": "BCTを有効にすると、レベル1差分のバックアップ内容がレベル0と同じ全ブロックに変わる。",
+        "C": "BCTはバックアップサイズを縮めるために、取得済みレベル1バックアップをバイナリ圧縮する仕組みである。",
+        "D": "BCTの設定状態はV$BLOCK_CHANGE_TRACKINGで確認できる。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "BCTを有効にすると、レベル1バックアップ時の変更ブロック探索のための読み取りを減らせる。、BCTの設定状態はV$BLOCK_CHANGE_TRACKINGで確認できる。",
+      "explanation": "正解：A、D\n\nA（正しい）：変更位置を追跡するため、毎回全データファイルを走査せずに変更ブロックを特定しやすい。\nB（誤り）：追跡方法が変わっても増分レベルの意味は変化しない。\nC（誤り）：BCTは変更ブロック位置を追跡する機能であり、バイナリ圧縮とは別である。\nD（正しい）：BCTの状態やファイル情報を参照する動的パフォーマンスビューである。",
+      "topic": "チェンジトラッキング",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch06q006",
+      "chapter": 6,
+      "question": "OMFが有効な19cデータベースでブロックチェンジトラッキングを有効にする。DB_CREATE_FILE_DESTが設定されている。正しいものはどれか。",
+      "choices": {
+        "A": "BCTはRMANのCONFIGURE RETENTION POLICYで有効化する。",
+        "B": "USING FILEの明示指定がない限り、BCTは有効にならない。",
+        "C": "ブロックチェンジトラッキングを有効にすると、増分バックアップはイメージコピー形式しか使用できなくなる。",
+        "D": "ALTER DATABASE ENABLE BLOCK CHANGE TRACKING; を実行すると、OMFの規則に従う追跡ファイルを作成できる。"
+      },
+      "correctChoice": "D",
+      "correctText": "ALTER DATABASE ENABLE BLOCK CHANGE TRACKING; を実行すると、OMFの規則に従う追跡ファイルを作成できる。",
+      "explanation": "正解：D\n\nA（誤り）：BCTの有効化はALTER DATABASEで行い、保持ポリシー設定とは別である。\nB（誤り）：OMF有効時はファイル名の自動生成が可能である。\nC（誤り）：BCTは変更追跡機能であり、バックアップ形式をイメージコピーへ固定しない。\nD（正しい）：OMFが利用可能ならUSING FILEで具体的なファイル名を省略できる。",
+      "topic": "BCTとOMF",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch06q007",
+      "chapter": 6,
+      "question": "RMANで次のスクリプトを初回実行した。指定TAGのイメージコピーもレベル1増分も存在しない。初回の主な動作として正しいものはどれか。\n\nRUN {\n RECOVER COPY OF DATABASE WITH TAG 'daily';\n BACKUP INCREMENTAL LEVEL 1 FOR RECOVER OF COPY WITH TAG 'daily' DATABASE;\n}",
+      "choices": {
+        "A": "RECOVER COPYは適用対象がなく、BACKUP部分が基点となるレベル0相当のイメージコピーを作成する。",
+        "B": "RECOVER COPYがレベル1を作成し、その後BACKUP部分がレベル0を復元する。",
+        "C": "RECOVER COPYが新規イメージコピーを作成し、BACKUP部分は何も行わない。",
+        "D": "レベル0が存在しないため、スクリプト全体が必ずエラー終了しバックアップは残らない。"
+      },
+      "correctChoice": "A",
+      "correctText": "RECOVER COPYは適用対象がなく、BACKUP部分が基点となるレベル0相当のイメージコピーを作成する。",
+      "explanation": "正解：A\n\nA（正しい）：最初の実行では対象コピーが存在せず、BACKUP側が増分更新用の基点コピーを準備する。\nB（誤り）：RECOVERとBACKUPの役割が逆である。\nC（誤り）：最初のコピー生成はBACKUP FOR RECOVER OF COPY側の役割であり、RECOVER COPYの段階では対象がない。\nD（誤り）：FOR RECOVER OF COPYは初回のコピー生成から運用できる仕組みである。",
+      "topic": "増分更新のスクリプト",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch06q008",
+      "chapter": 6,
+      "question": "同じ増分更新スクリプトを連日実行する。初日にはレベル0コピーを作成し、2日目にはレベル1を取得した。3日目のRECOVER COPY実行時に主に起こることはどれか。",
+      "choices": {
+        "A": "まず3日目のレベル1を取得してから、2日目のレベル1を削除する。",
+        "B": "初日のコピーへ2日目に取得したレベル1を適用する。",
+        "C": "毎回レベル0コピーを新規に作り直し、以前のコピーとレベル1を使用しない。",
+        "D": "RECOVER COPYはオンラインREDOだけを使うので、前日のレベル1の存在とは無関係である。"
+      },
+      "correctChoice": "B",
+      "correctText": "初日のコピーへ2日目に取得したレベル1を適用する。",
+      "explanation": "正解：B\n\nA（誤り）：スクリプトのRECOVER COPYが先に実行され、既存の増分を適用する。\nB（正しい）：RECOVER COPYは既存コピーを増分で更新する。先に取得されたレベル1を次回実行時に適用する。\nC（誤り）：増分更新では同じ基点コピーへ増分を適用して進める。\nD（誤り）：増分更新コピーのロールフォワードには作成済みレベル1増分バックアップを使用する。",
+      "topic": "増分更新のタイミング",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch06q009",
+      "chapter": 6,
+      "question": "障害が発生したDATA表領域には利用可能な最新のRMANイメージコピーがある。元データファイルをコピーする時間を省きたい。復旧手順として正しいものはどれか。",
+      "choices": {
+        "A": "SWITCH TABLESPACE DATA TO COPY後は、コピーが存在するだけで必ずリカバリ不要になる。",
+        "B": "RESTORE TABLESPACE DATAを実行した後、必ずSWITCH TABLESPACE DATA TO COPYを実行する。",
+        "C": "表領域をOFFLINE IMMEDIATEにし、SWITCH TABLESPACE DATA TO COPY後にRECOVER TABLESPACE DATA、最後にONLINEする。",
+        "D": "先にONLINEしたままSWITCHし、その後OFFLINE IMMEDIATEで復旧を完了する。"
+      },
+      "correctChoice": "C",
+      "correctText": "表領域をOFFLINE IMMEDIATEにし、SWITCH TABLESPACE DATA TO COPY後にRECOVER TABLESPACE DATA、最後にONLINEする。",
+      "explanation": "正解：C\n\nA（誤り）：コピー取得以降の変更がある場合はRECOVERが必要になる。\nB（誤り）：イメージコピーへ直接切り替える目的ならRESTOREによるコピーを必須としない。\nC（正しい）：SWITCHは登録されたコピーを現用データファイルへ切り替え、その後必要なREDOでリカバリする。\nD（誤り）：障害表領域はオフラインで切替・回復してからオンラインへ戻すのが適切である。",
+      "topic": "イメージコピーへの切替",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch06q010",
+      "chapter": 6,
+      "question": "イメージコピーへのSWITCHを利用する条件について正しいものを2つ選べ。",
+      "choices": {
+        "A": "増分更新を実施していないイメージコピーでも、適切なコピーがあればSWITCH TO COPYを利用できる。",
+        "B": "SWITCHしたコピーには、その後の変更を追いつかせるためRECOVERが必要になる場合がある。",
+        "C": "SWITCHを実行すると、元データファイルの内容が常にイメージコピーへ上書きされる。",
+        "D": "バックアップセットに対してSWITCH TO COPYを実行すると、RESTOREなしでバックアップピースを現用データファイルとしてMOUNTできる。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "増分更新を実施していないイメージコピーでも、適切なコピーがあればSWITCH TO COPYを利用できる。、SWITCHしたコピーには、その後の変更を追いつかせるためRECOVERが必要になる場合がある。",
+      "explanation": "正解：A、B\n\nA（正しい）：SWITCHは増分更新バックアップの専用機能ではなく、RMAN管理下の利用可能なコピーへの切替である。\nB（正しい）：切り替えたコピーと現時点の間に差分があればREDO等の適用が必要である。\nC（誤り）：SWITCHはコピーを現用ファイルとして使用するメタデータ上の切替であり、元ファイルの内容を必ずコピーへ書き戻すものではない。\nD（誤り）：バックアップセットはRMAN固有形式でそのままデータファイルとして使えず、イメージコピーとは区別する。",
+      "topic": "SWITCHと増分更新",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch06q011",
+      "chapter": 6,
+      "question": "OS管理者がRMAN管理下のディスク上のバックアップピースを誤って削除した。その後RMANのLIST BACKUPにはまだ記録がある。正しい次の処理はどれか。",
+      "choices": {
+        "A": "LIST BACKUPを繰り返すと、OSの削除を検知して自動でリポジトリから情報が消える。",
+        "B": "DELETE OBSOLETEは存在しないファイルを必ずAVAILABLEへ更新する。",
+        "C": "REPORT OBSOLETEでこのファイルを選び、必ず物理バックアップを復元できる。",
+        "D": "CROSSCHECK BACKUPで存在を照合し、EXPIREDとなった記録を必要ならDELETE EXPIREDで整理する。"
+      },
+      "correctChoice": "D",
+      "correctText": "CROSSCHECK BACKUPで存在を照合し、EXPIREDとなった記録を必要ならDELETE EXPIREDで整理する。",
+      "explanation": "正解：D\n\nA（誤り）：LISTはリポジトリの管理情報を表示するもので、実ファイル存在確認はCROSSCHECKの役割である。\nB（誤り）：削除済みファイルの存在状態を復活させる動作ではない。\nC（誤り）：OBSOLETEは保存ポリシー上不要という概念で、OSで消されたファイルの復元機能ではない。\nD（正しい）：CROSSCHECKは実体と管理記録を照合し、DELETE EXPIREDは無効な管理記録を消去する。",
+      "topic": "LISTとCROSSCHECK",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch06q012",
+      "chapter": 6,
+      "question": "バックアップAは保持ポリシー上不要だがファイルが存在する。バックアップBは保持ポリシー上必要だがOSで削除された。両者の扱いについて正しいものはどれか。",
+      "choices": {
+        "A": "AはOBSOLETEの候補、BはCROSSCHECK後にEXPIREDとなり得る。",
+        "B": "AもBも、LIST BACKUPで表示される限りAVAILABLEと判定される。",
+        "C": "AはEXPIRED、BはOBSOLETEになる。",
+        "D": "AはCROSSCHECKだけで削除され、BはREPORT OBSOLETEでリストアされる。"
+      },
+      "correctChoice": "A",
+      "correctText": "AはOBSOLETEの候補、BはCROSSCHECK後にEXPIREDとなり得る。",
+      "explanation": "正解：A\n\nA（正しい）：不要判定は保持ポリシー、存在チェックはCROSSCHECKで区別する。\nB（誤り）：リポジトリ表示と実体存在確認は同義ではない。\nC（誤り）：存在しないのがEXPIRED、保存ポリシー上不要なのがOBSOLETEであり逆である。\nD（誤り）：CROSSCHECKは物理削除せず、REPORTは情報を報告するコマンドで復元処理ではない。",
+      "topic": "EXPIREDとOBSOLETE",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch06q013",
+      "chapter": 6,
+      "question": "バックアップセットBとデータファイルのイメージコピーCがある。双方の実ファイル存在確認をしたい。正しいものを2つ選べ。",
+      "choices": {
+        "A": "CROSSCHECK BACKUPはバックアップセットの存在を確認する。",
+        "B": "CROSSCHECK COPYはイメージコピーを対象にできる。",
+        "C": "CROSSCHECK BACKUPはイメージコピーだけを対象とし、セットは検査しない。",
+        "D": "CROSSCHECK COPY実行時に物理ファイルがなければ、自動的に元データファイルから再作成する。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "CROSSCHECK BACKUPはバックアップセットの存在を確認する。、CROSSCHECK COPYはイメージコピーを対象にできる。",
+      "explanation": "正解：A、B\n\nA（正しい）：BACKUPはRMANバックアップセットのクロスチェック対象指定である。\nB（正しい）：COPYはRMAN管理下のイメージコピーの存在照合に使う。\nC（誤り）：BACKUPとCOPYの意味を逆にしている。\nD（誤り）：CROSSCHECKは存在情報の照合であり、失ったコピーを再作成しない。",
+      "topic": "CROSSCHECKの対象",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch06q014",
+      "chapter": 6,
+      "question": "DBAは保存ポリシーをRECOVERY WINDOW OF 7 DAYSに設定した。保持ポリシー上削除候補となるバックアップを確認し、削除前に一覧表示したい。適切なコマンドはどれか。",
+      "choices": {
+        "A": "REPORT NEED BACKUP;",
+        "B": "REPORT OBSOLETE;",
+        "C": "LIST EXPIRED BACKUP;",
+        "D": "CROSSCHECK BACKUP;"
+      },
+      "correctChoice": "B",
+      "correctText": "REPORT OBSOLETE;",
+      "explanation": "正解：B\n\nA（誤り）：保持要件を満たすため追加バックアップが必要なファイルの報告であり、不要バックアップ一覧ではない。\nB（正しい）：設定した保存ポリシーに基づいて不要となったバックアップを報告する。\nC（誤り）：実体の不存在を確認したEXPIRED記録を表示し、保存ポリシー上の不要判定とは異なる。\nD（誤り）：存在を照合するコマンドであり、保存期間に照らした不要ファイル一覧を直接出力するものではない。",
+      "topic": "REPORTコマンド",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch06q015",
+      "chapter": 6,
+      "question": "DBAは昨日時点の表領域構成をRMANから確認したい。ターゲットDBの制御ファイルは正常だが、リカバリカタログを使用していない。正しい評価はどれか。",
+      "choices": {
+        "A": "REPORT OBSOLETE AT TIMEで過去の表領域構成を代替表示できる。",
+        "B": "REPORT SCHEMA AT TIMEは制御ファイルが正常であれば常に実行できる。",
+        "C": "REPORT SCHEMA AT TIMEは制御ファイルだけの接続では使用できず、リカバリカタログが必要である。",
+        "D": "CROSSCHECK COPY AT TIMEにより、過去時点の表領域構成を復元表示できる。"
+      },
+      "correctChoice": "C",
+      "correctText": "REPORT SCHEMA AT TIMEは制御ファイルだけの接続では使用できず、リカバリカタログが必要である。",
+      "explanation": "正解：C\n\nA（誤り）：REPORT OBSOLETEは保存ポリシー上の不要判定で、過去のスキーマ構成表示ではない。\nB（誤り）：過去構成情報の参照にはカタログ側の履歴が必要になる。\nC（正しい）：REPORT SCHEMAのAT句による過去時点構成の表示はカタログに保存された履歴を利用する。\nD（誤り）：CROSSCHECKはバックアップの存在確認であり、過去スキーマ構成の照会ではない。",
+      "topic": "REPORT SCHEMAの過去時点",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch06q016",
+      "chapter": 6,
+      "question": "DBAがRMANで以下を確認したい。①保持ポリシーを満たすため追加バックアップが必要なデータファイル、②イメージコピーとして登録済みのバックアップ。適切な組み合わせはどれか。",
+      "choices": {
+        "A": "① REPORT OBSOLETE、② LIST BACKUP",
+        "B": "① REPORT SCHEMA、② CROSSCHECK COPY",
+        "C": "① LIST EXPIRED、② LIST BACKUP",
+        "D": "① REPORT NEED BACKUP、② LIST COPY"
+      },
+      "correctChoice": "D",
+      "correctText": "① REPORT NEED BACKUP、② LIST COPY",
+      "explanation": "正解：D\n\nA（誤り）：①は不要バックアップ、②はバックアップセットの表示であり要求と逆である。\nB（誤り）：構成の表示と存在確認であり、必要バックアップとコピーの一覧表示ではない。\nC（誤り）：①は存在しないファイル、②はバックアップセットであり要求と違う。\nD（正しい）：REPORT NEED BACKUPは保護が不足するファイル、LIST COPYはイメージコピーを表示する。",
+      "topic": "LISTとREPORT",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch06q017",
+      "chapter": 6,
+      "question": "増分バックアップの適用対象と形式について正しいものを2つ選べ。",
+      "choices": {
+        "A": "レベル0増分はイメージコピー形式でも作成できる。",
+        "B": "レベル1累積増分はイメージコピー形式で直接取得できる。",
+        "C": "増分バックアップは制御ファイル内の変更レコードだけを対象とする。",
+        "D": "レベル1増分は、表領域や特定のデータファイルを対象として取得できる。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "レベル0増分はイメージコピー形式でも作成できる。、レベル1増分は、表領域や特定のデータファイルを対象として取得できる。",
+      "explanation": "正解：A、D\n\nA（正しい）：レベル0は増分の基点となるバックアップとしてコピー形式でも取得できる。\nB（誤り）：レベル1はバックアップセット形式で作成する。\nC（誤り）：変更ブロックを扱う主対象はデータファイルであり、制御ファイルの履歴だけではない。\nD（正しい）：対象はDATABASEだけに限定されず、表領域・データファイル単位も扱える。",
+      "topic": "増分バックアップの制限",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch06q018",
+      "chapter": 6,
+      "question": "NOARCHIVELOGモードでRMANの一貫性バックアップを取得する。正常停止済みのDBについて正しい処理順序はどれか。",
+      "choices": {
+        "A": "STARTUP MOUNT → BACKUP DATABASE → ALTER DATABASE OPEN",
+        "B": "STARTUP OPEN → BACKUP TABLESPACE USERS → SHUTDOWN IMMEDIATE",
+        "C": "STARTUP MOUNT → BACKUP DATAFILE 1 → ALTER DATABASE OPEN",
+        "D": "STARTUP OPEN → BACKUP DATABASE PLUS ARCHIVELOG → SHUTDOWN IMMEDIATE"
+      },
+      "correctChoice": "A",
+      "correctText": "STARTUP MOUNT → BACKUP DATABASE → ALTER DATABASE OPEN",
+      "explanation": "正解：A\n\nA（正しい）：整合した停止からMOUNTしDB全体をバックアップするのが基本手順で、その後OPENできる。\nB（誤り）：NOARCHIVELOGのOPEN状態から部分オンラインバックアップを取得する手順ではない。\nC（誤り）：NOARCHIVELOGでは一貫性のあるDB全体バックアップが前提であり、一部データファイルだけでは不十分である。\nD（誤り）：NOARCHIVELOGでPLUS ARCHIVELOGを使ってオンライン取得する構成ではない。",
+      "topic": "NOARCHIVELOGとMOUNT",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch06q019",
+      "chapter": 6,
+      "question": "CROSSCHECK BACKUPでバックアップピースがEXPIREDになった。不要な管理記録をリポジトリから消すが、まだ存在する別のバックアップファイルは削除したくない。正しい処理はどれか。",
+      "choices": {
+        "A": "DELETE OBSOLETE;",
+        "B": "DELETE EXPIRED BACKUP;",
+        "C": "CROSSCHECK BACKUP;",
+        "D": "REPORT OBSOLETE;"
+      },
+      "correctChoice": "B",
+      "correctText": "DELETE EXPIRED BACKUP;",
+      "explanation": "正解：B\n\nA（誤り）：保持ポリシーで不要となった実ファイルを削除することがあり、目的が異なる。\nB（正しい）：存在しないと判定されたバックアップのリポジトリ記録を整理し、存在するAVAILABLEのバックアップを削除しない。\nC（誤り）：状態の照合は行うがEXPIREDの管理記録削除は行わない。\nD（誤り）：候補の一覧表示を行うコマンドであり管理記録の削除ではない。",
+      "topic": "DELETE EXPIREDの役割",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q001",
+      "chapter": 7,
+      "question": "RMANで同じデータベースを次の2方式でバックアップする。①BACKUP AS BACKUPSET、②BACKUP AS COMPRESSED BACKUPSET。正しいものを2つ選べ。",
+      "choices": {
+        "A": "①は未使用ブロックの省略が可能で、②はそれに加えてバイナリ圧縮を行う。",
+        "B": "①は未使用ブロックを必ずすべて保存し、②のみ未使用ブロックを省略する。",
+        "C": "②ではバイナリ圧縮にCPUを使う可能性がある。",
+        "D": "②を選択すると、データファイルごとに独立したイメージコピーが作られる。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "①は未使用ブロックの省略が可能で、②はそれに加えてバイナリ圧縮を行う。、②ではバイナリ圧縮にCPUを使う可能性がある。",
+      "explanation": "正解：A、C\n\nA（正しい）：バックアップセット共通の未使用ブロック圧縮と、COMPRESSEDで指定するバイナリ圧縮は別機能である。\nB（誤り）：通常のバックアップセットでも未使用ブロックの圧縮が働く。\nC（正しい）：バイナリ圧縮の処理負荷としてCPU利用とサイズ削減のトレードオフがある。\nD（誤り）：COMPRESSED BACKUPSETはRMANバックアップセット形式でありイメージコピーではない。",
+      "topic": "未使用ブロックとバイナリ圧縮",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch07q002",
+      "chapter": 7,
+      "question": "Oracle Advanced Compressionオプションを利用していないDBで、RMANの圧縮バックアップを検討する。正しいものはどれか。",
+      "choices": {
+        "A": "BASICを選択してバイナリ圧縮バックアップを実行できるが、HIGHなどは別途オプション条件を確認する。",
+        "B": "COMPRESSED BACKUPSETは追加オプションがなければ一切使用できない。",
+        "C": "HIGHはオプション不要である一方、BASICにはAdvanced Compressionが必須である。",
+        "D": "LOWを使用すると未使用ブロック圧縮が無効となり、すべての空きブロックが保存される。"
+      },
+      "correctChoice": "A",
+      "correctText": "BASICを選択してバイナリ圧縮バックアップを実行できるが、HIGHなどは別途オプション条件を確認する。",
+      "explanation": "正解：A\n\nA（正しい）：教材が扱う基本的な圧縮アルゴリズムではBASICは追加オプション不要で、HIGH/MEDIUM/LOWはAdvanced Compression要件がある。\nB（誤り）：BASICは利用できるため、圧縮バックアップ全体が禁止されるわけではない。\nC（誤り）：オプション要件が逆である。\nD（誤り）：バイナリ圧縮アルゴリズムと未使用ブロック省略は別の機能である。",
+      "topic": "圧縮方式の設定",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q003",
+      "chapter": 7,
+      "question": "バックアップ先の容量が厳しいが、DBサーバーのCPU使用率も高い。バイナリ圧縮を検討する際の正しい説明はどれか。",
+      "choices": {
+        "A": "圧縮率が高い方式ほど、すべての環境でバックアップ時間も短くなる。",
+        "B": "BASICやLOW、HIGH等を比較するときは、出力サイズだけでなくCPU消費と処理時間を評価する。",
+        "C": "HIGHなどの高圧縮を選べば、I/OやCPUの負荷条件に関係なく性能面で必ず有利になる。",
+        "D": "バイナリ圧縮は主にデータファイルのオンラインREDO生成量を減らす機能である。"
+      },
+      "correctChoice": "B",
+      "correctText": "BASICやLOW、HIGH等を比較するときは、出力サイズだけでなくCPU消費と処理時間を評価する。",
+      "explanation": "正解：B\n\nA（誤り）：高圧縮ではCPUコストが増える場合があり、時間は環境依存である。\nB（正しい）：圧縮アルゴリズムの選択はCPUコストとサイズ削減の両面で判断する。\nC（誤り）：圧縮率とCPU負荷・処理速度はトレードオフになりうる。\nD（誤り）：バックアップファイルを圧縮する機能で、REDO生成量削減が直接目的ではない。",
+      "topic": "CPUと圧縮",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q004",
+      "chapter": 7,
+      "question": "RMANのDISKの自動チャネルを並列度3に設定した。BACKUP DATABASEを実行するがRUNブロックで手動ALLOCATEは行わない。正しい説明はどれか。",
+      "choices": {
+        "A": "自動チャネルの設定はRUN内で手動ALLOCATE CHANNELを実行した場合にもその数へ強制される。",
+        "B": "DISKの並列度を設定した場合、1つのデータファイルが必ず3分割され同時に処理される。",
+        "C": "設定されたDISKの並列度は自動割当チャネルに適用され、最大で複数チャネルがバックアップI/Oを担当できる。",
+        "D": "並列度3なら、データファイルが1つでもSECTION SIZEなしで3チャネルが同時にその1ファイルを読み込む。"
+      },
+      "correctChoice": "C",
+      "correctText": "設定されたDISKの並列度は自動割当チャネルに適用され、最大で複数チャネルがバックアップI/Oを担当できる。",
+      "explanation": "正解：C\n\nA（誤り）：手動割当と自動割当は別の仕組みである。\nB（誤り）：通常の並列チャネルだけでは単一ファイルを分割しない。SECTION SIZEによるマルチセクションと区別する。\nC（正しい）：CONFIGURE DEVICE TYPE DISK PARALLELISMは自動チャネル構成を指定する。\nD（誤り）：通常はファイル単位の並列であり、単一ファイル並列はマルチセクションを利用する。",
+      "topic": "自動チャネル並列",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q005",
+      "chapter": 7,
+      "question": "DISKの自動並列度を4に設定済み。今回はRUNブロック内でDISKチャネルを2個手動割当してBACKUP DATABASEを実行する。正しい評価はどれか。",
+      "choices": {
+        "A": "自動並列度4と手動2が合算され、常に6チャネルでバックアップする。",
+        "B": "手動チャネルを使うにはCONFIGURE DEVICE TYPE DISK PARALLELISMをCLEARに戻すことが必須である。",
+        "C": "CONFIGURE PARALLELISM 4が優先し、手動割当した2チャネルは常に無視される。",
+        "D": "手動で2チャネルを割当てた実行では、その2チャネルを使う。自動並列度4は別の自動割当で使われる。"
+      },
+      "correctChoice": "D",
+      "correctText": "手動で2チャネルを割当てた実行では、その2チャネルを使う。自動並列度4は別の自動割当で使われる。",
+      "explanation": "正解：D\n\nA（誤り）：手動割当があると自動設定との単純な加算にはならない。\nB（誤り）：自動設定を削除せず手動チャネルを指定できる。\nC（誤り）：手動RUNブロックの割当は有効であり、単純に自動設定へ置き換わらない。\nD（正しい）：手動ALLOCATEとCONFIGUREの自動並列度は別に管理され、同じ実行で合算するものではない。",
+      "topic": "手動と自動チャネル",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q006",
+      "chapter": 7,
+      "question": "DATA表領域は1つの非常に大きなデータファイルで構成される。チャネル並列度を4に設定したが、単一ファイルの処理がボトルネック。教材の範囲で最も適した改善策はどれか。",
+      "choices": {
+        "A": "バックアップ対象を同じ表領域に指定したまま、BACKUPコマンドにSECTION SIZEを指定する。",
+        "B": "CONFIGURE PARALLELISM 8だけを指定すれば、1ファイルを自動で8セクションに分割する。",
+        "C": "FILESPERSETを4にすれば、1つのデータファイルの内容を4チャネルへ分配できる。",
+        "D": "COPIES 4にすれば、同一ファイルの読込みが4分割されるためバックアップ時間が必ず4分の1になる。"
+      },
+      "correctChoice": "A",
+      "correctText": "バックアップ対象を同じ表領域に指定したまま、BACKUPコマンドにSECTION SIZEを指定する。",
+      "explanation": "正解：A\n\nA（正しい）：マルチセクションバックアップでは大きなデータファイルをセクションへ分割して並列処理できる。\nB（誤り）：通常のパラレル設定だけでは単一ファイルを複数チャネルで分担しない。\nC（誤り）：FILESPERSETはセットに含める入力ファイル数の上限で、ファイル分割とは異なる。\nD（誤り）：COPIESは出力バックアップの多重化で、単一ファイルをセクションに分割する機能ではない。",
+      "topic": "マルチセクション",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q007",
+      "chapter": 7,
+      "question": "大容量データファイルをSECTION SIZE指定でマルチセクションバックアップした場合について、正しいものを2つ選べ。",
+      "choices": {
+        "A": "単一データファイルが複数セクションに分かれ、別チャネルで並列に読み取れる。",
+        "B": "マルチセクションは必ずイメージコピー形式に限られ、バックアップピースは作られない。",
+        "C": "バックアップセットには複数ピースが含まれる場合がある。",
+        "D": "SECTION SIZEはファイル数を制限する指定で、1ファイル中のブロックは分割しない。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "単一データファイルが複数セクションに分かれ、別チャネルで並列に読み取れる。、バックアップセットには複数ピースが含まれる場合がある。",
+      "explanation": "正解：A、C\n\nA（正しい）：セクションごとにファイル内の連続ブロック範囲を割り当てて並列バックアップする。\nB（誤り）：マルチセクションのバックアップセットではセクションに対応するバックアップピースが作られる。\nC（正しい）：複数セクションを保存するため、1セットが複数ピースで構成され得る。\nD（誤り）：SECTION SIZEは1ファイル内の連続したブロック領域を区切る指定である。",
+      "topic": "マルチセクションとピース",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch07q008",
+      "chapter": 7,
+      "question": "DBAは同じ大容量データファイルについて、バックアップの読み取り並列化と、保存先障害への冗長化の両方を検討している。正しい説明はどれか。",
+      "choices": {
+        "A": "SECTION SIZEは出力ピースを冗長コピーし、COPIESはデータファイルをセクションに分割する。",
+        "B": "SECTION SIZEでファイル内を並列化でき、COPIESでバックアップセットの出力コピーを増やせる。",
+        "C": "SECTION SIZEもCOPIESも、データファイルの変更ブロック追跡を有効にする指定である。",
+        "D": "SECTION SIZEとCOPIESは同時に出力先のファイル名だけを変更し、性能や冗長性へ影響しない。"
+      },
+      "correctChoice": "B",
+      "correctText": "SECTION SIZEでファイル内を並列化でき、COPIESでバックアップセットの出力コピーを増やせる。",
+      "explanation": "正解：B\n\nA（誤り）：SECTION SIZEとCOPIESの役割が逆である。\nB（正しい）：処理性能の改善と保存冗長化は別機能として扱える。\nC（誤り）：変更ブロック追跡は別のBCT機能である。\nD（誤り）：SECTION SIZEは処理分担、COPIESは保存コピー数に影響する。",
+      "topic": "多重化とセクション",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q009",
+      "chapter": 7,
+      "question": "RMANバックアップセットの多重化について正しいものを2つ選べ。",
+      "choices": {
+        "A": "バックアップセットの多重度は最大4コピーである。",
+        "B": "多重化の各コピーをDISKとSBTへ同じコマンドで混在して割り振る。",
+        "C": "多重化は高速リカバリ領域を出力先として使用できる。",
+        "D": "デバイスタイプや対象種別ごとにCONFIGUREでコピー数を指定できる。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "バックアップセットの多重度は最大4コピーである。、デバイスタイプや対象種別ごとにCONFIGUREでコピー数を指定できる。",
+      "explanation": "正解：A、D\n\nA（正しい）：RMANのCOPIESはバックアップセットを最大4重に保存できる。\nB（誤り）：同一の多重化バックアップではディスクとテープを併用しない。\nC（誤り）：FRAは多重化バックアップセットの保存先として認められない。\nD（正しい）：DATAFILEとARCHIVELOG、DISKとSBTなどを区別して永続的な多重度を設定できる。",
+      "topic": "多重化の条件",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch07q010",
+      "chapter": 7,
+      "question": "DISK用のデータファイルバックアップを3コピーにする設定と、アーカイブログを2コピーにする設定を分けたい。適切な考え方はどれか。",
+      "choices": {
+        "A": "CONFIGURE DEVICE TYPE DISK PARALLELISM 3を指定すると、3コピーが必ず別ディレクトリに保存される。",
+        "B": "CONFIGURE BACKUP OPTIMIZATION ONを3回設定して、データファイルのみ3コピーにする。",
+        "C": "CONFIGURE DATAFILE BACKUP COPIES FOR DEVICE TYPE DISK TO 3; とARCHIVELOG用の同種設定を使い分ける。",
+        "D": "CONFIGURE CHANNEL DEVICE TYPE DISK MAXPIECESIZE 3Gを指定すると、必ず3コピーになる。"
+      },
+      "correctChoice": "C",
+      "correctText": "CONFIGURE DATAFILE BACKUP COPIES FOR DEVICE TYPE DISK TO 3; とARCHIVELOG用の同種設定を使い分ける。",
+      "explanation": "正解：C\n\nA（誤り）：チャネル並列度と出力バックアップの多重度は異なる。\nB（誤り）：バックアップ最適化はコピー数の設定ではない。\nC（正しい）：多重度の永続設定はファイル種別とデバイスタイプを区別できる。\nD（誤り）：MAXPIECESIZEはピース容量上限であってコピー数ではない。",
+      "topic": "多重化の対象",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q011",
+      "chapter": 7,
+      "question": "監査のため、2026年末時点へ数年後にも復旧できるバックアップをRMANの通常の保持ポリシーから切り離して保存したい。正しいものを2つ選べ。",
+      "choices": {
+        "A": "BACKUP KEEP FOREVERを使用するにはリカバリカタログが必要である。",
+        "B": "KEEP UNTIL TIMEを指定すると期限を過ぎても永久にOBSOLETEにならない。",
+        "C": "KEEPによるアーカイブバックアップは通常のリカバリ期間と異なり、特定時点の長期保存が主目的である。",
+        "D": "KEEP FOREVERを指定すれば、リカバリカタログ不要かつFRAへの出力が必須になる。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "BACKUP KEEP FOREVERを使用するにはリカバリカタログが必要である。、KEEPによるアーカイブバックアップは通常のリカバリ期間と異なり、特定時点の長期保存が主目的である。",
+      "explanation": "正解：A、C\n\nA（正しい）：無期限保存のKEEP FOREVERはリカバリカタログと連携して管理する。\nB（誤り）：UNTIL TIMEは期限付き保持であり、期限後に保持ポリシー上不要になりうる。\nC（正しい）：任意時点の連続的復旧に必要な保持ポリシーと、指定時点のアーカイブ保存は目的が異なる。\nD（誤り）：FOREVERはカタログを要し、アーカイブバックアップの出力先はFRA外とする。",
+      "topic": "アーカイブバックアップ",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch07q012",
+      "chapter": 7,
+      "question": "FRAがDISKバックアップの既定出力先である。特定時点のアーカイブバックアップをKEEP UNTIL TIMEで取得する場合について正しいものはどれか。",
+      "choices": {
+        "A": "アーカイブバックアップはFRAへの格納が必須なので既定の出力先を使う。",
+        "B": "KEEP UNTIL TIMEを指定すれば、FRAに格納しても通常の保存ポリシー対象へ戻らないので許容される。",
+        "C": "KEEP UNTIL TIMEを指定すると、RMANは自動的にKEEP FOREVERへ変換する。",
+        "D": "FRAとは別の出力先をFORMAT等で明示してバックアップする。"
+      },
+      "correctChoice": "D",
+      "correctText": "FRAとは別の出力先をFORMAT等で明示してバックアップする。",
+      "explanation": "正解：D\n\nA（誤り）：長期保存のアーカイブバックアップはFRAを出力先にできない。\nB（誤り）：保持ポリシーとは別にアーカイブバックアップのFRA出力制限がある。\nC（誤り）：期限付き保持と無期限保持は別の指定である。\nD（正しい）：アーカイブバックアップはFRA外に保存する必要があり、既定がFRAなら別経路を指定する。",
+      "topic": "KEEPとFRA",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q013",
+      "chapter": 7,
+      "question": "DISK上のRMANバックアップセットをテープへ移し、DISK領域を空けたい。適切なコマンドはどれか。",
+      "choices": {
+        "A": "BACKUP DEVICE TYPE SBT BACKUPSET ALL DELETE INPUT;",
+        "B": "BACKUP AS COPY DATABASE DELETE INPUT;",
+        "C": "BACKUP DEVICE TYPE DISK BACKUPSET ALL DELETE INPUT;",
+        "D": "RESTORE DATABASE DEVICE TYPE SBT DELETE INPUT;"
+      },
+      "correctChoice": "A",
+      "correctText": "BACKUP DEVICE TYPE SBT BACKUPSET ALL DELETE INPUT;",
+      "explanation": "正解：A\n\nA（正しい）：既存バックアップセットをSBTにバックアップし、正常にバックアップした入力バックアップセットを削除できる。\nB（誤り）：イメージコピー形式のDBバックアップ指定であり、既存セットをテープへ移す操作ではない。\nC（誤り）：DISK指定ではテープへの退避という目的に合わない。\nD（誤り）：RESTOREはバックアップから現用ファイルを戻す操作であり、バックアップセットのテープ退避ではない。",
+      "topic": "BACKUP BACKUPSET",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q014",
+      "chapter": 7,
+      "question": "バックアップはFRA内とFRA外の両方に存在する。RMANのバックアップ対象の違いとして正しいものはどれか。",
+      "choices": {
+        "A": "BACKUP RECOVERY AREAはFRA内外を含むすべてのリカバリ関連ファイルを扱う。",
+        "B": "BACKUP RECOVERY FILESはFRAに限らずディスク上のリカバリ関連ファイルを対象にする。",
+        "C": "BACKUP RECOVERY FILESはアーカイブログのみを対象にし、バックアップセットは除外する。",
+        "D": "BACKUP RECOVERY AREAはFRA内のOracle以外のログも一律にバックアップする。"
+      },
+      "correctChoice": "B",
+      "correctText": "BACKUP RECOVERY FILESはFRAに限らずディスク上のリカバリ関連ファイルを対象にする。",
+      "explanation": "正解：B\n\nA（誤り）：RECOVERY AREAはFRA内のリカバリ関連ファイルを対象とする。\nB（正しい）：RECOVERY FILESはFRA内外のディスク上の関連ファイルを扱える。\nC（誤り）：バックアップセット等のリカバリ関連ファイルも対象となる。\nD（誤り）：RMANが扱うリカバリ関連ファイルが対象であり、任意のOSファイルは含まない。",
+      "topic": "RECOVERY AREAとRECOVERY FILES",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q015",
+      "chapter": 7,
+      "question": "FRA内のリカバリ関連ファイルを別のDISKディレクトリへバックアップしたい。RMANの構文として適切なものはどれか。",
+      "choices": {
+        "A": "BACKUP AS COPY RECOVERY FILES TO DESTINATION '/backup/recovery';",
+        "B": "BACKUP RECOVERY AREA DEVICE TYPE DISK FORMAT '/backup/recovery';",
+        "C": "BACKUP RECOVERY AREA TO DESTINATION '/backup/recovery';",
+        "D": "BACKUP DATABASE PLUS ARCHIVELOG TO DESTINATION '/backup/recovery';"
+      },
+      "correctChoice": "C",
+      "correctText": "BACKUP RECOVERY AREA TO DESTINATION '/backup/recovery';",
+      "explanation": "正解：C\n\nA（誤り）：リカバリ関連ファイルの一括バックアップにAS COPYを付ける形式ではない。\nB（誤り）：この用途ではTO DESTINATION句を指定する形式が教材およびRMANの構文に合致する。\nC（正しい）：RECOVERY AREAのバックアップをディスクに出力するにはTO DESTINATIONで保存先を指定できる。\nD（誤り）：DB本体とログのバックアップであり、FRA内の既存リカバリ関連ファイルをまとめて退避する指定ではない。",
+      "topic": "RECOVERY AREAの出力",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q016",
+      "chapter": 7,
+      "question": "DBAは現行制御ファイルのバックアップを2種類取得する。\n\n① ALTER DATABASE BACKUP CONTROLFILE TO '/backup/control.bkp';\n② ALTER DATABASE BACKUP CONTROLFILE TO TRACE AS '/backup/control.sql';\n\n正しい説明を2つ選べ。",
+      "choices": {
+        "A": "①はバイナリ形式で制御ファイルのコピーを取得する。",
+        "B": "②はバイナリバックアップと全く同じRMANリポジトリ履歴をそのまま保持する。",
+        "C": "②には制御ファイルを再作成するためのCREATE CONTROLFILE文が出力される。",
+        "D": "①はCREATE CONTROLFILE文だけを出力するが、②はバイナリファイルを取得する。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "①はバイナリ形式で制御ファイルのコピーを取得する。、②には制御ファイルを再作成するためのCREATE CONTROLFILE文が出力される。",
+      "explanation": "正解：A、C\n\nA（正しい）：TOファイル名はバイナリバックアップを作成する。\nB（誤り）：トレースは制御ファイル再作成用SQLであり、制御ファイルに蓄積された全管理履歴を再現するものではない。\nC（正しい）：TO TRACEは制御ファイル再作成用のSQL文をトレースファイルに出力する。\nD（誤り）：バイナリとトレースの役割が逆である。",
+      "topic": "制御ファイルのバイナリとトレース",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch07q017",
+      "chapter": 7,
+      "question": "ARCHIVELOGモードのOPEN DBで、RMANではなくOSコピーによってDATA表領域のオンラインバックアップを取得する。基本手順として適切なものはどれか。",
+      "choices": {
+        "A": "DATAのデータファイルをOSコピーした後にARCHIVELOGモードへ切り替えれば、オンラインコピーに必要なREDOが生成される。",
+        "B": "OSコピーを開始してからBEGIN BACKUPを実行し、OSコピー中にのみEND BACKUPする。",
+        "C": "RMANが自動でBEGIN BACKUPを実行するため、OSコピーだけ実行すればオンラインバックアップになる。",
+        "D": "DATA表領域のBEGIN BACKUP → OSでDATAのデータファイルをコピー → END BACKUP → REDOをアーカイブし必要なファイルを保護する。"
+      },
+      "correctChoice": "D",
+      "correctText": "DATA表領域のBEGIN BACKUP → OSでDATAのデータファイルをコピー → END BACKUP → REDOをアーカイブし必要なファイルを保護する。",
+      "explanation": "正解：D\n\nA（誤り）：オンラインコピー取得前からARCHIVELOG運用して必要なREDOを保護する必要がある。\nB（誤り）：BEGIN BACKUPは対象表領域のデータファイルをコピーする前に行う。\nC（誤り）：ユーザー管理バックアップではRMANに依存した自動処理ではなく、明示的にバックアップモードを制御する。\nD（正しい）：ユーザー管理のオンラインバックアップでは対象表領域をバックアップモードにしてOSコピーし、モードを解除して必要なREDOを確保する。",
+      "topic": "RMANとユーザー管理バックアップ",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q018",
+      "chapter": 7,
+      "question": "ASMディスクグループDG1・DG2にDBファイルを格納している。DB全体のRMANバックアップに加えASMの構成メタデータを保護する。正しいものを2つ選べ。",
+      "choices": {
+        "A": "ASMCMDのmd_backupで、ASMディスクグループのメタデータをバックアップできる。",
+        "B": "md_backupを実行すると、ディスクグループ中の全データファイルがRMANバックアップセットとして保存される。",
+        "C": "md_backupにディスクグループを指定しなければ、マウント済みの全ディスクグループが対象になる。",
+        "D": "md_backupはSQL*PlusのALTER DATABASE文であり、OSからASMCMDとして呼び出せない。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "ASMCMDのmd_backupで、ASMディスクグループのメタデータをバックアップできる。、md_backupにディスクグループを指定しなければ、マウント済みの全ディスクグループが対象になる。",
+      "explanation": "正解：A、C\n\nA（正しい）：ASMのディスクグループ構成情報はASMCMD md_backupで取得する。\nB（誤り）：md_backupはASMメタデータが対象で、DBファイル本体のバックアップとは別である。\nC（正しい）：グループ指定の省略時にはマウント中のディスクグループのメタデータを対象とする。\nD（誤り）：md_backupはASMCMDのコマンドである。",
+      "topic": "ASMのメタデータ",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch07q019",
+      "chapter": 7,
+      "question": "テープ装置の都合でバックアップピースを最大2GBに抑えたい。一方、1セットに含む入力データファイル数の上限は別に制御したい。正しい組み合わせはどれか。",
+      "choices": {
+        "A": "MAXPIECESIZEはピース容量上限、FILESPERSETは1セットの入力ファイル数上限である。",
+        "B": "MAXSETSIZEはピース容量上限、MAXPIECESIZEは入力ファイル数上限である。",
+        "C": "FILESPERSETはピース容量上限、MAXSETSIZEは入力ファイル数上限である。",
+        "D": "MAXPIECESIZEはセットの総容量、FILESPERSETは多重化コピー数を設定する。"
+      },
+      "correctChoice": "A",
+      "correctText": "MAXPIECESIZEはピース容量上限、FILESPERSETは1セットの入力ファイル数上限である。",
+      "explanation": "正解：A\n\nA（正しい）：バックアップピースのサイズはMAXPIECESIZE、セット内のファイル数はFILESPERSETで制御する。\nB（誤り）：MAXSETSIZEはセット全体、MAXPIECESIZEはピースの上限であり入力ファイル数ではない。\nC（誤り）：FILESPERSETはサイズではなくファイル数である。\nD（誤り）：MAXPIECESIZEはピース単位、FILESPERSETはセット内の入力数でありコピー数ではない。",
+      "topic": "バックアップセット容量制御",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q020",
+      "chapter": 7,
+      "question": "BACKUP RECOVERY FILESを使い、既に同じデバイスにバックアップ済みのファイルを再び対象にしないよう運用したい。正しい説明はどれか。",
+      "choices": {
+        "A": "CONFIGURE BACKUP OPTIMIZATION OFFなら、RECOVERY FILESは常にバックアップ済みファイルも再取得する。",
+        "B": "BACKUP RECOVERY FILESの最適化は通常適用され、FORCEを使うと無効化できる。",
+        "C": "RECOVERY FILESは常にFRA内ファイルだけを対象とするので、最適化の判断は不要である。",
+        "D": "BACKUP RECOVERY FILESは通常のBACKUP DATABASEと同じくすべてのデータファイルを一律にバックアップする。"
+      },
+      "correctChoice": "B",
+      "correctText": "BACKUP RECOVERY FILESの最適化は通常適用され、FORCEを使うと無効化できる。",
+      "explanation": "正解：B\n\nA（誤り）：RECOVERY FILESは通常の最適化設定のON/OFFにかかわらず最適化が適用される。\nB（正しい）：RECOVERY FILESでは最適化が適用されるがFORCE指定なら再バックアップを強制できる。\nC（誤り）：RECOVERY FILESはFRA外の関連ファイルも対象にしうる。\nD（誤り）：RECOVERY FILESは既存リカバリ関連ファイルの保護であり、データベース本体バックアップそのものとは別である。",
+      "topic": "バックアップ出力最適化",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q021",
+      "chapter": 7,
+      "question": "ARCHIVELOGモードのOPEN DBで、最新のオンラインREDOをアーカイブしてからアーカイブログを保護したい。正しいコマンド運用はどれか。",
+      "choices": {
+        "A": "BACKUP ARCHIVELOG ALLはデータファイルの全体バックアップと同じ動作である。",
+        "B": "BACKUP DATABASEだけで必ずログスイッチが実行され、アーカイブログも取得される。",
+        "C": "BACKUP ARCHIVELOG ALLでは、対象にカレントログが含まれるようRMANがログスイッチを行う。",
+        "D": "BACKUP ARCHIVELOG ALLではRMANがアーカイブログの作成を禁止するため、最新REDOの保護には使えない。"
+      },
+      "correctChoice": "C",
+      "correctText": "BACKUP ARCHIVELOG ALLでは、対象にカレントログが含まれるようRMANがログスイッチを行う。",
+      "explanation": "正解：C\n\nA（誤り）：アーカイブログを対象にするコマンドでデータベース本体を保存するものではない。\nB（誤り）：通常のBACKUP DATABASEのみではPLUS ARCHIVELOG相当のログバックアップは含まれない。\nC（正しい）：ARCHIVELOG ALLはバックアップ開始前にカレントREDOをアーカイブさせる対象指定となる。\nD（誤り）：ARCHIVELOG ALLは最新ログをアーカイブさせて保護するために使用できる。",
+      "topic": "アーカイブログ範囲",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q022",
+      "chapter": 7,
+      "question": "RMANの機能とユーザー管理バックアップを比較して正しいものを2つ選べ。",
+      "choices": {
+        "A": "ユーザー管理バックアップでは、RMAN固有のバックアップセットをOSのコピーコマンドだけで生成できる。",
+        "B": "RMANでは保存ポリシーなどの管理機能を使用できるが、OSコピーだけのバックアップでは同等のRMAN管理が自動的に付くわけではない。",
+        "C": "ユーザー管理のオンラインバックアップはARCHIVELOGモードの前提と必要なREDO保護が重要になる。",
+        "D": "RMANのオンラインバックアップでは、対象表領域ごとに手動BEGIN BACKUPを実行しなければならない。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "RMANでは保存ポリシーなどの管理機能を使用できるが、OSコピーだけのバックアップでは同等のRMAN管理が自動的に付くわけではない。、ユーザー管理のオンラインバックアップはARCHIVELOGモードの前提と必要なREDO保護が重要になる。",
+      "explanation": "正解：B、C\n\nA（誤り）：バックアップセットはRMAN独自形式であり、OSのファイルコピーから直接作成しない。\nB（正しい）：RMAN固有の履歴管理と保存ポリシーは単純なOSコピーには自動的に適用されない。\nC（正しい）：更新中にコピーしたデータファイルを復旧で整合させるため、REDOを保持する必要がある。\nD（誤り）：RMANはユーザー管理方式と異なり手動BEGIN BACKUPを必要としない。",
+      "topic": "ユーザー管理バックアップの制約",
+      "difficulty": "hard",
+      "multiple": true
     }
   ]
 }
