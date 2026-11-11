@@ -9,6 +9,11 @@
       "chapter": 2,
       "title": "バックアップ",
       "description": "RMANの構成と権限、バックアップの一貫性、バックアップセットとイメージコピー、チャネル・出力先、主なRMANコマンド"
+    },
+    {
+      "chapter": 3,
+      "title": "ARCHIVELOGモード・高速リカバリ領域・RMANの永続設定",
+      "description": "ARCHIVELOGモードの切替とアーカイブ先、FRA、保存ポリシー、CONFIGURE、バックアップ最適化、アーカイブログ削除ポリシー"
     }
   ],
   "questions": [
@@ -1175,6 +1180,554 @@
       "topic": "CROSSCHECKとLISTの違い",
       "difficulty": "hard",
       "multiple": true
+    },
+    {
+      "id": "ch03q001",
+      "chapter": 3,
+      "question": "Oracle Database 19cをNOARCHIVELOGモードからARCHIVELOGモードに変更する。管理者はSYSDBA権限を持ち、データベースは現在OPEN状態である。適切な操作順序はどれか。",
+      "choices": {
+        "A": "SHUTDOWN IMMEDIATE後にSTARTUP MOUNT、ALTER DATABASE ARCHIVELOG、ALTER DATABASE OPENの順に実行する",
+        "B": "ALTER DATABASE ARCHIVELOGをOPEN中に実行し、続いてSHUTDOWN IMMEDIATEを実行する",
+        "C": "SHUTDOWN ABORT後にSTARTUP NOMOUNT、ALTER DATABASE ARCHIVELOG、ALTER DATABASE OPENの順に実行する",
+        "D": "ALTER DATABASE OPENの直後にALTER DATABASE ARCHIVELOGを実行する"
+      },
+      "correctChoice": "A",
+      "correctText": "SHUTDOWN IMMEDIATE後にSTARTUP MOUNT、ALTER DATABASE ARCHIVELOG、ALTER DATABASE OPENの順に実行する",
+      "explanation": "正解：A\n\nA（正しい）：ARCHIVELOGへの変更は制御ファイルを参照できるMOUNT状態で実施し、変更後にOPENできる。\nB（誤り）：ログモード変更はOPEN状態では行えない。変更前にMOUNTにする必要がある。\nC（誤り）：NOMOUNTでは制御ファイルがマウントされておらずALTER DATABASE ARCHIVELOGを実行できない。\nD（誤り）：OPENは変更後の段階であり、OPENしたままログモードを切り替えられない。",
+      "topic": "ログモード・操作順序",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q002",
+      "chapter": 3,
+      "question": "ARCHIVELOGモードのDBで、アーカイブ先のファイルシステムが満杯となった。オンラインREDOログは複数グループで構成されている。更新処理への影響として正しいものを2つ選択してください。",
+      "choices": {
+        "A": "アーカイブできないロググループを再利用する必要が生じると、ログスイッチが進められず更新が待機する場合がある",
+        "B": "アーカイブ先を確保して必要なアーカイブ処理が進めば、ブロックされていたログ再利用を再開できる",
+        "C": "アーカイブ先が満杯になった瞬間に、すべてのSELECT文も必ず失敗する",
+        "D": "使用中のオンラインREDOの書込みが直ちに完全に停止し、ログスイッチ以前の更新も必ず失敗する"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "アーカイブできないロググループを再利用する必要が生じると、ログスイッチが進められず更新が待機する場合がある、アーカイブ先を確保して必要なアーカイブ処理が進めば、ブロックされていたログ再利用を再開できる",
+      "explanation": "正解：A、B\n\nA（正しい）：ARCHIVELOGモードでは上書き前にログのアーカイブが必要なため、再利用できず更新に影響する。\nB（正しい）：アーカイブ先の容量や障害を解消すれば保留されていたアーカイブが可能になり、再利用条件が整う。\nC（誤り）：既存データへの読取りは更新時のログ再利用と同一条件ではなく、全SELECTが必ず失敗するわけではない。\nD（誤り）：満杯直後でも利用可能なオンラインREDOがあれば即時に全更新が止まるとは限らない。",
+      "topic": "アーカイブ先容量・障害判断",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch03q003",
+      "chapter": 3,
+      "question": "次の構成で、アーカイブログの保存先を判断する。\n\nDB_RECOVERY_FILE_DEST=/fra\nDB_RECOVERY_FILE_DEST_SIZE=80G\nLOG_ARCHIVE_DEST_1=\"LOCATION=/arch1\"\n\n他のアーカイブ先は指定していない。最も適切な説明はどれか。",
+      "choices": {
+        "A": "FRAが存在するため、指定されたLOCATIONは無視され、/fraのみに出力される",
+        "B": "明示された有効なアーカイブ先/arch1が使用され、FRAへの既定出力が追加されるとは限らない",
+        "C": "FRAと/arch1の両方に常に自動多重化される",
+        "D": "LOG_ARCHIVE_DEST_nのLOCATIONはバックアップセットの出力先を変更する設定である"
+      },
+      "correctChoice": "B",
+      "correctText": "明示された有効なアーカイブ先/arch1が使用され、FRAへの既定出力が追加されるとは限らない",
+      "explanation": "正解：B\n\nA（誤り）：FRAはデフォルトの候補になるが、明示されたアーカイブ先を上書きしない。\nB（正しい）：LOG_ARCHIVE_DEST_1でアーカイブ先が明示されているため、その設定が採用される。\nC（誤り）：アーカイブ先の多重化には複数の宛先を明示するなど構成が必要で、FRA設定だけで自動多重化されない。\nD（誤り）：LOG_ARCHIVE_DEST_nはアーカイブREDOログの宛先であり、RMANバックアップセットの出力先ではない。",
+      "topic": "アーカイブ先・設定優先",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q004",
+      "chapter": 3,
+      "question": "DB_RECOVERY_FILE_DESTを設定済みのDBで、FRAに関して正しいものを2つ選択してください。",
+      "choices": {
+        "A": "FRAを指定すると、DBのすべてのデータファイルが自動的にFRAへ移動する",
+        "B": "FRAの使用量上限を増やせば、OS上の空き容量が不足していても必ずファイルを格納できる",
+        "C": "DB_RECOVERY_FILE_DEST_SIZEはFRAの使用量上限を定め、物理ディスクの実容量を増やす設定ではない",
+        "D": "バックアップと稼働中DBのファイルを別の障害ドメインへ配置することは、同一ディスク障害による同時喪失リスクを減らす"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "DB_RECOVERY_FILE_DEST_SIZEはFRAの使用量上限を定め、物理ディスクの実容量を増やす設定ではない、バックアップと稼働中DBのファイルを別の障害ドメインへ配置することは、同一ディスク障害による同時喪失リスクを減らす",
+      "explanation": "正解：C、D\n\nA（誤り）：FRAはリカバリ関連ファイルの管理領域であり、既存データファイルを自動で移設しない。\nB（誤り）：論理的な使用上限を大きくしても実ディスク容量が不足していれば書込みは成功しない。\nC（正しい）：パラメータはOracleがFRAとして管理する割当上限であり、物理ストレージ容量そのものではない。\nD（正しい）：バックアップと原本が同じ物理ディスクにあると単一障害で双方を失うため、分離が有効である。",
+      "topic": "FRA・容量設計",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch03q005",
+      "chapter": 3,
+      "question": "ARCHIVELOGモードで、ログの多重化を目的として次の設定を行った。\n\nLOG_ARCHIVE_DEST_1=\"LOCATION=/arch_a\"\nLOG_ARCHIVE_DEST_2=\"LOCATION=/arch_b\"\n\n設定の目的と動作として最も適切なのはどれか。",
+      "choices": {
+        "A": "オンラインREDOロググループのメンバー数を自動的に2倍に増やす",
+        "B": "RMANのBACKUP DATABASEが同じバックアップピースを2つの場所へ常に保存する",
+        "C": "アーカイブREDOログを別々の宛先に保存する構成とし、片方の保存先に障害がある場合のリスクを低減する",
+        "D": "DB_RECOVERY_FILE_DEST_SIZEを2倍に増やす"
+      },
+      "correctChoice": "C",
+      "correctText": "アーカイブREDOログを別々の宛先に保存する構成とし、片方の保存先に障害がある場合のリスクを低減する",
+      "explanation": "正解：C\n\nA（誤り）：オンラインREDOの多重化はREDOログメンバーの構成で行い、アーカイブ宛先設定とは別である。\nB（誤り）：RMANの出力先設定はチャネルやFORMATなどで制御し、LOG_ARCHIVE_DEST_nとは独立する。\nC（正しい）：複数のLOG_ARCHIVE_DEST_nを使ってアーカイブ先を構成し、アーカイブログの保存先を分けられる。\nD（誤り）：FRAの割当容量はDB_RECOVERY_FILE_DEST_SIZEで決まり、アーカイブ先の数と連動しない。",
+      "topic": "ARCHIVELOG・多重化",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q006",
+      "chapter": 3,
+      "question": "RMANで次のコマンドを実行した。\n\nCONFIGURE RETENTION POLICY TO REDUNDANCY 2;\n\nこの設定に関する説明で正しいものを2つ選択してください。",
+      "choices": {
+        "A": "保存ポリシーはバックアップの世代数を基準に不要なバックアップを判断する",
+        "B": "全てのバックアップをちょうど2日間保持することを指定している",
+        "C": "保存対象のバックアップを使う復旧に必要なREDOは、単純に世代数を超えたという理由だけでは不要とみなせない",
+        "D": "CONFIGUREコマンドは現在のRMANセッションを終了すると失効する"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "保存ポリシーはバックアップの世代数を基準に不要なバックアップを判断する、保存対象のバックアップを使う復旧に必要なREDOは、単純に世代数を超えたという理由だけでは不要とみなせない",
+      "explanation": "正解：A、C\n\nA（正しい）：冗長性2はリカバリに利用可能な全体バックアップ等の世代を基準に保持対象を判断する。\nB（誤り）：冗長性は日数ではなくバックアップ世代数の考え方である。日数指定はRECOVERY WINDOWを使う。\nC（正しい）：バックアップから復旧するには後続のREDOが必要になるため、必要なアーカイブREDOも考慮される。\nD（誤り）：CONFIGUREは制御ファイル等のRMANリポジトリへ永続的に保存される。",
+      "topic": "RMAN保存ポリシー・冗長性",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch03q007",
+      "chapter": 3,
+      "question": "毎日午前0時にバックアップを取得し、現在は水曜12時である。「月曜12時以降の任意時点」に復旧できる状態を目標にRMANの保存ポリシーを設定する。最も適切なのはどれか。",
+      "choices": {
+        "A": "CONFIGURE CONTROLFILE AUTOBACKUP ON;",
+        "B": "CONFIGURE RETENTION POLICY TO REDUNDANCY 2;",
+        "C": "CONFIGURE RETENTION POLICY TO NONE;",
+        "D": "CONFIGURE RETENTION POLICY TO RECOVERY WINDOW OF 2 DAYS;"
+      },
+      "correctChoice": "D",
+      "correctText": "CONFIGURE RETENTION POLICY TO RECOVERY WINDOW OF 2 DAYS;",
+      "explanation": "正解：D\n\nA（誤り）：制御ファイルの自動バックアップは復旧に役立つが、保存対象期間を設定する機能ではない。\nB（誤り）：冗長性2は2世代のバックアップを基準にするため、月曜12時を含む任意時点の復旧能力を直接指定できない。\nC（誤り）：NONEは保存ポリシーを無効にし、2日間の復旧可能性の目標を定義しない。\nD（正しい）：リカバリ期間2日なら水曜12時から2日前の月曜12時以降を復旧可能にするため、必要なより古い基点バックアップも保持対象になる。",
+      "topic": "リカバリ期間・時刻計算",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q008",
+      "chapter": 3,
+      "question": "RMANで「CONFIGURE RETENTION POLICY TO RECOVERY WINDOW OF 3 DAYS;」を指定した。毎日0時にDB全体のバックアップを取得している。現在金曜12時である。正しい説明はどれか。",
+      "choices": {
+        "A": "現在から3日前の火曜12時に戻すため、火曜12時より前に取得したバックアップも必要になり得る",
+        "B": "水曜0時のバックアップ以降があれば、火曜12時の復旧点については確認不要となる",
+        "C": "3日前より古い時刻に取得されたバックアップは、作成時刻だけで直ちに物理削除される",
+        "D": "指定期間は保存ファイルの最小経過日数を表し、復旧可能時点とは無関係である"
+      },
+      "correctChoice": "A",
+      "correctText": "現在から3日前の火曜12時に戻すため、火曜12時より前に取得したバックアップも必要になり得る",
+      "explanation": "正解：A\n\nA（正しい）：火曜12時へ復旧するにはその時刻より前のバックアップを起点として、その時点までREDOを適用する必要がある。\nB（誤り）：水曜0時のバックアップでは火曜12時へ時間を戻せないため、より前の基点が必要になり得る。\nC（誤り）：期限判定と物理削除は別処理であり、時刻の経過だけで全ファイルが即時削除されない。\nD（誤り）：RECOVERY WINDOWは復旧可能期間を定義するポリシーである。",
+      "topic": "リカバリ期間・境界条件",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q009",
+      "chapter": 3,
+      "question": "管理者が次を順に実行した。\n\nCONFIGURE RETENTION POLICY TO REDUNDANCY 2;\nCONFIGURE RETENTION POLICY TO RECOVERY WINDOW OF 7 DAYS;\n\n設定後の保存ポリシーに関して正しいものはどれか。",
+      "choices": {
+        "A": "冗長性2と7日間の両方を満たしたバックアップだけが残される",
+        "B": "7日間のリカバリ期間が有効となり、直前の冗長性設定との併用ではない",
+        "C": "先に指定した冗長性2だけが有効で、後のCONFIGUREは拒否される",
+        "D": "どちらの設定もセッション終了と同時に消える"
+      },
+      "correctChoice": "B",
+      "correctText": "7日間のリカバリ期間が有効となり、直前の冗長性設定との併用ではない",
+      "explanation": "正解：B\n\nA（誤り）：RMANは保存ポリシーとして冗長性とリカバリ期間を同時に重ねて指定するものではない。\nB（正しい）：最後に指定したRECOVERY WINDOW 7 DAYSが有効な方式になる。\nC（誤り）：同じ保存ポリシーの新しいCONFIGURE指定により以前の方式を置き換えられる。\nD（誤り）：CONFIGUREは永続設定なのでセッション終了では自動的に消えない。",
+      "topic": "保存ポリシー・設定変更",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q010",
+      "chapter": 3,
+      "question": "FRAの容量不足が発生している。RMANの保存ポリシーは設定済みである。不要ファイルの扱いとして正しいものを2つ選択してください。",
+      "choices": {
+        "A": "保存ポリシー上不要と判断されたファイルでも、FRA以外にあるRMANバックアップは常にOracleにより自動削除される",
+        "B": "FRA内の再利用可能なファイルは、空き容量を確保する必要が生じた際に自動削除の対象となり得る",
+        "C": "保存ポリシー上不要と判断されれば、保証付きリストアポイントの保護対象も無条件に破棄される",
+        "D": "保存ポリシーの判定と物理ファイルの削除は異なる概念であり、FRA以外では削除操作が必要になる場合がある"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "FRA内の再利用可能なファイルは、空き容量を確保する必要が生じた際に自動削除の対象となり得る、保存ポリシーの判定と物理ファイルの削除は異なる概念であり、FRA以外では削除操作が必要になる場合がある",
+      "explanation": "正解：B、D\n\nA（誤り）：FRA以外のバックアップが保存ポリシーの判定だけで一律に物理削除されるわけではない。\nB（正しい）：FRAは領域管理のため再利用可能なファイルを必要に応じて削除・再利用できる。\nC（誤り）：保証付きリストアポイントなどの保護要件があるファイルは、単純な古さだけで無条件には削除できない。\nD（正しい）：OBSOLETE判定は不要なバックアップの識別であり、FRA外のファイルの物理削除はDELETE OBSOLETE等で扱う。",
+      "topic": "FRA・自動削除",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch03q011",
+      "chapter": 3,
+      "question": "RMANで次を実行した。\n\nCONFIGURE RETENTION POLICY TO NONE;\n\nこの操作の影響として正しいものはどれか。",
+      "choices": {
+        "A": "以後のBACKUP DATABASEコマンドを無効にする",
+        "B": "既存のバックアップピースを一括削除する",
+        "C": "保存ポリシーによる不要バックアップの判定を無効化する",
+        "D": "アーカイブログの記録機能をNOARCHIVELOGモードへ切り替える"
+      },
+      "correctChoice": "C",
+      "correctText": "保存ポリシーによる不要バックアップの判定を無効化する",
+      "explanation": "正解：C\n\nA（誤り）：バックアップの保存方針を無効にしても、RMANバックアップの実行自体を禁止しない。\nB（誤り）：CONFIGUREはポリシー変更であり、物理的なバックアップ削除コマンドではない。\nC（正しい）：保存ポリシーそのものを無効にする設定で、バックアップの不要判定が利用できなくなる。\nD（誤り）：ログモード変更はALTER DATABASE ARCHIVELOG/NOARCHIVELOGで実行し、保存ポリシーと別である。",
+      "topic": "保存ポリシー・無効化",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q012",
+      "chapter": 3,
+      "question": "RMANの既定デバイスをテープ（SBT）へ変更する方針である。適切な設定コマンドはどれか。",
+      "choices": {
+        "A": "CONFIGURE DEVICE TYPE DISK BACKUP TYPE TO COPY;",
+        "B": "CONFIGURE CHANNEL DEVICE TYPE DISK FORMAT \"/backup/%U\";",
+        "C": "CONFIGURE RETENTION POLICY TO REDUNDANCY 1;",
+        "D": "CONFIGURE DEFAULT DEVICE TYPE TO SBT;"
+      },
+      "correctChoice": "D",
+      "correctText": "CONFIGURE DEFAULT DEVICE TYPE TO SBT;",
+      "explanation": "正解：D\n\nA（誤り）：これはディスク用のバックアップ形式の設定であり、既定デバイス種別をSBTに変えるものではない。\nB（誤り）：これはディスクチャネルのFORMAT設定であり、既定デバイス種別の変更ではない。\nC（誤り）：これは保存ポリシーであって、バックアップ先デバイスの設定ではない。\nD（正しい）：DEFAULT DEVICE TYPEで既定の出力先デバイス種別を指定でき、SBTはテープ側の媒体管理を表す。",
+      "topic": "RMAN設定・デバイス",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q013",
+      "chapter": 3,
+      "question": "RMANで、次の永続設定を行った。\n\nCONFIGURE CHANNEL DEVICE TYPE DISK FORMAT \"/backup/base_%U\";\n\n続けて次のバックアップを実行した。\n\nBACKUP AS BACKUPSET DATABASE FORMAT \"/backup/once_%U\";\n\nこのバックアップセットの出力先に関する最も適切な説明はどれか。",
+      "choices": {
+        "A": "実行したBACKUPのFORMATが優先され、/backup/once_から始まる名前が使われる",
+        "B": "永続設定は一時設定に優先するため/base_の名前で出力される",
+        "C": "BACKUPのFORMATはイメージコピーにしか指定できないため構文エラーになる",
+        "D": "FRAが設定されていれば両方のFORMATが必ず無視される"
+      },
+      "correctChoice": "A",
+      "correctText": "実行したBACKUPのFORMATが優先され、/backup/once_から始まる名前が使われる",
+      "explanation": "正解：A\n\nA（正しい）：その回のバックアップに指定したFORMATが採用されるため、保存済み設定を変更せず出力先を変えられる。\nB（誤り）：個々のBACKUPコマンドに明示したFORMATは同じ出力のチャネル設定より優先される。\nC（誤り）：バックアップセットにもFORMAT句でバックアップピース名を指定できる。\nD（誤り）：FRAは明示的な出力先がないときの既定先であり、明示FORMATを一律上書きしない。",
+      "topic": "FORMAT・優先順位",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q014",
+      "chapter": 3,
+      "question": "ディスク用の既定バックアップ形式をイメージコピーにしたい。次のうち正しいRMAN設定はどれか。",
+      "choices": {
+        "A": "CONFIGURE BACKUP TYPE TO COPY;",
+        "B": "CONFIGURE DEVICE TYPE DISK BACKUP TYPE TO COPY;",
+        "C": "CONFIGURE DEFAULT DEVICE TYPE TO COPY;",
+        "D": "CONFIGURE CHANNEL DEVICE TYPE DISK BACKUP TYPE TO COPY;"
+      },
+      "correctChoice": "B",
+      "correctText": "CONFIGURE DEVICE TYPE DISK BACKUP TYPE TO COPY;",
+      "explanation": "正解：B\n\nA（誤り）：バックアップ形式はデバイス単位のCONFIGURE DEVICE TYPEで設定し、この構文は適切でない。\nB（正しい）：デバイス種別DISKに対して、既定のバックアップ形式をCOPYに設定できる。\nC（誤り）：DEFAULT DEVICE TYPEはDISKまたはSBTなどの出力媒体を選ぶもので、COPYはデバイス種別ではない。\nD（誤り）：チャネルの設定とデバイスごとのバックアップ形式設定は別であり、適切な構文はCONFIGURE DEVICE TYPEである。",
+      "topic": "バックアップ形式・設定構文",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q015",
+      "chapter": 3,
+      "question": "ディスク用の既定バックアップ形式がCOPYに設定されている。管理者が次を実行した。\n\nBACKUP AS COMPRESSED BACKUPSET DATABASE;\n\n出力形式について正しいものはどれか。",
+      "choices": {
+        "A": "永続設定により必ずイメージコピーになる",
+        "B": "圧縮指定はイメージコピーでも有効なのでイメージコピーになる",
+        "C": "BACKUP文のAS句が優先され、圧縮されたバックアップセットになる",
+        "D": "デバイスの既定形式がCOPYの場合、AS BACKUPSETを指定してもRMANは実行しない"
+      },
+      "correctChoice": "C",
+      "correctText": "BACKUP文のAS句が優先され、圧縮されたバックアップセットになる",
+      "explanation": "正解：C\n\nA（誤り）：BACKUP文中のAS指定は既定形式を上書きできる。\nB（誤り）：RMANのバックアップセット圧縮はバックアップセットに対する形式であり、COPYへ強制的に切り替わらない。\nC（正しい）：当該実行の明示指定により圧縮バックアップセットを作成する。\nD（誤り）：永続設定は既定値であり、BACKUP文での明示指定を禁止しない。",
+      "topic": "BACKUP・既定形式の上書き",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q016",
+      "chapter": 3,
+      "question": "制御ファイルの自動バックアップを有効化しているARCHIVELOGモードの19cデータベースがある。次のうち、正しい説明を2つ選択してください。",
+      "choices": {
+        "A": "正常終了したBACKUPの後、自動バックアップで制御ファイルと使用中のSPFILEを保護できる",
+        "B": "自動バックアップをONにすると、データファイルのバックアップが不要になる",
+        "C": "自動バックアップは必ずターゲットDBと同じデータファイル内に格納される",
+        "D": "データベースの構造が変更された場合でも、ARCHIVELOGモードなら自動バックアップの契機になり得る"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "正常終了したBACKUPの後、自動バックアップで制御ファイルと使用中のSPFILEを保護できる、データベースの構造が変更された場合でも、ARCHIVELOGモードなら自動バックアップの契機になり得る",
+      "explanation": "正解：A、D\n\nA（正しい）：制御ファイルの自動バックアップでは構成メタデータと使用中のSPFILEを別途バックアップできる。\nB（誤り）：制御ファイルとSPFILEを保護しても、利用者データのデータファイル自体は別途保護が必要である。\nC（誤り）：自動バックアップは独立したバックアップピースとして作成される。\nD（正しい）：ARCHIVELOGモードで制御ファイルに影響する構造変更は自動バックアップの契機になる。",
+      "topic": "制御ファイル・自動バックアップ",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch03q017",
+      "chapter": 3,
+      "question": "19cのCDBで次を実行した。\n\nCONFIGURE CONTROLFILE AUTOBACKUP OFF;\nBACKUP DATABASE;\n\nこの結果について正しい説明はどれか。ただしDBはSPFILEで起動しており、データファイル1もバックアップ対象に含まれる。",
+      "choices": {
+        "A": "制御ファイル自動バックアップをOFFにすると、制御ファイルはどのような方法でもバックアップされない",
+        "B": "BACKUP DATABASEは失敗する。制御ファイル自動バックアップをONにしなければならない",
+        "C": "SPFILEは自動バックアップONの場合でも一切バックアップされない",
+        "D": "自動バックアップ専用の別ピースは作られないが、データファイル1を含むバックアップに制御ファイルとSPFILEが含まれる"
+      },
+      "correctChoice": "D",
+      "correctText": "自動バックアップ専用の別ピースは作られないが、データファイル1を含むバックアップに制御ファイルとSPFILEが含まれる",
+      "explanation": "正解：D\n\nA（誤り）：OFFは「独立した自動バックアップ」を無効にする設定であり、明示バックアップ等まで禁止しない。\nB（誤り）：データベースのバックアップは自動バックアップOFFでも実行できる。\nC（誤り）：SPFILE使用中なら制御ファイル自動バックアップで保護できる。\nD（正しい）：データファイル1を含むバックアップでは制御ファイル・使用中SPFILEがRMANにより含められる。",
+      "topic": "制御ファイル・OFF時の動作",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q018",
+      "chapter": 3,
+      "question": "RMANのバックアップ最適化が有効な環境で、バックアップ済みの読み取り専用表領域を再びバックアップしようとしている。内容は前回から変更されていない。確実に今回も取得したい場合の適切な方法はどれか。",
+      "choices": {
+        "A": "BACKUP ... FORCEを指定して、バックアップ最適化によるスキップを回避する",
+        "B": "CONFIGURE RETENTION POLICY TO NONEに変更する",
+        "C": "ARCHIVELOGモードをNOARCHIVELOGに変更する",
+        "D": "CONFIGURE CONTROLFILE AUTOBACKUP OFFに変更する"
+      },
+      "correctChoice": "A",
+      "correctText": "BACKUP ... FORCEを指定して、バックアップ最適化によるスキップを回避する",
+      "explanation": "正解：A\n\nA（正しい）：FORCEにより今回のバックアップでは最適化によるスキップを抑止できる。\nB（誤り）：保存ポリシーを無効化してもバックアップ最適化のスキップ規則を直接変更しない。\nC（誤り）：ログモードの変更はバックアップ最適化を解除する方法ではなく、運用上の復旧能力を損ねる。\nD（誤り）：制御ファイル自動バックアップの設定は、読取り専用表領域をスキップするかの判定と別である。",
+      "topic": "最適化・FORCE",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q019",
+      "chapter": 3,
+      "question": "次の設定で運用している。\n\nCONFIGURE BACKUP OPTIMIZATION ON;\nCONFIGURE RETENTION POLICY TO REDUNDANCY 2;\n\n正しい説明を2つ選択してください。",
+      "choices": {
+        "A": "冗長性2はバックアップ対象データファイルの変更ブロックだけを保存する機能である",
+        "B": "バックアップ最適化は、変更のない対象について重複バックアップを省くための判定に関係する",
+        "C": "両設定は役割が異なり、一方はバックアップ取得時の省略、他方は復旧に必要なバックアップの保持方針に関係する",
+        "D": "冗長性2を指定すると、バックアップ最適化は自動的にOFFになる"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "バックアップ最適化は、変更のない対象について重複バックアップを省くための判定に関係する、両設定は役割が異なり、一方はバックアップ取得時の省略、他方は復旧に必要なバックアップの保持方針に関係する",
+      "explanation": "正解：B、C\n\nA（誤り）：冗長性はバックアップの世代数を基準に保持を判断する仕組みで、増分バックアップの変更ブロック選別ではない。\nB（正しい）：バックアップ最適化は同等のバックアップが既に存在する対象の取得を省けるかに関係する。\nC（正しい）：取得時のスキップと保持・不要判定は別の観点である。\nD（誤り）：保存ポリシー変更が最適化設定を自動的に無効化することはない。",
+      "topic": "RMAN設定・機能の切分け",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch03q020",
+      "chapter": 3,
+      "question": "RMANのアーカイブREDOログ削除ポリシーとして次を指定した。\n\nCONFIGURE ARCHIVELOG DELETION POLICY TO BACKED UP 2 TIMES TO DEVICE TYPE SBT;\n\nこのポリシーの意味として最も適切なのはどれか。",
+      "choices": {
+        "A": "SBTバックアップを2日後に削除する",
+        "B": "同じアーカイブログがSBTデバイスへ2回バックアップされることを削除可能性の条件にする",
+        "C": "アーカイブログをディスクに1回バックアップすれば2回分として扱う",
+        "D": "各アーカイブログを2つのFRAへ同時コピーする"
+      },
+      "correctChoice": "B",
+      "correctText": "同じアーカイブログがSBTデバイスへ2回バックアップされることを削除可能性の条件にする",
+      "explanation": "正解：B\n\nA（誤り）：TIMESは日数ではなく、該当デバイスへのバックアップ回数である。\nB（正しい）：指定されたデバイス種別SBTでのバックアップ回数をログ削除の条件として使う。\nC（誤り）：指定がSBTなので、ディスクバックアップを勝手にSBTの回数として数えない。\nD（誤り）：削除条件の設定であり、アーカイブ先を増やす設定ではない。",
+      "topic": "アーカイブログ削除・バックアップ回数",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q021",
+      "chapter": 3,
+      "question": "Data Guard環境で複数のスタンバイDBへアーカイブREDOログを転送している。削除ポリシーの「SHIPPED TO ALL STANDBY」と「APPLIED ON ALL STANDBY」の違いとして正しいものを2つ選択してください。",
+      "choices": {
+        "A": "SHIPPEDはスタンバイ側への転送完了を基準とし、適用済みまでは要求しない",
+        "B": "ALLはプライマリDBの全表領域を対象にする意味である",
+        "C": "APPLIEDは受信側でREDOが適用されたことを基準とする",
+        "D": "SHIPPEDとAPPLIEDは転送済みなら常に同じ結果となり、区別する意味はない"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "SHIPPEDはスタンバイ側への転送完了を基準とし、適用済みまでは要求しない、APPLIEDは受信側でREDOが適用されたことを基準とする",
+      "explanation": "正解：A、C\n\nA（正しい）：転送済みかを評価するため、受信後に適用が遅れていても条件が成立する場合がある。\nB（誤り）：ALLは関連する全スタンバイDBを対象とする意味であり、全表領域を指さない。\nC（正しい）：受信したREDOがスタンバイ側の回復処理で適用済みであることを条件にできる。\nD（誤り）：受信と適用は別段階であり、適用遅延があれば両条件の評価は異なる。",
+      "topic": "Data Guard・削除条件",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch03q022",
+      "chapter": 3,
+      "question": "次の環境で、FRA内のアーカイブREDOログの削除判断を行う。\n\nCONFIGURE ARCHIVELOG DELETION POLICY TO NONE;\n\nこの状態について正しいものはどれか。",
+      "choices": {
+        "A": "NONEはアーカイブREDOの生成を無効にする",
+        "B": "NONEならFRA内の全アーカイブログが無条件に永久保存される",
+        "C": "専用削除ポリシーが未設定でも、FRAではバックアップ済みか保存ポリシー上不要か等の条件で再利用候補になり得る",
+        "D": "NONEならRMANの保存ポリシーも自動的にNONEになる"
+      },
+      "correctChoice": "C",
+      "correctText": "専用削除ポリシーが未設定でも、FRAではバックアップ済みか保存ポリシー上不要か等の条件で再利用候補になり得る",
+      "explanation": "正解：C\n\nA（誤り）：削除ポリシーはログファイルの整理条件を定め、アーカイブ動作のON/OFFは決定しない。\nB（誤り）：FRA内では領域の必要性とファイルの再利用可能性に基づく整理が行われる。\nC（正しい）：専用削除ポリシーNONEは常時保持の保証ではなく、FRAの再利用可能条件が作用する。\nD（誤り）：アーカイブログ削除ポリシーとRMANバックアップ保存ポリシーは別の設定である。",
+      "topic": "削除ポリシー・NONE",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q023",
+      "chapter": 3,
+      "question": "RMANでSHOW ALLを実行したところ、次の行が表示された。\n\nCONFIGURE RETENTION POLICY TO REDUNDANCY 1; # default\n\n正しい説明はどれか。",
+      "choices": {
+        "A": "REDUNDANCY 1は今だけ有効であり、再接続時に必ずREDUNDANCY 2へ変わる",
+        "B": "SHOW ALLを実行すると設定値が毎回初期化される",
+        "C": "# defaultはこの設定がエラーで無効化されていることを示す",
+        "D": "REDUNDANCY 1はRMANの既定設定を示し、# defaultはその設定がデフォルトであることを示すコメントである"
+      },
+      "correctChoice": "D",
+      "correctText": "REDUNDANCY 1はRMANの既定設定を示し、# defaultはその設定がデフォルトであることを示すコメントである",
+      "explanation": "正解：D\n\nA（誤り）：デフォルト設定も永続的に有効な設定として表示され、再接続で2に変化しない。\nB（誤り）：SHOWは参照操作であり、CLEARや別のCONFIGUREのような設定変更は行わない。\nC（誤り）：コメントはエラー表示ではなく、既定設定を識別するもの。\nD（正しい）：SHOW ALLは有効な設定をCONFIGURE形式で表示し、未変更の既定値に# defaultを付ける。",
+      "topic": "SHOW ALL・表示解釈",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q024",
+      "chapter": 3,
+      "question": "RMANで過去に次を設定した。\n\nCONFIGURE DEFAULT DEVICE TYPE TO SBT;\n\n以後、既定デバイス種別だけを製品デフォルトへ戻す。適切なコマンドはどれか。",
+      "choices": {
+        "A": "CONFIGURE DEFAULT DEVICE TYPE CLEAR;",
+        "B": "CONFIGURE RETENTION POLICY CLEAR;",
+        "C": "CONFIGURE DEFAULT DEVICE TYPE TO NONE;",
+        "D": "DELETE OBSOLETE;"
+      },
+      "correctChoice": "A",
+      "correctText": "CONFIGURE DEFAULT DEVICE TYPE CLEAR;",
+      "explanation": "正解：A\n\nA（正しい）：指定項目にCLEARを実行すると、そのCONFIGURE項目を既定値へ戻せる。\nB（誤り）：保存ポリシーのCLEARであり、既定デバイスの変更ではない。\nC（誤り）：NONEは既定出力先デバイス種別の有効な指定ではない。\nD（誤り）：DELETE OBSOLETEは不要バックアップの削除であり、CONFIGUREのリセットではない。",
+      "topic": "CONFIGURE・CLEAR",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q025",
+      "chapter": 3,
+      "question": "RMANの永続設定を操作する。次の記述のうち正しいものを2つ選択してください。",
+      "choices": {
+        "A": "CONFIGUREで設定された情報はRMANセッション終了時に必ず削除される",
+        "B": "RMANの永続設定はターゲットDBの制御ファイル内のリポジトリで管理される",
+        "C": "V$RMAN_CONFIGURATIONはデータファイルの使用率だけを表示するビューである",
+        "D": "SHOW ALLは現在有効な設定をまとめて表示できる"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "RMANの永続設定はターゲットDBの制御ファイル内のリポジトリで管理される、SHOW ALLは現在有効な設定をまとめて表示できる",
+      "explanation": "正解：B、D\n\nA（誤り）：CONFIGUREは永続設定なので、新たなセッションでも設定が維持される。\nB（正しい）：制御ファイルのRMANリポジトリが設定情報を保持する。\nC（誤り）：V$RMAN_CONFIGURATIONはRMAN構成情報を確認するビューであり、データファイル使用率専用ではない。\nD（正しい）：SHOW ALLで既定値も含め、複数のRMAN設定をまとめて確認できる。",
+      "topic": "永続設定・確認方法",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch03q026",
+      "chapter": 3,
+      "question": "Linux上のRMANでディスクバックアップを取得する。FRAは設定されておらず、チャネルFORMATもBACKUP文のFORMATも指定していない。次のうち、通常の既定のバックアップ出力先として適切なのはどれか。",
+      "choices": {
+        "A": "$ORACLE_HOME/network/admin 配下",
+        "B": "$ORACLE_HOME/dbs 配下",
+        "C": "$ORACLE_HOME/rdbms/admin 配下",
+        "D": "アーカイブREDOログの最初のLOG_ARCHIVE_DEST_nと必ず同一の場所"
+      },
+      "correctChoice": "B",
+      "correctText": "$ORACLE_HOME/dbs 配下",
+      "explanation": "正解：B\n\nA（誤り）：network/adminはOracle Net関連の構成ファイルの管理先であり、RMANバックアップの既定先ではない。\nB（正しい）：FRAも出力先指定もないUNIX/Linux環境では、既定のディスクバックアップ先はORACLE_HOME/dbs配下となる。\nC（誤り）：rdbms/adminは管理スクリプト等の格納先であり、通常のディスクバックアップの既定先ではない。\nD（誤り）：アーカイブREDOの宛先とRMANバックアップ出力先は別に決定される。",
+      "topic": "バックアップ出力・デフォルト",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q027",
+      "chapter": 3,
+      "question": "RMANのバックアップピース名について、同一ディレクトリへ継続的にバックアップし、名前衝突を回避したい。適切なFORMAT指定子の利用として正しいものはどれか。",
+      "choices": {
+        "A": "%dは必ずバックアップピースを一意にするため、他の指定子を使う必要はない",
+        "B": "%sはバックアップセット番号を示すが、どの状況でも単独で絶対的な一意性が保証される",
+        "C": "%UはOracleが一意の名前を生成するために利用でき、バックアップ名の衝突回避に適している",
+        "D": "%Tはタイムスタンプで必ず時刻の秒まで異なるため、並列バックアップでも衝突しない"
+      },
+      "correctChoice": "C",
+      "correctText": "%UはOracleが一意の名前を生成するために利用でき、バックアップ名の衝突回避に適している",
+      "explanation": "正解：C\n\nA（誤り）：%dはDB名を表すため、同一DBの複数バックアップで同じ値になり得る。\nB（誤り）：%sはセット番号で、他の識別要素を含まず万能な名前一意性を保証するための指定子ではない。\nC（正しい）：%Uはバックアップ名を一意に生成する用途に利用でき、Oracleが標準的に推奨する。\nD（誤り）：%TはYYYYMMDDの年月日を表し、秒単位の時刻ではない。",
+      "topic": "FORMAT・指定子",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q028",
+      "chapter": 3,
+      "question": "次のFORMATを使用してRMANバックアップを取得する。\n\nFORMAT \"/backup/%d_%T_%s_%U\"\n\n指定子に関する正しい説明を2つ選択してください。",
+      "choices": {
+        "A": "%TはYYYYMMDD形式の日付を表し、%Dは月内の日を表す",
+        "B": "%dはデータベース名、%sはバックアップセット番号を表す",
+        "C": "%Uは出力先となるFRAのサイズを表す",
+        "D": "%eはリカバリ期間の日数を表す"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "%TはYYYYMMDD形式の日付を表し、%Dは月内の日を表す、%dはデータベース名、%sはバックアップセット番号を表す",
+      "explanation": "正解：A、B\n\nA（正しい）：%Tは日付YYYYMMDDであり、%Dは日（DD）を指定する。\nB（正しい）：%dと%sはそれぞれDB名とバックアップセット番号という異なる識別情報である。\nC（誤り）：%Uは一意なファイル名の生成に使う指定子で、容量を表すものではない。\nD（誤り）：%eはログ順序番号を表し、保存ポリシーの日数ではない。",
+      "topic": "FORMAT・画像表の読み取り",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch03q029",
+      "chapter": 3,
+      "question": "RMANで「CONFIGURE DEVICE TYPE DISK BACKUP TYPE TO COPY;」が設定されている。テープ装置にも同様のCOPY形式を既定で設定して運用したいという要望が出た。適切な判断はどれか。",
+      "choices": {
+        "A": "テープとディスクの両方へイメージコピーを作成できるため、SBTをCOPYに変更する",
+        "B": "DB_RECOVERY_FILE_DEST_SIZEを増やせばテープへCOPY形式で出力できる",
+        "C": "バックアップセットはディスクでしか使用できないため、テープへバックアップすること自体が不可能である",
+        "D": "イメージコピーの出力先はディスクに制限されるため、SBTではバックアップセットを利用する"
+      },
+      "correctChoice": "D",
+      "correctText": "イメージコピーの出力先はディスクに制限されるため、SBTではバックアップセットを利用する",
+      "explanation": "正解：D\n\nA（誤り）：RMANのイメージコピーはテープへ直接出力する形式ではない。\nB（誤り）：FRAの容量指定はテープに使用できるバックアップ形式を変えない。\nC（誤り）：バックアップセットはテープの利用にも対応する。\nD（正しい）：バックアップセットはDISKにもSBTにも利用でき、COPYは基本的にディスクの形式である。",
+      "topic": "バックアップ形式・SBT制約",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q030",
+      "chapter": 3,
+      "question": "RMANでディスクチャネルの出力先を設定した直後、次の操作を行った。\n\nCONFIGURE CHANNEL DEVICE TYPE DISK FORMAT \"/rman/a_%U\";\nSHOW ALL;\n\nその後インスタンスを再起動し、RMANに再接続した。正しい説明はどれか。",
+      "choices": {
+        "A": "SHOW ALLは参照のみで、設定はRMANリポジトリに保持され再接続後も有効である",
+        "B": "FORMAT設定は初期化パラメータファイルにのみ保存され、制御ファイルには含まれない",
+        "C": "SHOW ALLは今回のFORMATを表示するが、インスタンス再起動後は元の既定値に戻る",
+        "D": "BACKUPを1回実行しない限りCONFIGUREは保存されない"
+      },
+      "correctChoice": "A",
+      "correctText": "SHOW ALLは参照のみで、設定はRMANリポジトリに保持され再接続後も有効である",
+      "explanation": "正解：A\n\nA（正しい）：SHOW ALLは設定参照であり、設定内容を変えず再起動後も有効となる。\nB（誤り）：RMANのCONFIGURE設定は基本的に制御ファイル側のリポジトリに保持される。\nC（誤り）：CONFIGUREはRMANリポジトリへ永続保存されるため、SHOW ALLや再起動で失効しない。\nD（誤り）：CONFIGUREの反映にBACKUPコマンドの実行は必須ではない。",
+      "topic": "設定の永続性・実行結果",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q031",
+      "chapter": 3,
+      "question": "ARCHIVELOGモードのDBで、稼働中の更新処理が停止した。アーカイブ先ディスクが満杯だが、FRAには十分な空きがある。LOG_ARCHIVE_DEST_1のLOCATIONは満杯のディスクを指している。最も妥当な初動判断はどれか。",
+      "choices": {
+        "A": "FRAに空きがあるので、アーカイブ宛先設定は自動的にFRAへ切り替わっているはずだと判断する",
+        "B": "アーカイブログの保存先が不足し、オンラインREDOを再利用できない状況か確認したうえで宛先の容量・設定を復旧する",
+        "C": "RMANの保存ポリシーをNONEにするだけで、そのディスクの空き容量が直ちに増える",
+        "D": "アーカイブ先が満杯なら自動的にNOARCHIVELOGへ切り替わるため変更を行わない"
+      },
+      "correctChoice": "B",
+      "correctText": "アーカイブログの保存先が不足し、オンラインREDOを再利用できない状況か確認したうえで宛先の容量・設定を復旧する",
+      "explanation": "正解：B\n\nA（誤り）：明示されたLOG_ARCHIVE_DEST_nはFRAが空いているからといって自動的に置き換わらない。\nB（正しい）：アーカイブが滞るとログ再利用が妨げられるため、アーカイブ先の使用状況とログスイッチを調査するのが適切である。\nC（誤り）：保存ポリシー無効化はディスク上のファイルを物理削除する操作ではない。\nD（誤り）：ログモードはディスク満杯を契機に自動でNOARCHIVELOGへ変更されない。",
+      "topic": "運用シナリオ・切り分け",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch03q032",
+      "chapter": 3,
+      "question": "FRA内の再利用可能領域が不足している。保存ポリシーはRECOVERY WINDOW OF 7 DAYSであり、7日前へ復旧するのに必要なバックアップとREDOが存在する。対応策を検討するとき、最も適切な考え方はどれか。",
+      "choices": {
+        "A": "FRAを空けるため、必要なREDOを判断せず7日以内のアーカイブログをすべて削除する",
+        "B": "保存ポリシーはディスク容量を自動的に物理拡張するため、追加対処は不要である",
+        "C": "保存ポリシーは復旧可能性を考慮するため、必要ファイルを保持したままFRA容量拡張や不要ファイルの整理を検討する",
+        "D": "バックアップの世代数を増やせば、必ずFRAの空き容量も増える"
+      },
+      "correctChoice": "C",
+      "correctText": "保存ポリシーは復旧可能性を考慮するため、必要ファイルを保持したままFRA容量拡張や不要ファイルの整理を検討する",
+      "explanation": "正解：C\n\nA（誤り）：必要なREDOを消すと復旧可能期間を満たせなくなる可能性がある。\nB（誤り）：保存ポリシーは必要ファイルの保持判断であり、物理ストレージ拡張は行わない。\nC（正しい）：復旧可能期間を維持しつつ、再利用可能ファイルの削除、容量追加、バックアップ先見直しなどを検討する。\nD（誤り）：保持する世代を増やす設定は通常保持対象が増え、空きを増やす保証はない。",
+      "topic": "FRA・保持と容量のトレードオフ",
+      "difficulty": "hard"
     }
   ]
 }
