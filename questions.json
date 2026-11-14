@@ -34,6 +34,31 @@
       "chapter": 7,
       "title": "バックアップオプション",
       "description": "圧縮、並列チャネル、マルチセクション、多重化、アーカイブバックアップ、リカバリ関連ファイル、手動バックアップ"
+    },
+    {
+      "chapter": 8,
+      "title": "バックアップの暗号化",
+      "description": "透過・パスワード・デュアルモード、キーストア、RMAN暗号化と復号条件"
+    },
+    {
+      "chapter": 10,
+      "title": "完全リカバリ",
+      "description": "RESTORE・RECOVER、ARCHIVELOG/NOARCHIVELOG、障害範囲と復旧手順"
+    },
+    {
+      "chapter": 11,
+      "title": "ファイル障害の復旧・不完全リカバリ・PITR",
+      "description": "一時ファイル、制御ファイル、SPFILE、REDOログ、TSPITR、表リカバリ"
+    },
+    {
+      "chapter": 13,
+      "title": "フラッシュバックテクノロジー",
+      "description": "フラッシュバック問合せ・履歴・データアーカイブ・表・トランザクション・ドロップ"
+    },
+    {
+      "chapter": 14,
+      "title": "フラッシュバックデータベース",
+      "description": "Flashback Database・フラッシュバックログ・保証付きリストアポイント・運用条件"
     }
   ],
   "questions": [
@@ -3168,6 +3193,1554 @@
       "topic": "ユーザー管理バックアップの制約",
       "difficulty": "hard",
       "multiple": true
+    },
+    {
+      "id": "ch08q001",
+      "chapter": 8,
+      "question": "暗号化バックアップを通常は本番サイトでリストアするが、キーストアを持ち込めない別サイトで復元する可能性もある。RMANの暗号化方式として適切な説明を2つ選べ。",
+      "choices": {
+        "A": "透過モードはバックアップ時に指定したパスワードだけで復号できるため、キーストアを別サイトへ持ち込まなくてよい。",
+        "B": "デュアルモードはキーストアによる復号と、バックアップ時に指定したパスワードによる復号を選べる。",
+        "C": "パスワードモードで作成したバックアップは、キーストアが利用可能な場合でもキーストアだけでは復号できない。",
+        "D": "デュアルモードでは別サイトで利用するためにキーストアとパスワードの両方が同時に必要となる。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "デュアルモードはキーストアによる復号と、バックアップ時に指定したパスワードによる復号を選べる。、パスワードモードで作成したバックアップは、キーストアが利用可能な場合でもキーストアだけでは復号できない。",
+      "explanation": "正解：B、C\n\nA（誤り）：透過モードではキーストア内の鍵を利用する。パスワード単独で復号する仕組みではない。\nB（正しい）：デュアルモードはキーストアがあれば透過的に復号でき、利用できない場所では指定済みパスワードを使える。\nC（正しい）：パスワード専用暗号化の復号には暗号化時のパスワードが必要で、キーストアに鍵を依存しない。\nD（誤り）：二つの手段を併用必須にする方式ではなく、いずれかで復号できる点がデュアルモードの特徴。",
+      "topic": "暗号化方式の使い分け",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch08q002",
+      "chapter": 8,
+      "question": "RMANセッションで次を実行してからバックアップセットを取得した。\n```rman\nSET ENCRYPTION ON FOR ALL TABLESPACES IDENTIFIED BY 'S3cret' ONLY;\nBACKUP AS BACKUPSET DATABASE;\n```\nこのバックアップを復号する条件として最も適切なものはどれか。",
+      "choices": {
+        "A": "キーストアが開いていれば、パスワードの指定なしで復号できる。",
+        "B": "バックアップ取得時と同じパスワードを指定して復号する。",
+        "C": "キーストアとパスワードのどちらかを選択できる。",
+        "D": "RMANのCONFIGURE ENCRYPTION FOR DATABASE設定がONであればパスワード不要となる。"
+      },
+      "correctChoice": "B",
+      "correctText": "バックアップ取得時と同じパスワードを指定して復号する。",
+      "explanation": "正解：B\n\nA（誤り）：ONLYを付けるとパスワード専用モードとなるため、キーストアだけでは復号できない。\nB（正しい）：ONLYはパスワード暗号化のみを選択し、復元時にも指定パスワードを用いる。\nC（誤り）：選択式の復号が可能なのはONLYを省略したデュアルモードである。\nD（誤り）：永続設定を有効にしても、既存バックアップの暗号化方式や必要な復号情報は変わらない。",
+      "topic": "SET ENCRYPTIONのONLY指定",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch08q003",
+      "chapter": 8,
+      "question": "キーストアがOPEN済みの環境で、オフサイトでも復元可能な暗号化バックアップを取得する。次のRMANコマンドの説明として正しいものはどれか。\n```rman\nSET ENCRYPTION ON FOR ALL TABLESPACES IDENTIFIED BY 'ArchiveKey';\nBACKUP DATABASE;\n```",
+      "choices": {
+        "A": "ONLYがないため透過モードとなり、パスワードは暗号化方式に影響しない。",
+        "B": "コマンドはパスワードモードであり、キーストアは復元に利用できない。",
+        "C": "ONLYを省略しているため、キーストアまたはパスワードを用いて復号できる方式になる。",
+        "D": "このコマンドはキーストアをCLOSEしたまま実行することが前提となる。"
+      },
+      "correctChoice": "C",
+      "correctText": "ONLYを省略しているため、キーストアまたはパスワードを用いて復号できる方式になる。",
+      "explanation": "正解：C\n\nA（誤り）：IDENTIFIED BYでパスワードを指定しONLYを省略した場合はデュアルモードである。\nB（誤り）：パスワード専用に限定するにはONLY句が必要。\nC（正しい）：キーストアとパスワードの両方の復号経路を持つ点がデュアルモードの特徴。\nD（誤り）：デュアルモードでの暗号化時にはキーストアを利用できる状態にしておく必要がある。",
+      "topic": "デュアルモードのコマンド",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch08q004",
+      "chapter": 8,
+      "question": "RMANでパスワードモードのバックアップを別ホストへ移送した。復旧先にはバックアップ作成元のキーストアがない。適切な復旧準備を2つ選べ。",
+      "choices": {
+        "A": "復旧対象のバックアップセットの暗号化パスワードを入手する。",
+        "B": "暗号化パスワードがなくても、RMANがリカバリカタログから復号鍵を自動取得できる。",
+        "C": "復旧を開始するRMANセッションでSET DECRYPTION IDENTIFIED BYを使用する。",
+        "D": "バックアップ取得時のCONFIGURE ENCRYPTION FOR DATABASE設定を復元先でもONに変更するだけで復号できる。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "復旧対象のバックアップセットの暗号化パスワードを入手する。、復旧を開始するRMANセッションでSET DECRYPTION IDENTIFIED BYを使用する。",
+      "explanation": "正解：A、C\n\nA（正しい）：パスワードモードは鍵情報をキーストアに依存しないが、パスワード自体が不可欠。\nB（誤り）：リカバリカタログはRMAN管理情報の保存先であってパスワード暗号化の復号鍵を代行提供しない。\nC（正しい）：SET DECRYPTION IDENTIFIED BYにより、暗号化バックアップの復号時に利用するパスワードを指定する。\nD（誤り）：CONFIGURE ENCRYPTIONはバックアップ作成時の暗号化設定であり、既存バックアップの復号資格情報の代わりにはならない。",
+      "topic": "復号設定と操作順序",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch08q005",
+      "chapter": 8,
+      "question": "データベースに対するRMANの暗号化永続設定がONである。あるバックアップ処理だけ暗号化をOFFにしたい。適切な判断はどれか。",
+      "choices": {
+        "A": "永続設定がONなら、当該セッションでSET ENCRYPTION OFFを実行しても暗号化を解除できない。",
+        "B": "CONFIGURE ENCRYPTION FOR DATABASE OFFを実行しない限り、セッション単位で暗号化を切り替えられない。",
+        "C": "SET ENCRYPTION OFFは取得済みの暗号化バックアップを復号して非暗号化へ書き換える。",
+        "D": "当該RMANセッションでSET ENCRYPTION OFFを指定すれば、そのセッションのバックアップで暗号化を無効化できる。"
+      },
+      "correctChoice": "D",
+      "correctText": "当該RMANセッションでSET ENCRYPTION OFFを指定すれば、そのセッションのバックアップで暗号化を無効化できる。",
+      "explanation": "正解：D\n\nA（誤り）：セッションレベルのSET ENCRYPTIONは永続設定より優先される。\nB（誤り）：永続設定を変更しなくても個別のバックアップ処理でSETを使用できる。\nC（誤り）：SET ENCRYPTION OFFは将来作成するバックアップへの指定であり既存バックアップの変換ではない。\nD（正しい）：SETによるセッション指定でCONFIGUREの暗号化設定を上書きできる。",
+      "topic": "暗号化の永続設定とセッション設定",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch08q006",
+      "chapter": 8,
+      "question": "RMANで暗号化を設定した環境で、バックアップセットとイメージコピーを取得する。正しいものを2つ選べ。",
+      "choices": {
+        "A": "暗号化バックアップを取得する対象はバックアップセット形式である。",
+        "B": "イメージコピーでも、バックアップ時のRMAN暗号化指定によってバックアップファイルを暗号化できる。",
+        "C": "圧縮バックアップセットでは暗号化とバイナリ圧縮を併用できる。",
+        "D": "暗号化バックアップセットをディスクに作成するには、必ずOracle Secure Backupを介する。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "暗号化バックアップを取得する対象はバックアップセット形式である。、圧縮バックアップセットでは暗号化とバイナリ圧縮を併用できる。",
+      "explanation": "正解：A、C\n\nA（正しい）：RMANのバックアップ暗号化はバックアップセットに適用できる。\nB（誤り）：イメージコピーはRMANのバックアップ暗号化の対象ではない。\nC（正しい）：圧縮バックアップセットもバックアップセットであるため暗号化を組み合わせられる。\nD（誤り）：Oracle Secure Backupが関連するのはテープへの暗号化バックアップなどの要件であり、通常のディスク上の暗号化バックアップセットには必須ではない。",
+      "topic": "バックアップ形式と暗号化",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch08q007",
+      "chapter": 8,
+      "question": "透過モードで暗号化されたバックアップセットを使ってリストアする。キーストアがCLOSEしている。適切な説明はどれか。",
+      "choices": {
+        "A": "バックアップが作成済みなら、復旧時のキーストア状態は影響しない。",
+        "B": "透過モードの復旧にはパスワード暗号化用SET DECRYPTION IDENTIFIED BYだけが必須となる。",
+        "C": "キーストア内の鍵を使用可能にしてから、通常のRMANリストア・リカバリを進める。",
+        "D": "暗号化バックアップのリストア前に、バックアップセットをイメージコピーへ変換しておけばキーストアが不要となる。"
+      },
+      "correctChoice": "C",
+      "correctText": "キーストア内の鍵を使用可能にしてから、通常のRMANリストア・リカバリを進める。",
+      "explanation": "正解：C\n\nA（誤り）：暗号化バックアップを読み取る際は復号が必要であり、作成済みであることだけでは復号できない。\nB（誤り）：透過モードの鍵はキーストアにあるため、パスワード専用バックアップの復号指定だけでは足りない。\nC（正しい）：鍵の利用条件を満たせば通常のRESTOREやRECOVERを実行できる。\nD（誤り）：バックアップ形式の変換では、元の暗号化データを復号する要件は消えない。",
+      "topic": "透過モードの復旧",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch08q008",
+      "chapter": 8,
+      "question": "バックアップ取得担当者が、暗号化設定に関する操作をSQL*PlusとRMANで実行する。正しい対応を2つ選べ。",
+      "choices": {
+        "A": "キーストアをOPENするADMINISTER KEY MANAGEMENTはSQLとして実行する。",
+        "B": "CONFIGURE ENCRYPTION FOR DATABASE ONはSQL*PlusのALTER DATABASE文である。",
+        "C": "SET DECRYPTION IDENTIFIED BYはRMANセッションで用いる復号パスワード指定である。",
+        "D": "SET ENCRYPTION ONはキーストアの作成・鍵生成自体を担うSQL文である。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "キーストアをOPENするADMINISTER KEY MANAGEMENTはSQLとして実行する。、SET DECRYPTION IDENTIFIED BYはRMANセッションで用いる復号パスワード指定である。",
+      "explanation": "正解：A、C\n\nA（正しい）：キーストアの管理はSQLのADMINISTER KEY MANAGEMENTで扱う。\nB（誤り）：CONFIGURE ENCRYPTIONはRMANの永続設定コマンドである。\nC（正しい）：RMANのSET DECRYPTIONで暗号化バックアップのパスワードを指定する。\nD（誤り）：RMANのSET ENCRYPTIONはバックアップの暗号化モードを制御するもので、キーストアの作成を行うSQL文ではない。",
+      "topic": "暗号化設定の所属",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch08q009",
+      "chapter": 8,
+      "question": "次の条件で暗号化バックアップを取得する。取得時はキーストアを利用できるが、災害時にはキーストアが失われる可能性がある。方式の選択に関して正しいものを2つ選べ。",
+      "choices": {
+        "A": "透過モードだけでは、キーストア喪失時にそのバックアップの復号手段を失う可能性がある。",
+        "B": "デュアルモードなら、バックアップ作成時のパスワードを保持していればキーストア喪失後も復号できる。",
+        "C": "パスワードモードでは、キーストアのバックアップがないと復号できない。",
+        "D": "デュアルモードは二重に暗号化されるため、復旧時にもキーストアとパスワードの両方が必要である。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "透過モードだけでは、キーストア喪失時にそのバックアップの復号手段を失う可能性がある。、デュアルモードなら、バックアップ作成時のパスワードを保持していればキーストア喪失後も復号できる。",
+      "explanation": "正解：A、B\n\nA（正しい）：透過モードはキーストア内の鍵への依存があるため、その保護と復元可能性が重要。\nB（正しい）：デュアルモードはパスワードで復号する代替手段を持つ。\nC（誤り）：パスワードモードにはキーストアは不要であり、その説明は逆。\nD（誤り）：デュアルモードは片方の復号経路だけでよく、両方を同時提示する必要はない。",
+      "topic": "暗号化方式の障害耐性",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch08q010",
+      "chapter": 8,
+      "question": "バックアップセットの復旧試験で、キーストアを利用できない状態でも取得時のパスワードを指定するとリストアできた。一方、キーストアを使用できる状態ではパスワードを指定せずにリストアできた。方式として最も整合するのはどれか。",
+      "choices": {
+        "A": "デュアルモード暗号化",
+        "B": "パスワードモード暗号化",
+        "C": "透過モード暗号化",
+        "D": "暗号化されていないバックアップセット"
+      },
+      "correctChoice": "A",
+      "correctText": "デュアルモード暗号化",
+      "explanation": "正解：A\n\nA（正しい）：二つの独立した復号経路が利用できることからデュアルモードが一致する。\nB（誤り）：パスワードモード単独ではキーストアだけを使用した透過的な復号はできない。\nC（誤り）：透過モード単独ではキーストアがない状態でパスワードだけによる復号はできない。\nD（誤り）：暗号化されていなければ復号情報の違いで成否が変わるという条件と整合しない。",
+      "topic": "暗号化方式の推定",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch10q001",
+      "chapter": 10,
+      "question": "ARCHIVELOGモードで稼働中のデータベースで、SYSTEM/UNDO以外の読書き可能表領域SALESのデータファイルだけが失われた。必要なバックアップとREDOは利用可能である。適切な手順はどれか。",
+      "choices": {
+        "A": "データベース全体を停止し、RESTORE DATABASE→RECOVER DATABASE→OPEN RESETLOGSを実行する。",
+        "B": "表領域をOFFLINE IMMEDIATEにし、RESTORE TABLESPACE→RECOVER TABLESPACE→ONLINEの順に処理する。",
+        "C": "表領域をOFFLINE IMMEDIATEにし、RECOVER TABLESPACE→RESTORE TABLESPACE→ONLINEの順に処理する。",
+        "D": "表領域をONLINEのままRESTORE TABLESPACEのみ実行すれば、オンラインREDO適用が不要となる。"
+      },
+      "correctChoice": "B",
+      "correctText": "表領域をOFFLINE IMMEDIATEにし、RESTORE TABLESPACE→RECOVER TABLESPACE→ONLINEの順に処理する。",
+      "explanation": "正解：B\n\nA（誤り）：通常の非クリティカル表領域の障害では、DB全体停止やRESETLOGSは必須ではない。\nB（正しい）：障害表領域を隔離したうえでバックアップからファイルを戻し、変更を追適用してオンラインへ戻す。\nC（誤り）：過去のデータファイルが存在しなければ変更を適用する先がないため、原則RESTOREが先になる。\nD（誤り）：RESTOREはバックアップ時点までのファイル復元で、以後の変更はRECOVERで反映する。",
+      "topic": "通常データファイルのオンライン復旧",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch10q002",
+      "chapter": 10,
+      "question": "ARCHIVELOGモードで、SYSTEM表領域を構成するデータファイルが破損した。利用可能なバックアップと必要なREDOが存在する。正しいものを2つ選べ。",
+      "choices": {
+        "A": "SYSTEM表領域だけをOFFLINE IMMEDIATEにして通常業務を継続しながら復旧する。",
+        "B": "データベースをMOUNT状態にして、該当データファイルのRESTOREとRECOVERを行う。",
+        "C": "正常な制御ファイルがある場合でも、SYSTEMの障害だけで必ず制御ファイルをバックアップから戻す。",
+        "D": "必要な完全リカバリが完了した場合、通常はRESETLOGSを指定せずOPENできる。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "データベースをMOUNT状態にして、該当データファイルのRESTOREとRECOVERを行う。、必要な完全リカバリが完了した場合、通常はRESETLOGSを指定せずOPENできる。",
+      "explanation": "正解：B、D\n\nA（誤り）：SYSTEMはデータベースの中核となるため、通常表領域のようにOPENのままオフライン復旧する対象ではない。\nB（正しい）：SYSTEM等の重要データファイル障害では、MOUNTでデータファイルを復旧する。\nC（誤り）：健全な制御ファイルまで復元する必要はない。バックアップ制御ファイルを使う場合は別の復旧条件になる。\nD（正しい）：必要なREDOをすべて適用し現在の制御ファイルを使った完全リカバリなら、通常OPEN RESETLOGSは不要。",
+      "topic": "SYSTEM/UNDOの復旧条件",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch10q003",
+      "chapter": 10,
+      "question": "RMANで次を実行した。必要なバックアップとアーカイブREDOは存在する。\n```rman\nRESTORE DATAFILE 12;\nRECOVER DATAFILE 12;\n```\n正しい説明を2つ選べ。",
+      "choices": {
+        "A": "RESTOREはデータファイルのバックアップを選択してファイルを戻す。",
+        "B": "RECOVERは使用可能な増分バックアップと必要なREDOを利用して、ファイルの変更を追適用する。",
+        "C": "RESTOREの終了時点で、常に障害発生直前までのREDO適用が終了している。",
+        "D": "RECOVER DATAFILEは制御ファイルだけを復旧対象とするため、RESTORE DATAFILEとの組合せには意味がない。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "RESTOREはデータファイルのバックアップを選択してファイルを戻す。、RECOVERは使用可能な増分バックアップと必要なREDOを利用して、ファイルの変更を追適用する。",
+      "explanation": "正解：A、B\n\nA（正しい）：RESTOREはバックアップから失われたデータファイルを物理的に復元する処理。\nB（正しい）：RECOVERは必要な増分やREDOを選んでバックアップ時点以降の変更を適用する。\nC（誤り）：RESTORE単独は通常バックアップ取得時点の内容を戻すだけで、REDO適用は別工程。\nD（誤り）：DATAFILEを指定したRECOVERはデータファイルのメディアリカバリを行う。",
+      "topic": "RESTOREとRECOVERの役割",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch10q004",
+      "chapter": 10,
+      "question": "全体バックアップの後、レベル1増分バックアップと必要なREDOが継続して保存されている。メディア障害後のRMAN完全リカバリで最も適切な説明はどれか。",
+      "choices": {
+        "A": "レベル1はRESTORE DATABASEで直接データファイルとして復元されるため、RECOVERでは適用しない。",
+        "B": "レベル1があれば、バックアップ取得後の変更を示すREDOは絶対に不要になる。",
+        "C": "ベースのデータファイルをRESTOREし、RECOVER時に利用可能な増分を適用してから必要なREDOを適用できる。",
+        "D": "増分バックアップが存在すると、通常の全体バックアップをRESTOREの基点にできなくなる。"
+      },
+      "correctChoice": "C",
+      "correctText": "ベースのデータファイルをRESTOREし、RECOVER時に利用可能な増分を適用してから必要なREDOを適用できる。",
+      "explanation": "正解：C\n\nA（誤り）：増分は通常、復旧された基点のデータファイルに対して変更ブロックを適用する。\nB（誤り）：レベル1取得後の更新を障害時点まで反映するには必要なREDOが残っていることが重要。\nC（正しい）：RMANは利用可能な増分とREDOを組み合わせて復旧する。\nD（誤り）：全体バックアップやレベル0は増分適用の基点として利用できる。",
+      "topic": "増分バックアップの復旧経路",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch10q005",
+      "chapter": 10,
+      "question": "NOARCHIVELOGモードで、毎晩正常停止後にデータベース全体の一貫性バックアップを取得している。翌日の昼にデータファイルが失われた。障害発生直前までの復旧可能性について正しいものはどれか。",
+      "choices": {
+        "A": "一貫性バックアップと現在のオンラインREDOがあれば、障害発生時刻まで常に完全リカバリできる。",
+        "B": "一貫性バックアップは取得時点へ復元できるが、アーカイブREDOがないため通常はそれ以降の任意の時点へは復旧できない。",
+        "C": "バックアップが一貫性を持っている場合は、必ずリストア後にRECOVER DATABASEを実行する。",
+        "D": "ARCHIVELOGでない場合、RMANのBACKUP DATABASEを使うこと自体ができない。"
+      },
+      "correctChoice": "B",
+      "correctText": "一貫性バックアップは取得時点へ復元できるが、アーカイブREDOがないため通常はそれ以降の任意の時点へは復旧できない。",
+      "explanation": "正解：B\n\nA（誤り）：NOARCHIVELOGではログスイッチで過去のオンラインREDOが失われ得るため、任意の障害時刻までを保証できない。\nB（正しい）：一貫性バックアップは正常停止時点のファイル群を復元する基本手段。\nC（誤り）：同一時点の一貫性バックアップでは通常REDOによるメディアリカバリは不要。\nD（誤り）：正常停止・MOUNT等の条件を満たせばRMANで一貫性バックアップを取得できる。",
+      "topic": "NOARCHIVELOG復旧の限界",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch10q006",
+      "chapter": 10,
+      "question": "NOARCHIVELOGのデータベースを正常停止して、レベル0と翌日のレベル1の一貫性増分バックアップを取得した。オンラインREDOの連続性はない。レベル1取得時点まで戻すため、レベル0のRESTORE後に適切なRMAN操作はどれか。",
+      "choices": {
+        "A": "RECOVER DATABASE NOREDO;",
+        "B": "RECOVER DATABASE UNTIL AVAILABLE REDO;",
+        "C": "RESTORE ARCHIVELOG ALL;",
+        "D": "RECOVER DATABASE UNTIL CANCEL;"
+      },
+      "correctChoice": "A",
+      "correctText": "RECOVER DATABASE NOREDO;",
+      "explanation": "正解：A\n\nA（正しい）：NOREDOはREDO適用を行わず、使用可能な増分バックアップだけを適用する復旧方式である。\nB（誤り）：必要なアーカイブREDOが存在しない前提でREDOを使用する指定では目的と合致しない。\nC（誤り）：NOARCHIVELOGではアーカイブログが出力されないため復旧の基点にできない。\nD（誤り）：利用可能な増分を適用する指定ではなく、REDO不足を解決するものでもない。",
+      "topic": "NOARCHIVELOG増分のNOREDO",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch10q007",
+      "chapter": 10,
+      "question": "NOARCHIVELOGモードのデータベースでRMANバックアップを取得する。適切な説明を2つ選べ。",
+      "choices": {
+        "A": "OPEN中のオンラインバックアップであっても、バックアップセットなら一貫性が確保される。",
+        "B": "SHUTDOWN ABORT直後に起動せずMOUNTすれば、停止前の未完了リカバリの有無に関係なく一貫性バックアップとなる。",
+        "C": "正常停止した後にMOUNTでバックアップすれば、一貫性のある全体バックアップを取得できる。",
+        "D": "NOARCHIVELOGでは、表領域単位のバックアップだけを組み合わせるのではなく全体の一貫性を保つ取得方法が基本となる。"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "正常停止した後にMOUNTでバックアップすれば、一貫性のある全体バックアップを取得できる。、NOARCHIVELOGでは、表領域単位のバックアップだけを組み合わせるのではなく全体の一貫性を保つ取得方法が基本となる。",
+      "explanation": "正解：C、D\n\nA（誤り）：OPEN中に変更されるデータファイルをRMANでバックアップするにはARCHIVELOGなどREDO保護の条件が必要。\nB（誤り）：ABORT後はインスタンスリカバリが必要な場合があり、未回復のままでは一貫性バックアップと断定できない。\nC（正しい）：正常停止によりファイルに一貫性を持たせた後、MOUNTから全体バックアップを取得できる。\nD（正しい）：アーカイブログがないため、異なる時点のファイルを後から整合させる方法が制約される。",
+      "topic": "NOARCHIVELOGにおけるバックアップ条件",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch10q008",
+      "chapter": 10,
+      "question": "制御ファイルのすべてのコピーを失い、RMANでバックアップ制御ファイルをリストアした。必要なデータファイルとREDOは揃っている。正しいものを2つ選べ。",
+      "choices": {
+        "A": "制御ファイルをバックアップから戻した場合は、データファイルのリストアが不要でもデータベース全体のメディアリカバリが必要になる。",
+        "B": "制御ファイルを戻したので、RECOVERせずに必ずALTER DATABASE OPEN NORESETLOGSを実行する。",
+        "C": "復旧後のOPENにはRESETLOGSが必要となる。",
+        "D": "バックアップ制御ファイルを使う場合、バックアップ取得後に発生したデータファイル変更は無条件にすべて復旧不能となる。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "制御ファイルをバックアップから戻した場合は、データファイルのリストアが不要でもデータベース全体のメディアリカバリが必要になる。、復旧後のOPENにはRESETLOGSが必要となる。",
+      "explanation": "正解：A、C\n\nA（正しい）：バックアップ制御ファイルは現在の管理情報より古い可能性があり、メディアリカバリによる整合確認が必要。\nB（誤り）：バックアップ制御ファイル使用後は原則RESETLOGSでOPENする。NORESETLOGSとするのは不適切。\nC（正しい）：バックアップ制御ファイルからのリカバリは新しいREDOログ系列の開始を伴うRESETLOGSが必要。\nD（誤り）：必要なREDOがある場合は制御ファイルバックアップ後の変更も回復できる場合がある。",
+      "topic": "バックアップ制御ファイルの復旧",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch10q009",
+      "chapter": 10,
+      "question": "現在の制御ファイルが正常で、損失した通常データファイルに対してRMANのRESTOREと必要な全REDOのRECOVERを完了した。データベースOPENについて最も適切な説明はどれか。",
+      "choices": {
+        "A": "完全リカバリでも、RESTOREを実行した時点で常にRESETLOGSが必要になる。",
+        "B": "現在の制御ファイルを使って必要なREDOを適用した完全リカバリであれば、通常RESETLOGSは不要である。",
+        "C": "RESTORE TABLESPACEを実行した場合、復旧対象以外の表領域も含めて必ずOPEN RESETLOGSする。",
+        "D": "RESETLOGSが不要なのはNOARCHIVELOGモードだけである。"
+      },
+      "correctChoice": "B",
+      "correctText": "現在の制御ファイルを使って必要なREDOを適用した完全リカバリであれば、通常RESETLOGSは不要である。",
+      "explanation": "正解：B\n\nA（誤り）：RESETLOGSを必要とするのは不完全リカバリやバックアップ制御ファイルの使用などであり、RESTORE実行自体が条件ではない。\nB（正しい）：現在の制御ファイルと全REDOが揃う完全リカバリは通常NORESETLOGSで継続できる。\nC（誤り）：通常表領域のオンライン復旧ではデータベース全体をOPENし直す必要すらない場合がある。\nD（誤り）：ARCHIVELOGでの完全リカバリもRESETLOGS不要のケースがある。",
+      "topic": "完全復旧とRESETLOGS",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch10q010",
+      "chapter": 10,
+      "question": "ARCHIVELOGモードのDBでバックアップから障害直前まで完全リカバリしたい。必要なバックアップは存在する。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "障害時点までの適用に必要なREDOが欠落していれば、バックアップがあっても完全リカバリできない場合がある。",
+        "B": "必要なREDOの一部がオンラインログに残っている場合、それもリカバリに利用できる。",
+        "C": "ARCHIVELOGモードなら、必要なアーカイブログの一部が失われても必ず完全リカバリできる。",
+        "D": "レベル1増分がある場合、障害時点までの変更を再現するためのREDOは必ず不要となる。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "障害時点までの適用に必要なREDOが欠落していれば、バックアップがあっても完全リカバリできない場合がある。、必要なREDOの一部がオンラインログに残っている場合、それもリカバリに利用できる。",
+      "explanation": "正解：A、B\n\nA（正しい）：障害直前まで変更を進めるには、その時点へ到達するための変更情報が必要。\nB（正しい）：必要なREDOはアーカイブログだけでなくオンラインREDOログに残る場合もある。\nC（誤り）：ARCHIVELOGという運用モードだけでは、個々の必要ログの残存を保証しない。\nD（誤り）：増分取得後にも更新が行われれば、それを反映するREDOが必要となる。",
+      "topic": "ARCHIVELOGでも復旧不能となる条件",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch10q011",
+      "chapter": 10,
+      "question": "ARCHIVELOGモードで、ユーザー表領域DATA_Aだけが破損している。制御ファイル・SPFILE・SYSTEM・UNDOは正常で、必要なバックアップとREDOがある。正しい判断はどれか。",
+      "choices": {
+        "A": "RESTORE DATABASEを必ず使い、全データファイルを上書きしてからRECOVER DATABASEを実行する。",
+        "B": "RECOVER TABLESPACE DATA_Aを実行する場合、必ず制御ファイルも同時にリストアする。",
+        "C": "DATA_Aを隔離してRESTORE/RECOVER TABLESPACEを実行すれば、正常な他の表領域を不用意にリストアする必要はない。",
+        "D": "DATA_Aが一つでも壊れたら、SYSTEMとUNDOも必ず一緒にRESTOREする。"
+      },
+      "correctChoice": "C",
+      "correctText": "DATA_Aを隔離してRESTORE/RECOVER TABLESPACEを実行すれば、正常な他の表領域を不用意にリストアする必要はない。",
+      "explanation": "正解：C\n\nA（誤り）：障害箇所が限定されているなら、全ファイルのRESTOREは通常不要。\nB（誤り）：正常な制御ファイルは復元対象ではなく、リポジトリ情報として利用できる。\nC（正しい）：ファイル単位・表領域単位で復旧対象を限定できる。\nD（誤り）：正常なSYSTEM/UNDOまで復元すると不要な影響を増やす。",
+      "topic": "RMAN復旧対象の範囲",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch10q012",
+      "chapter": 10,
+      "question": "通常表領域DATA_BをOPEN中に復旧する。次の操作の適切な順序はどれか。\n① RESTORE TABLESPACE DATA_B\n② ALTER TABLESPACE DATA_B ONLINE\n③ ALTER TABLESPACE DATA_B OFFLINE IMMEDIATE\n④ RECOVER TABLESPACE DATA_B",
+      "choices": {
+        "A": "③→①→④→②",
+        "B": "③→④→①→②",
+        "C": "①→③→④→②",
+        "D": "③→①→②→④"
+      },
+      "correctChoice": "A",
+      "correctText": "③→①→④→②",
+      "explanation": "正解：A\n\nA（正しい）：OFFLINE IMMEDIATEで障害表領域を切り離し、RESTORE、RECOVERを行ってからONLINEに戻す。\nB（誤り）：古いファイルが復元される前に通常のRECOVERを開始する順序ではない。\nC（誤り）：障害対象を使用可能なままRESTOREするのは適切なオンライン復旧手順ではない。\nD（誤り）：REDO適用が終わる前にONLINEに戻すと整合性が確保できない。",
+      "topic": "復旧順序の判断",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch10q013",
+      "chapter": 10,
+      "question": "NOARCHIVELOGモードの全体一貫性バックアップと、その時点の制御ファイルバックアップがある。障害で全データファイルとオンラインREDOを失った。バックアップ時点へ戻す判断として最も適切なのはどれか。",
+      "choices": {
+        "A": "BACKUP DATABASEで一貫性バックアップがある場合、失われたオンラインREDOはRMANが自動復元して再利用する。",
+        "B": "全データファイルをRESTOREしても、オンラインREDOがないので必ず元の最新時点までリカバリできる。",
+        "C": "復旧にはNOARCHIVELOGからARCHIVELOGへのモード変更が先に必須である。",
+        "D": "一貫性のある全体バックアップへ戻し、利用可能なREDOがなければNOREDO等を適切に扱ってOPEN RESETLOGSする。"
+      },
+      "correctChoice": "D",
+      "correctText": "一貫性のある全体バックアップへ戻し、利用可能なREDOがなければNOREDO等を適切に扱ってOPEN RESETLOGSする。",
+      "explanation": "正解：D\n\nA（誤り）：オンラインREDOログは通常RMANのバックアップ対象ではない。\nB（誤り）：NOARCHIVELOGではバックアップ時点以後の更新を追跡するログ連続性を保証できない。\nC（誤り）：運用モード変更で消失済みのREDOが復活するわけではない。\nD（正しい）：整合したバックアップ時点に復元し、オンラインREDOを新系列で開始するRESETLOGSが必要。",
+      "topic": "NOARCHIVELOGとOPEN RESETLOGS",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch11q001",
+      "chapter": 11,
+      "question": "データベースはOPEN中だが、一時表領域TEMPの一時ファイルが失われた。データファイルと制御ファイルは正常である。正しいものを2つ選べ。",
+      "choices": {
+        "A": "RMANは通常一時ファイルをバックアップしないため、ファイルを再作成する方法がある。",
+        "B": "TEMPを使わないSQLであっても、すべてのSELECTが必ず失敗する。",
+        "C": "障害のある一時ファイルをDROPし、必要に応じてADD TEMPFILEで再作成できる。",
+        "D": "一時ファイルを再作成する前に、必ずデータベース全体の不完全リカバリを実行する。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "RMANは通常一時ファイルをバックアップしないため、ファイルを再作成する方法がある。、障害のある一時ファイルをDROPし、必要に応じてADD TEMPFILEで再作成できる。",
+      "explanation": "正解：A、C\n\nA（正しい）：一時ファイルは一時的な作業領域であり、恒久データを保持するデータファイルと異なり通常バックアップ対象でない。\nB（誤り）：一時領域が必要な処理は失敗する可能性があるが、利用しない処理の失敗を断定できない。\nC（正しい）：一時領域は恒久データを復元するのではなく新しい一時ファイルを割り当て直して復旧できる。\nD（誤り）：一時ファイルだけの損失をDB全体のPITRで解決する必要はない。",
+      "topic": "一時ファイルの障害",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch11q002",
+      "chapter": 11,
+      "question": "ARCHIVELOG運用のDBで索引のみが格納された表領域IDX_TBSのデータファイルを失った。基礎表は正常であり、索引の再作成は許容されている。正しい対応を2つ選べ。",
+      "choices": {
+        "A": "IDX_TBSのファイルをRESTORE/RECOVERして表領域を回復することができる。",
+        "B": "表データが正常なら、索引専用表領域を作り直して索引を再作成する方法もある。",
+        "C": "索引は元の表のデータが正常でも、RMANでバックアップした索引ブロックなしには再作成できない。",
+        "D": "索引表領域の損失では必ずSYSTEM表領域のリストアが先に必要となる。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "IDX_TBSのファイルをRESTORE/RECOVERして表領域を回復することができる。、表データが正常なら、索引専用表領域を作り直して索引を再作成する方法もある。",
+      "explanation": "正解：A、B\n\nA（正しい）：データファイルをメディアリカバリできる条件なら通常のRESTORE/RECOVERを選べる。\nB（正しい）：索引は基礎表のデータから再構築できるため、索引表領域を作り直す選択肢もある。\nC（誤り）：索引の再作成は既存表のデータを参照して行える。\nD（誤り）：正常なSYSTEMを復元する必要はない。",
+      "topic": "索引表領域障害の選択",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch11q003",
+      "chapter": 11,
+      "question": "読取専用へ切り替えた後に取得した表領域のバックアップが残っている。切替後、内容と構造に変更がないままデータファイルを失った。最も適切な判断はどれか。",
+      "choices": {
+        "A": "バックアップが読取専用移行後でも、障害時点まで全アーカイブログの適用を必ず要する。",
+        "B": "読取専用表領域では、ファイルリストアが禁止されるため表領域を作り直す必要がある。",
+        "C": "読取専用時点の適切なバックアップを戻せば、以後に変更がないため通常REDOによる変更適用は不要。",
+        "D": "バックアップ最適化がONであれば、初回の読取専用表領域バックアップも必ず省略される。"
+      },
+      "correctChoice": "C",
+      "correctText": "読取専用時点の適切なバックアップを戻せば、以後に変更がないため通常REDOによる変更適用は不要。",
+      "explanation": "正解：C\n\nA（誤り）：バックアップ取得後に内容の変更がなければ、障害時点へ追適用すべき変更がない。\nB（誤り）：読取専用でもバックアップからリストアできる。\nC（正しい）：適切な読取専用バックアップはそのまま回復の基点にできる。\nD（誤り）：最適化で省略するには同等の利用可能なバックアップ等の条件が必要で、初回を必ず省略するとは限らない。",
+      "topic": "読取専用表領域のリストア",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch11q004",
+      "chapter": 11,
+      "question": "SPFILEの格納ディスクが失われたが、Oracleインスタンスはまだ稼働している。実行中の初期化パラメータを利用してSPFILEを再作成したい。最適なSQLはどれか。",
+      "choices": {
+        "A": "CREATE PFILE FROM AUTOBACKUP;",
+        "B": "RESTORE SPFILE FROM MEMORY;",
+        "C": "ALTER DATABASE BACKUP SPFILE TO MEMORY;",
+        "D": "CREATE SPFILE FROM MEMORY;"
+      },
+      "correctChoice": "D",
+      "correctText": "CREATE SPFILE FROM MEMORY;",
+      "explanation": "正解：D\n\nA（誤り）：FROM AUTOBACKUPはRMANのリストア文脈であり、ここでのSQL構文とは異なる。\nB（誤り）：RESTORE SPFILEはRMANのバックアップからの復元に関する操作であり、このSQL構文はない。\nC（誤り）：初期化パラメータの保存にこの構文は使用しない。\nD（正しい）：起動中のインスタンスのメモリー上の初期化パラメータを基にSPFILEを生成できる。",
+      "topic": "SPFILEとメモリーからの再作成",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch11q005",
+      "chapter": 11,
+      "question": "SPFILEと制御ファイルを失い、リカバリカタログも使用していない。制御ファイル自動バックアップは残っている。RMANで復旧する際の適切な判断を2つ選べ。",
+      "choices": {
+        "A": "制御ファイルを参照できない場合、DBIDを使って自動バックアップの探索対象を特定することがある。",
+        "B": "SPFILEがない場合、RMANは必ず制御ファイルをOPENしてからSPFILEをリストアする。",
+        "C": "復旧時の初期化パラメータは一時的なPFILE等で補い、NOMOUNTで作業を開始する場合がある。",
+        "D": "自動バックアップがある場合は、データベースのDB_NAMEやバックアップの所在を確認する必要が一切ない。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "制御ファイルを参照できない場合、DBIDを使って自動バックアップの探索対象を特定することがある。、復旧時の初期化パラメータは一時的なPFILE等で補い、NOMOUNTで作業を開始する場合がある。",
+      "explanation": "正解：A、C\n\nA（正しい）：リカバリカタログと制御ファイルを使えない場合、自動バックアップの識別にDBIDが必要になる場合がある。\nB（誤り）：SPFILEを失っていると通常の起動に問題があり、制御ファイルをOPENする前に復元作業を行う。\nC（正しい）：一時PFILEやダミーの起動手段を用いてインスタンスをNOMOUNTにし、RMANでSPFILE等を戻せる。\nD（誤り）：復旧対象DBとバックアップ所在の情報が必要となり得る。",
+      "topic": "SPFILE復旧の条件",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch11q006",
+      "chapter": 11,
+      "question": "CONTROL_FILESに3個の制御ファイルを指定した構成で、1個だけ失われ、残り2個は正常である。最も適切な説明はどれか。",
+      "choices": {
+        "A": "正常なコピーが残っていても、バックアップ制御ファイルからのRESTOREとOPEN RESETLOGSが必須となる。",
+        "B": "正常な制御ファイルを失われたパスへコピーしてからインスタンスを再起動する方法がある。",
+        "C": "制御ファイルは1個だけ失われても、残りの2個が正常ならデータベースは必ず無停止で継続する。",
+        "D": "制御ファイルの再作成ができない限り、全データファイルのリストアが必須である。"
+      },
+      "correctChoice": "B",
+      "correctText": "正常な制御ファイルを失われたパスへコピーしてからインスタンスを再起動する方法がある。",
+      "explanation": "正解：B\n\nA（誤り）：正常なコピーを使って欠損コピーを修復できるため、バックアップ制御ファイル利用は必須ではない。\nB（正しい）：既存の正常な多重化コピーから指定パスに復元することで、設定との整合性を回復できる。\nC（誤り）：必要な制御ファイルへアクセスできない場合はインスタンスに障害が発生し得る。\nD（誤り）：制御ファイルコピーが残存しているなら全データファイルの復元を要しない。",
+      "topic": "制御ファイル一部損失",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch11q007",
+      "chapter": 11,
+      "question": "制御ファイル全損失後、RMANでバックアップ制御ファイルを復元した。正常なデータファイルは残存し、必要なREDOも利用可能である。正しいものを2つ選べ。",
+      "choices": {
+        "A": "データファイルが正常なら、バックアップ制御ファイル使用後もRECOVER DATABASEは不要。",
+        "B": "バックアップ制御ファイルから復旧するときは、必要なデータベース全体のメディアリカバリを行う。",
+        "C": "バックアップ制御ファイルから復旧した後のOPENは原則RESETLOGSを使用する。",
+        "D": "リストアした制御ファイルに最新のデータファイル情報が存在しない場合でも、設定は常に自動で完全復元される。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "バックアップ制御ファイルから復旧するときは、必要なデータベース全体のメディアリカバリを行う。、バックアップ制御ファイルから復旧した後のOPENは原則RESETLOGSを使用する。",
+      "explanation": "正解：B、C\n\nA（誤り）：バックアップ制御ファイルは管理情報が古いためデータファイルが残っていてもメディアリカバリが必要。\nB（正しい）：バックアップ制御ファイル利用時の復旧手順では必要なREDOでDB全体を整合させる。\nC（正しい）：バックアップ制御ファイルからの復旧ではRESETLOGSでログ系列を開始する。\nD（誤り）：バックアップ時点より後の構成変更は追加の対処が必要な場合がある。",
+      "topic": "バックアップ制御ファイルと復旧",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch11q008",
+      "chapter": 11,
+      "question": "次のSQL文を実行した。\n```sql\nALTER DATABASE BACKUP CONTROLFILE TO TRACE;\n```\nこの成果物について適切な説明を2つ選べ。",
+      "choices": {
+        "A": "現在の制御ファイルのバイナリイメージを、RMANからそのままRESTOREできるバックアップピースとして保存する。",
+        "B": "制御ファイル再作成用のCREATE CONTROLFILE文などを含むトレース情報を生成する。",
+        "C": "再作成した制御ファイルには、以前の制御ファイル内にあったRMANバックアップ履歴が必ず完全復元される。",
+        "D": "制御ファイルを再作成する手段として利用できるが、管理情報の喪失や復旧手順には注意が必要。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "制御ファイル再作成用のCREATE CONTROLFILE文などを含むトレース情報を生成する。、制御ファイルを再作成する手段として利用できるが、管理情報の喪失や復旧手順には注意が必要。",
+      "explanation": "正解：B、D\n\nA（誤り）：TO TRACEはバイナリの制御ファイルコピーではなくSQL等を含むトレース出力。\nB（正しい）：再作成に必要なCREATE CONTROLFILE文等の生成に利用できる。\nC（誤り）：新規作成した制御ファイルに旧RMANリポジトリ情報が無条件で全部戻るわけではない。\nD（正しい）：再作成SQLを実行できても、リカバリや追加の再登録が必要となる場合がある。",
+      "topic": "制御ファイルのテキストとバイナリ",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch11q009",
+      "chapter": 11,
+      "question": "オンラインREDOログのすべてのメンバーが損失した。ロググループの状態による判断で正しいものを2つ選べ。",
+      "choices": {
+        "A": "CURRENTグループの全メンバー損失は、最後の変更履歴が失われてデータ損失につながる可能性がある。",
+        "B": "ACTIVEグループはすでにデータファイルへの反映が完了しているため、すべてのメンバーが失われても影響しない。",
+        "C": "INACTIVEグループのREDOは通常インスタンスリカバリに必要な変更がデータファイルに反映済みだが、未アーカイブなら将来のメディアリカバリに影響し得る。",
+        "D": "CURRENTグループは書込みが終わったログなので、失ってもログスイッチの影響だけで済む。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "CURRENTグループの全メンバー損失は、最後の変更履歴が失われてデータ損失につながる可能性がある。、INACTIVEグループのREDOは通常インスタンスリカバリに必要な変更がデータファイルに反映済みだが、未アーカイブなら将来のメディアリカバリに影響し得る。",
+      "explanation": "正解：A、C\n\nA（正しい）：CURRENTには現在のREDOがあるため、全メンバー損失は直近の変更の回復不能につながり得る。\nB（誤り）：ACTIVEはまだインスタンスリカバリに必要なREDOを含み得る。\nC（正しい）：INACTIVEはインスタンスリカバリ上不要でも、必要なアーカイブがなければ将来のメディアリカバリに欠落が生じる。\nD（誤り）：CURRENTは現在の書込み先であり、失った場合の影響は重大。",
+      "topic": "オンラインREDOの状態",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch11q010",
+      "chapter": 11,
+      "question": "ACTIVE状態のオンラインREDOロググループの全メンバーを失った。残りのストレージは健全で、DBへのアクセスは可能である。教材で示される対応の判断として正しいものはどれか。",
+      "choices": {
+        "A": "ACTIVEならインスタンスリカバリに必要なREDOは既に不要なので、直ちにCLEAR LOGFILEを実行できる。",
+        "B": "チェックポイントで対応する変更をデータファイルへ反映できるかを確認し、成功ならINACTIVEへ遷移する可能性がある。",
+        "C": "ACTIVEログはカレントのため書込み中であり、必ずログスイッチだけで解決する。",
+        "D": "ACTIVEのREDO損失は制御ファイルの障害と同義であり、まず制御ファイルをRESTOREする。"
+      },
+      "correctChoice": "B",
+      "correctText": "チェックポイントで対応する変更をデータファイルへ反映できるかを確認し、成功ならINACTIVEへ遷移する可能性がある。",
+      "explanation": "正解：B\n\nA（誤り）：ACTIVEはまだインスタンスリカバリに必要なREDOを含むため、無条件のクリアは危険。\nB（正しい）：チェックポイント完了により変更がデータファイルへ反映されるとINACTIVEに進める可能性がある。\nC（誤り）：書込み先はCURRENTで、ACTIVEは以前使用されまだ復旧上重要なログ。\nD（誤り）：障害対象はオンラインREDOであり、制御ファイルが正常ならそのRESTOREは別問題。",
+      "topic": "ACTIVEグループの障害",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch11q011",
+      "chapter": 11,
+      "question": "ARCHIVELOGモードで、利用可能なバックアップと必要なREDOがある。誤った更新を行う前のSCN 9000へデータベース全体を戻す。適切なRMANの構成はどれか。",
+      "choices": {
+        "A": "RUN { RESTORE DATABASE; SET UNTIL SCN 9000; RECOVER DATABASE; }",
+        "B": "RUN { SET UNTIL SCN 9000; RESTORE DATABASE; RECOVER DATABASE; }",
+        "C": "RUN { SET UNTIL SCN 9000; RECOVER DATABASE; RESTORE DATABASE; }",
+        "D": "RUN { SET UNTIL SCN 9000; RESTORE DATABASE; RECOVER DATABASE; ALTER DATABASE OPEN NORESETLOGS; }"
+      },
+      "correctChoice": "B",
+      "correctText": "RUN { SET UNTIL SCN 9000; RESTORE DATABASE; RECOVER DATABASE; }",
+      "explanation": "正解：B\n\nA（誤り）：RESTOREの前にUNTILを指定し、RMANに適切なバックアップ選択を行わせるのが基本。\nB（正しい）：SET UNTILをRESTOREとRECOVERの前に指定し、同一の復旧目標で処理する。復旧後はRESETLOGSでOPENする。\nC（誤り）：変更を適用する前に、適切な基点ファイルのリストアが必要。\nD（誤り）：過去時点への不完全リカバリを行った後はRESETLOGSでOPENする必要がある。",
+      "topic": "PITRの正しい時点の指定",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch11q012",
+      "chapter": 11,
+      "question": "ユーザー表APP.ORDERSの内容を過去に戻したいが、同じDB内の他表に対する直近の更新は保持したい。復旧対象時点のバックアップとREDOは利用できる。選択肢のうち目的に適したものを2つ選べ。",
+      "choices": {
+        "A": "データベース全体を復旧対象日時までPITRすれば、他表の現在の更新をそのまま保持できる。",
+        "B": "UNDOとDDL条件を満たすならFLASHBACK TABLEを検討できる。",
+        "C": "RMANのRECOVER TABLEを使い、補助DBで過去状態を再現して対象表だけ取り込む方法がある。",
+        "D": "RECOVER DATABASE UNTIL TIMEで対象表だけを指定して、他の表を一切変更せず復旧できる。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "UNDOとDDL条件を満たすならFLASHBACK TABLEを検討できる。、RMANのRECOVER TABLEを使い、補助DBで過去状態を再現して対象表だけ取り込む方法がある。",
+      "explanation": "正解：B、C\n\nA（誤り）：DB全体のPITRは他表も過去状態に戻すため要件に合わない。\nB（正しい）：UNDOが残り、対応可能な変更ならFlashback Tableが有用。\nC（正しい）：RMANの表リカバリは補助DBとData Pumpを通じた対象表の復元を支援する。\nD（誤り）：RECOVER DATABASEはデータベース全体のリカバリであり表単位の制御ではない。",
+      "topic": "PITRと同じ表だけの復旧",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch11q013",
+      "chapter": 11,
+      "question": "RMANの表領域Point-in-Timeリカバリで行われる処理の順序として最も適切なのはどれか。\n① 指定した時点まで補助環境をリカバリ\n② バックアップを選定し補助インスタンスを用意\n③ トランスポータブル表領域の仕組みで対象表領域を転送",
+      "choices": {
+        "A": "②→①→③",
+        "B": "①→②→③",
+        "C": "②→③→①",
+        "D": "③→②→①"
+      },
+      "correctChoice": "A",
+      "correctText": "②→①→③",
+      "explanation": "正解：A\n\nA（正しい）：利用するバックアップと補助環境を決め、対象時点まで回復した結果をターゲットへ戻す順序。\nB（誤り）：補助DBがない状態で過去時点までのデータファイル復旧を完了できない。\nC（誤り）：転送する前に指定日時まで復旧している必要がある。\nD（誤り）：転送対象の回復後データが用意される前に転送を開始できない。",
+      "topic": "TSPITRの内部処理順序",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch11q014",
+      "chapter": 11,
+      "question": "ARCHIVELOGで正常稼働中のDBに対してRMANでTSPITRを検討している。正しいものを2つ選べ。",
+      "choices": {
+        "A": "通常ユーザーの表領域で、前提条件とバックアップが揃えば対象にできる。",
+        "B": "SYSTEM表領域も、補助インスタンスを使えば通常ユーザー表領域と同じ方法でTSPITRできる。",
+        "C": "UNDO表領域は、ターゲットをMOUNTにすれば同じTSPITRで単独復旧できる。",
+        "D": "SYSスキーマのオブジェクトを含む表領域はTSPITRの制約対象になる。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "通常ユーザーの表領域で、前提条件とバックアップが揃えば対象にできる。、SYSスキーマのオブジェクトを含む表領域はTSPITRの制約対象になる。",
+      "explanation": "正解：A、D\n\nA（正しい）：TSPITRはトランスポータブル表領域を使ってユーザー表領域の一部を過去へ戻す方法。\nB（誤り）：SYSTEMはトランスポータブル表領域として復元できずTSPITRの対象外。\nC（誤り）：UNDO表領域はTSPITRの対象外。\nD（正しい）：SYSのオブジェクトを含む表領域はTSPITRの対象にできない。",
+      "topic": "TSPITR対象の制約",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch11q015",
+      "chapter": 11,
+      "question": "RMANでAPP.ORDERSを昨日の状態から復元したい。現行のAPP.ORDERSも保持する必要がある。適切な操作を2つ選べ。",
+      "choices": {
+        "A": "RECOVER TABLEでREMAP TABLEを指定し、復元した表を別名にしてインポートする。",
+        "B": "REMAP TABLEなしで実行すれば、既存APP.ORDERSを保持したまま同じ名前の表が必ず追加される。",
+        "C": "補助データベースの作成・リカバリとData Pumpの取り込みを使用する方法がある。",
+        "D": "表リカバリは補助環境を一切使用しないため、AUXILIARY DESTINATIONの指定はできない。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "RECOVER TABLEでREMAP TABLEを指定し、復元した表を別名にしてインポートする。、補助データベースの作成・リカバリとData Pumpの取り込みを使用する方法がある。",
+      "explanation": "正解：A、C\n\nA（正しい）：既存表と同じ名前で競合しないようREMAP TABLEを使用する。\nB（誤り）：同一スキーマに同名の表を二つ同時に作れない。\nC（正しい）：RMANの表リカバリは補助DBで復旧し、Data Pumpを介して取り込む。\nD（誤り）：補助DBのファイル配置先をAUXILIARY DESTINATIONで指定できる。",
+      "topic": "表リカバリのREMAP",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch11q016",
+      "chapter": 11,
+      "question": "表SALESがTRUNCATEされた後に、TRUNCATE直前のデータを復元したい。対象時点のRMANバックアップとREDOは利用できる。適切な説明はどれか。",
+      "choices": {
+        "A": "TRUNCATEはDDLでもUNDOがある限りFLASHBACK TABLEで必ず巻き戻せる。",
+        "B": "FLASHBACK TABLEとRMANのRECOVER TABLEはいずれも過去のバックアップが必須である。",
+        "C": "TRUNCATEのような構造変更をまたぐFlashback Tableは使用できない場合があるが、RMAN表リカバリはバックアップからの過去表復元を検討できる。",
+        "D": "TRUNCATE後の復旧には、正常な他の表も含めDB全体をPITRするしか方法がない。"
+      },
+      "correctChoice": "C",
+      "correctText": "TRUNCATEのような構造変更をまたぐFlashback Tableは使用できない場合があるが、RMAN表リカバリはバックアップからの過去表復元を検討できる。",
+      "explanation": "正解：C\n\nA（誤り）：Flashback TableはDDLによる構造変更をまたげず、TRUNCATE前へ戻せない。\nB（誤り）：Flashback TableはUNDOを使い、RMANの表リカバリはバックアップとREDOを使う。\nC（正しい）：RMANの表リカバリは補助DBでバックアップから過去状態を再現できる。\nD（誤り）：表単位復旧などDB全体のPITR以外にも選択肢がある。",
+      "topic": "Flashback Tableと表リカバリ",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch11q017",
+      "chapter": 11,
+      "question": "複数表を持つユーザー表領域DATA_Hだけを2日前に戻したい。他の表領域は現在の状態を維持したい。バックアップとREDOがあり、TSPITRの制限には該当しない。正しい判断を2つ選べ。",
+      "choices": {
+        "A": "データベース全体のPITRを行うと、通常ほかの表領域も2日前の状態になる。",
+        "B": "TSPITRでは補助環境を使い、対象表領域を指定時点に戻す方法がある。",
+        "C": "TSPITRはSYSTEM表領域を含むすべての表領域で同じように使用できる。",
+        "D": "表領域単位で戻すには、必ずすべてのデータファイルをRESTORE DATABASEする。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "データベース全体のPITRを行うと、通常ほかの表領域も2日前の状態になる。、TSPITRでは補助環境を使い、対象表領域を指定時点に戻す方法がある。",
+      "explanation": "正解：A、B\n\nA（正しい）：DB全体のPITRはターゲットDBの全体を過去へ戻す。\nB（正しい）：TSPITRなら指定した表領域に復旧範囲を限定できる。\nC（誤り）：SYSTEMやUNDOなどはTSPITRの制限対象。\nD（誤り）：補助環境を使う表領域PITRでは、他の全データファイルを戻す必要はない。",
+      "topic": "TSPITRと全体PITR",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch11q018",
+      "chapter": 11,
+      "question": "Oracle 19cで復旧ターゲットに利用する通常のリストアポイントを作成した。記録保持について正しいものを2つ選べ。",
+      "choices": {
+        "A": "通常リストアポイントは、管理レコードの再利用により保持期限後に消える可能性がある。",
+        "B": "PRESERVEを指定したリストアポイントは、自動削除の対象にならないよう保持する。",
+        "C": "PRESERVEを指定すると、そのリストアポイントだけでバックアップがなくても過去のデータファイルを再生成できる。",
+        "D": "リストアポイントは常にアーカイブログファイルの実体を含んでいる。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "通常リストアポイントは、管理レコードの再利用により保持期限後に消える可能性がある。、PRESERVEを指定したリストアポイントは、自動削除の対象にならないよう保持する。",
+      "explanation": "正解：A、B\n\nA（正しい）：通常のリストアポイントは制御ファイルの管理レコードの再利用対象となり得る。\nB（正しい）：PRESERVEは通常リストアポイントの保持に関する指定であり、自動削除を避けられる。\nC（誤り）：リストアポイントはSCNなどの識別情報であってデータファイルのバックアップではない。\nD（誤り）：リストアポイント自体はREDOログファイルの格納物ではない。",
+      "topic": "リストアポイントのPRESERVE",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch11q019",
+      "chapter": 11,
+      "question": "複数メンバーを持つINACTIVEロググループの全メンバーが壊れた。関連するREDOのアーカイブはまだ完了していない。適切な判断はどれか。",
+      "choices": {
+        "A": "INACTIVEはインスタンスリカバリに不要なため、これ以降のメディアリカバリへの影響もないと断定できる。",
+        "B": "INACTIVEの損失は必ずCURRENTの損失より直近のコミット済み変更を多く失う。",
+        "C": "INACTIVEは現在書込み中であるため、即座にインスタンスを強制終了しなければならない。",
+        "D": "INACTIVEでも未アーカイブのREDOを失った場合は、将来のメディアリカバリでログが欠落するリスクがある。"
+      },
+      "correctChoice": "D",
+      "correctText": "INACTIVEでも未アーカイブのREDOを失った場合は、将来のメディアリカバリでログが欠落するリスクがある。",
+      "explanation": "正解：D\n\nA（誤り）：インスタンスリカバリ不要でもログがアーカイブされていなければ将来のファイルリカバリに必要かもしれない。\nB（誤り）：直近のデータ損失の程度をINACTIVEとCURRENTだけで単純比較できない。\nC（誤り）：現在の書込み対象はCURRENTであり、INACTIVEは異なる状態。\nD（正しい）：未アーカイブのREDO欠落は今後のリカバリ範囲を制限する可能性がある。",
+      "topic": "オンラインREDOのINACTIVE状態",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch11q020",
+      "chapter": 11,
+      "question": "ARCHIVELOGモードで、ある時刻以後のREDOが完全に失われた。バックアップはそれ以前にある。データベース全体の復旧方針として最も適切なのはどれか。",
+      "choices": {
+        "A": "ログ欠落以前の復旧可能時点を選んだPITRを検討し、必要なバックアップからRESTORE・RECOVERしてRESETLOGSでOPENする。",
+        "B": "ARCHIVELOGモードであればREDOの欠落範囲に関係なく障害直前まで完全リカバリできる。",
+        "C": "復旧目標時点が決まっていれば、RESTORE DATABASEを省略し常にRECOVERだけで過去時点へ戻せる。",
+        "D": "RMANのSET UNTILはバックアップの選択に影響せずRECOVER時の終了時点だけを制御する。"
+      },
+      "correctChoice": "A",
+      "correctText": "ログ欠落以前の復旧可能時点を選んだPITRを検討し、必要なバックアップからRESTORE・RECOVERしてRESETLOGSでOPENする。",
+      "explanation": "正解：A\n\nA（正しい）：連続したREDOがない区間を超えて変更を再現できないため、欠落前の時点を復旧目標にする。\nB（誤り）：ARCHIVELOG運用自体は必要なすべてのログが現在も揃う保証ではない。\nC（誤り）：PITRには通常復旧目標に対応したファイルをバックアップからRESTOREする工程が必要。\nD（誤り）：SET UNTILをRESTOREの前に指定することで、その時点に適したバックアップが選ばれる。",
+      "topic": "PITRのログ損失",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch11q021",
+      "chapter": 11,
+      "question": "制御ファイルをすべて失った。パラメータCONTROL_FILESには二つのパスが指定され、両方のディレクトリに書込み可能である。RMANでNOMOUNTから制御ファイルをRESTOREする。正しい説明はどれか。",
+      "choices": {
+        "A": "RMANは復旧対象制御ファイルを自動的にSPFILEの場所だけへ1個保存する。",
+        "B": "通常のRESTORE CONTROLFILEではCONTROL_FILESに指定されたパスへ制御ファイルを復元する。",
+        "C": "制御ファイルをリストアする前に、必ずデータベースをOPENしてファイル名を確認する。",
+        "D": "RESTORE CONTROLFILEコマンドはMOUNTしているDBでないと実行できない。"
+      },
+      "correctChoice": "B",
+      "correctText": "通常のRESTORE CONTROLFILEではCONTROL_FILESに指定されたパスへ制御ファイルを復元する。",
+      "explanation": "正解：B\n\nA（誤り）：通常の制御ファイル復旧先はCONTROL_FILES設定を用いる。\nB（正しい）：設定済みの制御ファイル位置へ戻すことで、MOUNT時に利用可能にする。\nC（誤り）：制御ファイルを失っているのでOPENできず、NOMOUNTから復元する。\nD（誤り）：制御ファイルがない場合、NOMOUNTからのRESTOREが基本。",
+      "topic": "制御ファイルの復元先",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch11q022",
+      "chapter": 11,
+      "question": "パスワードファイルだけが破損し、データファイル・制御ファイル・キーストアは正常である。正しいものを2つ選べ。",
+      "choices": {
+        "A": "パスワードファイルを使う管理ユーザーのリモート認証に影響が出る場合がある。",
+        "B": "パスワードファイルが破損すると透過的暗号化されたバックアップの復号鍵も失われる。",
+        "C": "orapwdでパスワードファイルを再作成し、必要な管理権限の情報を再設定する方法がある。",
+        "D": "パスワードファイルを失うとすべての一般ユーザーのSQL接続が停止する。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "パスワードファイルを使う管理ユーザーのリモート認証に影響が出る場合がある。、orapwdでパスワードファイルを再作成し、必要な管理権限の情報を再設定する方法がある。",
+      "explanation": "正解：A、C\n\nA（正しい）：パスワードファイル認証を使う管理接続はファイルの破損に影響される。\nB（誤り）：暗号化の鍵はキーストアで管理され、パスワードファイルとは別物。\nC（正しい）：orapwdがパスワードファイル管理に使われる。\nD（誤り）：通常の一般ユーザー認証まで一律に不可能になるわけではない。",
+      "topic": "パスワードファイル障害",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch11q023",
+      "chapter": 11,
+      "question": "索引をNOLOGGINGで作成した後、その索引を含む表領域が破損した。作成前のバックアップからリストアしてREDOを適用する場合、正しい説明はどれか。",
+      "choices": {
+        "A": "NOLOGGINGであれば索引の作成情報も必ずすべてREDOに記録され、索引は完全に再現される。",
+        "B": "索引の作成に必要な表データは保護されているため、索引を再作成する必要が生じる場合がある。",
+        "C": "索引専用表領域はNOLOGGINGであれば通常のRESTOREを一切実行できない。",
+        "D": "NOLOGGINGが使われた場合、基礎表の全行も必ず失われる。"
+      },
+      "correctChoice": "B",
+      "correctText": "索引の作成に必要な表データは保護されているため、索引を再作成する必要が生じる場合がある。",
+      "explanation": "正解：B\n\nA（誤り）：NOLOGGING操作では索引を構築するための変更がREDOに十分残らない場合がある。\nB（正しい）：索引そのものが復元不能でも、基礎表のデータから再構築できる。\nC（誤り）：バックアップからのファイルRESTORE自体が禁止されるわけではない。\nD（誤り）：NOLOGGINGの影響対象はその操作に係る変更であり、基礎表のすべての行消失を意味しない。",
+      "topic": "NOLOGGING索引の復元",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q001",
+      "chapter": 13,
+      "question": "表SALESの昨日の状態を確認したい。現在の表データは変更せず、対象時刻のUNDOが利用可能である。正しい方法を2つ選べ。",
+      "choices": {
+        "A": "SELECTでAS OF TIMESTAMPを用いて昨日のSCNに相当する時刻を指定する。",
+        "B": "FLASHBACK TABLEで昨日の時刻を指定すると、データを変更せずに昨日の行だけを表示できる。",
+        "C": "AS OF SCNを使い、過去時点のSCNを指定して行を参照する。",
+        "D": "VERSIONS BETWEENを指定しない限りAS OF問合せは実行できない。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "SELECTでAS OF TIMESTAMPを用いて昨日のSCNに相当する時刻を指定する。、AS OF SCNを使い、過去時点のSCNを指定して行を参照する。",
+      "explanation": "正解：A、C\n\nA（正しい）：AS OF TIMESTAMPは指定日時の一貫した行の状態を参照するだけで、現在の表を変更しない。\nB（誤り）：FLASHBACK TABLEは表のデータ自体を過去の状態に戻す操作で、参照専用ではない。\nC（正しい）：AS OF SCNも指定SCNの行バージョンを参照でき、現行データは更新しない。\nD（誤り）：AS OFとVERSIONS BETWEENは目的が異なる構文であり、AS OFだけで特定時点を参照できる。",
+      "topic": "Flashback Query",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch13q002",
+      "chapter": 13,
+      "question": "次のSQLの用途について正しいものはどれか。\n```sql\nSELECT versions_xid, versions_operation, versions_startscn\nFROM orders VERSIONS BETWEEN SCN 1000 AND 1300\nWHERE order_id = 42;\n```",
+      "choices": {
+        "A": "指定SCN期間に実行されたすべてのDDLのSQL全文を表示する。",
+        "B": "指定SCN範囲にある対象行のバージョンと変更操作・トランザクション識別子を調べる。",
+        "C": "SCN 1300時点の行だけを更新せずに取得し、途中の更新履歴は取得しない。",
+        "D": "対象行をSCN 1000時点の状態へ戻し、変更操作を履歴表に記録する。"
+      },
+      "correctChoice": "B",
+      "correctText": "指定SCN範囲にある対象行のバージョンと変更操作・トランザクション識別子を調べる。",
+      "explanation": "正解：B\n\nA（誤り）：VERSIONS擬似列は行のDML履歴を扱い、DDL全文を表示する用途ではない。\nB（正しい）：VERSIONS BETWEENは行の複数バージョンを調べ、擬似列で操作種別やXIDを取得できる。\nC（誤り）：単一時点の参照はAS OFであり、VERSIONSは期間内の履歴を対象にする。\nD（誤り）：SELECTは参照であり、FLASHBACK TABLEのような復元は行わない。",
+      "topic": "Flashback Versions Query",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q003",
+      "chapter": 13,
+      "question": "VERSIONS BETWEENで参照した結果のVERSIONS_OPERATIONがDの行がある。正しい解釈を2つ選べ。",
+      "choices": {
+        "A": "同じ行に対してINSERTならI、UPDATEならUと表示され得る。",
+        "B": "Dはバージョンの終了SCNが未確定であることを示す。",
+        "C": "当該バージョンに関連してDELETE操作が行われた。",
+        "D": "当該バージョンが更新されたことを示し、DELETEとは無関係である。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "同じ行に対してINSERTならI、UPDATEならUと表示され得る。、当該バージョンに関連してDELETE操作が行われた。",
+      "explanation": "正解：A、C\n\nA（正しい）：疑似列のI/U/DはそれぞれINSERT/UPDATE/DELETEを示す。\nB（誤り）：終了SCNの情報はVERSIONS_ENDSCNであり、操作種別の列ではない。\nC（正しい）：VERSIONS_OPERATIONのDはDELETEを表す操作コードである。\nD（誤り）：更新の操作コードはUであり、DはDELETEを示す。",
+      "topic": "VERSIONS_OPERATION",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch13q004",
+      "chapter": 13,
+      "question": "VERSIONS BETWEENで取得した行のVERSIONS_STARTSCNがNULLだった。次の解釈として適切なのはどれか。",
+      "choices": {
+        "A": "その行のバージョンは検索期間中にDELETEされたことが確定する。",
+        "B": "更新トランザクションのXIDが無効であることを表す。",
+        "C": "指定期間内にINSERTされたが、コミットSCNを持たないことが確定する。",
+        "D": "指定した検索期間の開始より前から、そのバージョンの行が存在していた可能性がある。"
+      },
+      "correctChoice": "D",
+      "correctText": "指定した検索期間の開始より前から、そのバージョンの行が存在していた可能性がある。",
+      "explanation": "正解：D\n\nA（誤り）：DELETEの有無はVERSIONS_OPERATIONなどで検討し、開始SCNのNULLだけでは確定しない。\nB（誤り）：トランザクション識別子はVERSIONS_XIDに記録され、開始SCNとは別概念である。\nC（誤り）：期間内INSERTなら通常は対応する開始SCNを持つため、この解釈にはならない。\nD（正しい）：開始SCNがNULLなら、そのバージョンは検索範囲の始点より前から存在した可能性がある。",
+      "topic": "VERSIONS_STARTSCN",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q005",
+      "chapter": 13,
+      "question": "過去の更新を行ったトランザクションを特定し、取り消しに使えるSQLの情報を調べたい。適切な組み合わせを2つ選べ。",
+      "choices": {
+        "A": "FLASHBACK_TRANSACTION_QUERYのUNDO_SQL列を調べる。",
+        "B": "VERSIONS_XIDで行バージョンに対応するトランザクションを特定する。",
+        "C": "VERSIONS_ENDSCNを実行して表全体を更新前に戻す。",
+        "D": "FLASHBACK TABLEを実行すると元の更新SQL全文とXIDの一覧が自動出力される。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "FLASHBACK_TRANSACTION_QUERYのUNDO_SQL列を調べる。、VERSIONS_XIDで行バージョンに対応するトランザクションを特定する。",
+      "explanation": "正解：A、B\n\nA（正しい）：FLASHBACK_TRANSACTION_QUERYは変更を打ち消すためのSQL情報をUNDO_SQLに持つ。\nB（正しい）：行バージョンのXIDは対象トランザクションを調べる手掛かりになる。\nC（誤り）：VERSIONS_ENDSCNは擬似列であり、復旧操作を実行するコマンドではない。\nD（誤り）：FLASHBACK TABLEは表の過去時点への復元であり、トランザクション履歴の一覧を返す機能ではない。",
+      "topic": "Flashback Transaction Query",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch13q006",
+      "chapter": 13,
+      "question": "フラッシュバックトランザクション問い合わせを使い、対象表のDML情報を確認するための設定として適切なものを2つ選べ。",
+      "choices": {
+        "A": "フラッシュバックログの有効化が問い合わせの必須条件である。",
+        "B": "参照ユーザーにSELECT ANY TRANSACTION権限を付与する。",
+        "C": "少なくとも最小サプリメンタルロギングを有効にする。",
+        "D": "FLASHBACK ANY TABLE権限だけで取引情報ビューの参照を保証できる。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "参照ユーザーにSELECT ANY TRANSACTION権限を付与する。、少なくとも最小サプリメンタルロギングを有効にする。",
+      "explanation": "正解：B、C\n\nA（誤り）：取引情報の参照とFlashback Database用のフラッシュバックログは別機構である。\nB（正しい）：FLASHBACK_TRANSACTION_QUERYへのアクセスには取引情報の参照権限が必要である。\nC（正しい）：DML内容の復元に必要な補足情報として最小サプリメンタルロギングを有効にする。\nD（誤り）：FLASHBACK ANY TABLEは表を戻す権限であり、取引ビューの参照権限とは異なる。",
+      "topic": "Transaction Query前提",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch13q007",
+      "chapter": 13,
+      "question": "フラッシュバックデータアーカイブ(FDA)を作成したが、表T1にはまだ関連付けていない。T1の長期履歴を保存するための次の操作はどれか。",
+      "choices": {
+        "A": "ALTER DATABASE FLASHBACK ONでT1のFDAへの関連付けが完了する。",
+        "B": "DB_FLASHBACK_RETENTION_TARGETを増やすとT1のFDA管理が有効になる。",
+        "C": "ALTER TABLE T1 FLASHBACK ARCHIVEで対象表をFDAへ関連付ける。",
+        "D": "FDAを作成した時点で同じ表領域の全表が自動的に履歴管理される。"
+      },
+      "correctChoice": "C",
+      "correctText": "ALTER TABLE T1 FLASHBACK ARCHIVEで対象表をFDAへ関連付ける。",
+      "explanation": "正解：C\n\nA（誤り）：FLASHBACK ONはDB全体のフラッシュバックログ機構を有効にする。\nB（誤り）：DB_FLASHBACK_RETENTION_TARGETはFlashback Databaseの保存目標で、FDA対象表の指定ではない。\nC（正しい）：FDAは作成だけでは対象表の履歴を追跡しない。表への有効化が必要である。\nD（誤り）：同一表領域の全表へ自動適用する機能ではない。",
+      "topic": "FDA有効化",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q008",
+      "chapter": 13,
+      "question": "FDAの容量制限を設定した場合の動作について正しいものはどれか。",
+      "choices": {
+        "A": "FDAのQUOTAに達すると、履歴だけを破棄して対象表のDMLは必ず成功させる。",
+        "B": "FDAのRETENTIONが残っていれば、QUOTA超過でも保存先が無制限に増える。",
+        "C": "FDAのQUOTAはFlashback DatabaseのFRAサイズを直接制限する。",
+        "D": "FDAの割当済みQUOTAの上限に達すると、対象表への変更が失敗する場合がある。"
+      },
+      "correctChoice": "D",
+      "correctText": "FDAの割当済みQUOTAの上限に達すると、対象表への変更が失敗する場合がある。",
+      "explanation": "正解：D\n\nA（誤り）：履歴を必ず捨てるのではなく、追跡対象の変更が失敗するケースがある。\nB（誤り）：保存期間と割当上限は別の制約で、RETENTION指定で容量上限がなくなるわけではない。\nC（誤り）：FDAのQUOTAはアーカイブ用表領域の割当で、FRAサイズ設定とは異なる。\nD（正しい）：履歴格納先のFDA領域に余裕がなければ必要な変更履歴を保存できず、対象表DMLへ影響する。",
+      "topic": "FDA容量管理",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q009",
+      "chapter": 13,
+      "question": "FDAの履歴保持期間を変更したい。既存FDAに対する適切な操作はどれか。",
+      "choices": {
+        "A": "ALTER FLASHBACK ARCHIVEでRETENTIONを変更する。",
+        "B": "ALTER TABLE ... FLASHBACK ARCHIVEでRETENTIONを変更する。",
+        "C": "DB_FLASHBACK_RETENTION_TARGETを変更してFDAの保持期間を調整する。",
+        "D": "ALTER DATABASE FLASHBACK ONを再実行してFDAの保持期間を変更する。"
+      },
+      "correctChoice": "A",
+      "correctText": "ALTER FLASHBACK ARCHIVEでRETENTIONを変更する。",
+      "explanation": "正解：A\n\nA（正しい）：FDAの管理文でRETENTIONを変更できる。\nB（誤り）：ALTER TABLEは主に対象表へのFDA適用設定であり、FDAそのものの保存期間の変更ではない。\nC（誤り）：この初期化パラメータはDB全体のフラッシュバックログに関する設定である。\nD（誤り）：FLASHBACK ONはFlashback Databaseの有効化であり、FDA管理パラメータの変更ではない。",
+      "topic": "FDA保存期間",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q010",
+      "chapter": 13,
+      "question": "既存表T1の行を30分前の状態に戻したい。UNDOは十分残り、期間内にDDLはなく、表に必要な権限があるがROW MOVEMENTは無効である。適切なのはどれか。",
+      "choices": {
+        "A": "AS OF TIMESTAMP問合せを実行すると自動的にT1が過去の状態へ更新される。",
+        "B": "ALTER TABLE T1 ENABLE ROW MOVEMENTを行ってからFLASHBACK TABLEを実行する。",
+        "C": "FLASHBACK TABLEは参照のみなので、ROW MOVEMENTが無効のまま実行する。",
+        "D": "ALTER DATABASE FLASHBACK ONを実行すればROW MOVEMENTは不要になる。"
+      },
+      "correctChoice": "B",
+      "correctText": "ALTER TABLE T1 ENABLE ROW MOVEMENTを行ってからFLASHBACK TABLEを実行する。",
+      "explanation": "正解：B\n\nA（誤り）：AS OFは指定時点を参照するSELECTであり、T1の現行データを更新しない。\nB（正しい）：FLASHBACK TABLEで表データを戻すには行移動の有効化が前提になる。\nC（誤り）：読取専用のFlashback Queryとは違い、FLASHBACK TABLEは表の状態を変えるため制約を受ける。\nD（誤り）：DBのフラッシュバックログ設定は表の行移動要件を代替しない。",
+      "topic": "Flashback Table",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q011",
+      "chapter": 13,
+      "question": "表T1は昨日に列の削除を伴うDDLを実行し、今日誤ったUPDATEを行った。表をDDL実行前にFLASHBACK TABLEで戻したい。最も適切な説明はどれか。",
+      "choices": {
+        "A": "FDAで長期履歴を保存していればFLASHBACK TABLEがDDLを自動取消しする。",
+        "B": "ROW MOVEMENTを有効にすればDDL前へのFLASHBACK TABLEが必ず成立する。",
+        "C": "表構造を変えるDDLの境界を越えるFLASHBACK TABLEはできないため、別の復旧方式を検討する。",
+        "D": "UNDOが十分ならDDLの内容に関係なくFLASHBACK TABLEで昨日以前に戻せる。"
+      },
+      "correctChoice": "C",
+      "correctText": "表構造を変えるDDLの境界を越えるFLASHBACK TABLEはできないため、別の復旧方式を検討する。",
+      "explanation": "正解：C\n\nA（誤り）：FDAによる履歴参照はDDLの巻戻し能力を与えるものではない。\nB（誤り）：ROW MOVEMENTは必要条件の一つだが、DDLの制限を解除するわけではない。\nC（正しい）：FLASHBACK TABLEは表定義変更の境界を越えられないという制約がある。\nD（誤り）：UNDOの存在だけでは構造変更を越えた表復元は保証されない。",
+      "topic": "DDLとFlashback Table",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q012",
+      "chapter": 13,
+      "question": "別トランザクションT2がT1の更新行をさらに更新した後、T1だけを取り消そうとして依存関係エラーになった。T1と依存するT2をともにバックアウトする指定はどれか。",
+      "choices": {
+        "A": "DBMS_FLASHBACK.NOCASCADE",
+        "B": "DBMS_FLASHBACK.NONCONFLICT_ONLY",
+        "C": "DBMS_FLASHBACK.NOCASCADE_FORCE",
+        "D": "DBMS_FLASHBACK.CASCADE"
+      },
+      "correctChoice": "D",
+      "correctText": "DBMS_FLASHBACK.CASCADE",
+      "explanation": "正解：D\n\nA（誤り）：NOCASCADEは依存関係を許容せず、依存がある場合はエラーとなる。\nB（誤り）：NONCONFLICT_ONLYは競合しない行だけをバックアウトする指定である。\nC（誤り）：NOCASCADE_FORCEは依存先を取り消さず対象だけを強制的に取り消す指定である。\nD（正しい）：CASCADEは対象トランザクションと依存するトランザクションを逆依存順で取り消す。",
+      "topic": "Transaction Backoutオプション",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q013",
+      "chapter": 13,
+      "question": "依存するトランザクションに触れず、元トランザクションのうち競合していない行だけを取り消したい。適切な指定はどれか。",
+      "choices": {
+        "A": "NONCONFLICT_ONLY",
+        "B": "NOCASCADE",
+        "C": "CASCADE",
+        "D": "NOCASCADE_FORCE"
+      },
+      "correctChoice": "A",
+      "correctText": "NONCONFLICT_ONLY",
+      "explanation": "正解：A\n\nA（正しい）：NONCONFLICT_ONLYは競合する行を避けて対象の非競合部分だけを取り消す。\nB（誤り）：NOCASCADEでは依存が見つかると基本的にエラーとなる。\nC（誤り）：CASCADEは依存トランザクションまで巻き込む。\nD（誤り）：NOCASCADE_FORCEは依存を無視して指定トランザクションのUNDO SQLを適用しようとする。",
+      "topic": "Transaction Backout部分適用",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q014",
+      "chapter": 13,
+      "question": "トランザクションバックアウトの準備について正しいものを2つ選べ。",
+      "choices": {
+        "A": "バックアウトには保証付きリストアポイントを必ず作成する。",
+        "B": "ARCHIVELOGモードと必要なサプリメンタルロギングを整える。",
+        "C": "実行ユーザーにDBMS_FLASHBACKパッケージの実行権限等を付与する。",
+        "D": "DB_FLASHBACK_RETENTION_TARGETを1440分にしなければ利用できない。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "ARCHIVELOGモードと必要なサプリメンタルロギングを整える。、実行ユーザーにDBMS_FLASHBACKパッケージの実行権限等を付与する。",
+      "explanation": "正解：B、C\n\nA（誤り）：保証付きリストアポイントはDB全体の戻し位置を保証する別機能である。\nB（正しい）：バックアウトではUNDOやREDOと、トランザクション識別に必要な補足ログを使用する。\nC（正しい）：パッケージ実行権限や取引情報参照権限が必要となる。\nD（誤り）：その初期化パラメータはFlashback Databaseの保持目標であり、バックアウトの必須値ではない。",
+      "topic": "Transaction Backout実行条件",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch13q015",
+      "chapter": 13,
+      "question": "DROP TABLE T1を実行した直後、RECYCLEBINが有効でPURGEは指定していない。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "DROP直後にT1のデータを戻すにはUNDO_RETENTIONが十分であることが必須となる。",
+        "B": "ごみ箱内のT1は表領域の空き容量を即座に回復させる。",
+        "C": "T1のセグメントは原則としてごみ箱に残り、名前を変えて管理される。",
+        "D": "FLASHBACK TABLE T1 TO BEFORE DROPで表を復元できる場合がある。"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "T1のセグメントは原則としてごみ箱に残り、名前を変えて管理される。、FLASHBACK TABLE T1 TO BEFORE DROPで表を復元できる場合がある。",
+      "explanation": "正解：C、D\n\nA（誤り）：Flashback DropはUNDOを使う方式ではない。\nB（誤り）：ごみ箱内のセグメントは領域を占有するため、削除直後にすべての容量が解放されるわけではない。\nC（正しい）：Flashback Dropは削除された表を内部名に変更し、領域を維持して復元に備える。\nD（正しい）：ごみ箱に対象表が残っていればBEFORE DROPで復元できる。",
+      "topic": "Flashback Drop",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch13q016",
+      "chapter": 13,
+      "question": "同じ名前T1の表を作成・DROPする操作を2回行った。ごみ箱内にT1の履歴が2件ある。特定の古いT1を復元したい場合の適切な方法はどれか。",
+      "choices": {
+        "A": "ORIGINAL_NAMEを指定するだけで常に最古のT1を選択できる。",
+        "B": "FLASHBACK TABLE T1 TO SCNでごみ箱の古い表定義を指定する。",
+        "C": "RECYCLEBINをOFFにすると最古のT1だけが復元できる。",
+        "D": "ごみ箱のOBJECT_NAMEで対象のシステム生成名を特定し、その名前を二重引用符で指定する。"
+      },
+      "correctChoice": "D",
+      "correctText": "ごみ箱のOBJECT_NAMEで対象のシステム生成名を特定し、その名前を二重引用符で指定する。",
+      "explanation": "正解：D\n\nA（誤り）：ORIGINAL_NAMEはどちらもT1になり得るため、対象の識別には不十分である。\nB（誤り）：TO SCNはFlashback Tableの過去時点指定であり、DROPされた複数の表の識別ではない。\nC（誤り）：RECYCLEBINをOFFにしても既存ごみ箱から自動復元するわけではない。\nD（正しい）：同名の表が複数残っている場合は、固有のシステム生成名を指定して対象を区別する。",
+      "topic": "ごみ箱内の複数世代",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q017",
+      "chapter": 13,
+      "question": "表T1について実行する次のSQLの結果として正しいものはどれか。\n```sql\nDROP TABLE T1 PURGE;\n```",
+      "choices": {
+        "A": "T1はごみ箱を経由せずに削除され、Flashback Dropによる復元対象にならない。",
+        "B": "T1はごみ箱に残るが、保存期間だけが短縮される。",
+        "C": "T1はFlashback Tableで任意の過去SCNへ必ず戻せる。",
+        "D": "T1の削除によってFDAのすべての履歴も必ず同時に復元される。"
+      },
+      "correctChoice": "A",
+      "correctText": "T1はごみ箱を経由せずに削除され、Flashback Dropによる復元対象にならない。",
+      "explanation": "正解：A\n\nA（正しい）：PURGEを指定したDROPはリサイクルビンへの保持を行わない。\nB（誤り）：PURGEは保持期間調整ではなく、ごみ箱を介さない削除である。\nC（誤り）：FLASHBACK TABLEは現在存在する表への過去時点復元で、PURGE済み表の復旧ではない。\nD（誤り）：FDAの履歴保存機構とDROP TABLE PURGEによる表削除は別管理である。",
+      "topic": "DROP PURGE",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q018",
+      "chapter": 13,
+      "question": "Flashback Dropで表T1を復元した。表に付随する索引・制約・トリガーの名前について適切なのはどれか。",
+      "choices": {
+        "A": "索引が含まれる表はFlashback Dropの対象外である。",
+        "B": "表名は元に戻るが、付随オブジェクト名は自動的には元の名前へ戻らない。",
+        "C": "表と付随オブジェクトの元の名前が常にすべて復元される。",
+        "D": "表名だけが新しいシステム生成名のまま残り、索引名のみ元へ戻る。"
+      },
+      "correctChoice": "B",
+      "correctText": "表名は元に戻るが、付随オブジェクト名は自動的には元の名前へ戻らない。",
+      "explanation": "正解：B\n\nA（誤り）：索引付き表でも、対象がごみ箱に残っていれば復元できる。\nB（正しい）：ごみ箱から表を戻しても、関連オブジェクトの名前はシステム生成名のまま残る場合がある。\nC（誤り）：表と付随オブジェクトの名称は同じ復元規則ではない。\nD（誤り）：表名は元へ戻せるが、関連オブジェクト名が必ず復元されるわけではない。",
+      "topic": "Flashback Drop復元結果",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q019",
+      "chapter": 13,
+      "question": "UNDOを必要とするフラッシュバック操作と、UNDOを使用しない操作の組合せとして正しいものを2つ選べ。",
+      "choices": {
+        "A": "Flashback DatabaseはUNDO表領域だけを用いて全データファイルを戻す。",
+        "B": "Flashback Versions Queryはフラッシュバックログだけで変更履歴を取り出す。",
+        "C": "Flashback Queryは過去の行を再構成するためUNDOを使用する。",
+        "D": "Flashback Dropはごみ箱のオブジェクトを戻すため、UNDOに依存しない。"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "Flashback Queryは過去の行を再構成するためUNDOを使用する。、Flashback Dropはごみ箱のオブジェクトを戻すため、UNDOに依存しない。",
+      "explanation": "正解：C、D\n\nA（誤り）：Flashback DatabaseはFRAのフラッシュバックログとREDOを利用する。\nB（誤り）：VERSIONS BETWEENはUNDOに基づく行の履歴参照である。\nC（正しい）：AS OF問合せはUNDOで過去の行イメージを再構築する。\nD（正しい）：Flashback Dropはオブジェクトをリサイクルビンから戻す機構で、UNDOは要件にならない。",
+      "topic": "Flashback機能の保存資源",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch13q020",
+      "chapter": 13,
+      "question": "FDA有効表T1の長期履歴を維持したいが、最近のUNDOの保存期間だけでは足りない。最も適切な説明はどれか。",
+      "choices": {
+        "A": "UNDO_RETENTIONを増やせばFDAを使わず任意の年数の履歴を常に保証できる。",
+        "B": "FLASHBACK DATABASEのログ保存期間を年単位にすればT1だけの履歴を参照できる。",
+        "C": "FLASHBACK TABLEを定期実行すれば長期履歴がFDAに自動記録される。",
+        "D": "FDAへ履歴を保存し、指定期間の過去データをAS OF問合せの構文で参照できる。"
+      },
+      "correctChoice": "D",
+      "correctText": "FDAへ履歴を保存し、指定期間の過去データをAS OF問合せの構文で参照できる。",
+      "explanation": "正解：D\n\nA（誤り）：UNDOの容量と上書きの制約があるため、期間を長くするだけで多年の履歴保証にはならない。\nB（誤り）：DB全体の戻しに使うフラッシュバックログはFDAの表履歴参照の代替ではない。\nC（誤り）：FLASHBACK TABLEは過去時点へ表データを変更する復旧機能で、履歴保存設定ではない。\nD（正しい）：FDAは長期の表履歴保存を担い、過去時点の参照には通常のFlashback Query構文を利用できる。",
+      "topic": "FDAとUNDO",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q021",
+      "chapter": 13,
+      "question": "FDAの対象表の履歴を保存期間満了より前に特定SCN以前で削除したい。使用する構文はどれか。",
+      "choices": {
+        "A": "ALTER FLASHBACK ARCHIVE ... PURGE BEFORE SCN ...",
+        "B": "FLASHBACK TABLE ... TO SCN ...",
+        "C": "ALTER DATABASE FLASHBACK OFF",
+        "D": "PURGE RECYCLEBIN"
+      },
+      "correctChoice": "A",
+      "correctText": "ALTER FLASHBACK ARCHIVE ... PURGE BEFORE SCN ...",
+      "explanation": "正解：A\n\nA（正しい）：FDAに格納した履歴はALTER FLASHBACK ARCHIVEのPURGE指定で指定SCN以前を削除できる。\nB（誤り）：FLASHBACK TABLEは表のデータを戻す操作で、FDAの履歴削除ではない。\nC（誤り）：FLASHBACK OFFはDBフラッシュバックログの設定を変更し、FDA履歴のパージはしない。\nD（誤り）：RECYCLEBINのPURGEはDROP済みオブジェクトを削除する操作である。",
+      "topic": "FDA PURGE",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q022",
+      "chapter": 13,
+      "question": "フラッシュバックトランザクション問い合わせを確認すると、1つのXIDに対して複数行が返された。適切な解釈はどれか。",
+      "choices": {
+        "A": "UNDO_SQL列はトランザクションごとに必ず1行にまとめられる。",
+        "B": "1つのトランザクションが複数の行を変更したため、変更行ごとに表示された可能性がある。",
+        "C": "XIDは各行に必ず異なる値が割り当てられるため、結果は必ず異常である。",
+        "D": "複数行になった時点でSQL文を複数回実行したことが確定する。"
+      },
+      "correctChoice": "B",
+      "correctText": "1つのトランザクションが複数の行を変更したため、変更行ごとに表示された可能性がある。",
+      "explanation": "正解：B\n\nA（誤り）：UNDO_SQLも変更行に応じた取り消し内容を持ち、1取引1行とは限らない。\nB（正しい）：取引照会は変更行に対応するレコードを返すため、同じXIDが複数行に現れ得る。\nC（誤り）：XIDは行ではなくトランザクションの識別子である。\nD（誤り）：1文で複数行を更新しても複数結果になり得るので、SQL回数は確定しない。",
+      "topic": "Transaction Queryの出力",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q023",
+      "chapter": 13,
+      "question": "TRUNCATE TABLE T1を実行してデータを失った。UNDOを使う通常のFlashback TableとFlashback Dropについて適切なのはどれか。",
+      "choices": {
+        "A": "ROW MOVEMENTを有効にするだけで通常のFlashback TableがTRUNCATEを取り消す。",
+        "B": "ごみ箱の保持期間を増やせばTRUNCATEの結果をFlashback Dropで復元できる。",
+        "C": "TRUNCATEはDROP TABLEではなく、通常のFlashback TableでもTRUNCATE前へは戻せないため別の復旧手段を検討する。",
+        "D": "TRUNCATEの直後であればFlashback Dropを実行して表と行を戻せる。"
+      },
+      "correctChoice": "C",
+      "correctText": "TRUNCATEはDROP TABLEではなく、通常のFlashback TableでもTRUNCATE前へは戻せないため別の復旧手段を検討する。",
+      "explanation": "正解：C\n\nA（誤り）：ROW MOVEMENTはFlashback Tableの要件だが、TRUNCATEのDDL制限は解除しない。\nB（誤り）：TRUNCATEした表はごみ箱に入らないため保持期間の変更では対処できない。\nC（正しい）：TRUNCATEは表の削除ではなくDDLによるデータ切捨てで、Flashback Dropの対象でも通常のFlashback Tableで越えられる境界でもない。\nD（誤り）：Flashback DropはDROP TABLEでごみ箱へ移された表を対象とする。",
+      "topic": "TRUNCATEとFlashback",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q024",
+      "chapter": 13,
+      "question": "フラッシュバックドロップを利用できない操作を2つ選べ。",
+      "choices": {
+        "A": "DROP TABLE T1をPURGEなしで行い、T1がごみ箱に残っている状態から復元する。",
+        "B": "DROP USER ... CASCADEで削除されたユーザーと表をまとめて戻す。",
+        "C": "DROP TABLE T1を実行し、表がごみ箱に残る間にTO BEFORE DROPで復元する。",
+        "D": "DROP TABLESPACEで失われた表領域をそのまま復元する。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "DROP USER ... CASCADEで削除されたユーザーと表をまとめて戻す。、DROP TABLESPACEで失われた表領域をそのまま復元する。",
+      "explanation": "正解：B、D\n\nA（誤り）：ごみ箱に表が残っていれば通常のFlashback Dropが利用できる。\nB（正しい）：DROP USERで失われたユーザー全体をFlashback Dropで戻すことはできない。\nC（誤り）：TO BEFORE DROPはごみ箱内の削除済み表を復元する標準操作である。\nD（正しい）：Flashback Dropは表単位のごみ箱機構であり、表領域そのものの削除を戻す機能ではない。",
+      "topic": "Flashback Drop制約",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch14q001",
+      "chapter": 14,
+      "question": "データベース内の大量のデータが誤更新された。現行データファイルは正常で、2時間前までのフラッシュバックログと必要なREDOがある。バックアップの全データファイルをリストアせずDB全体を戻したい。最も適切な方式はどれか。",
+      "choices": {
+        "A": "DBPITRで全データファイルをリストアせずにUNDOのみを適用する。",
+        "B": "Flashback Tableで全表と全データディクショナリを一括して過去に戻す。",
+        "C": "Flashback Queryで全データファイルの物理状態を過去へ更新する。",
+        "D": "Flashback Databaseで目標時点付近まで戻し、必要なREDOを適用する。"
+      },
+      "correctChoice": "D",
+      "correctText": "Flashback Databaseで目標時点付近まで戻し、必要なREDOを適用する。",
+      "explanation": "正解：D\n\nA（誤り）：DBPITRは一般に過去のバックアップからデータファイルをリストアする。\nB（誤り）：Flashback Tableは個々の表の復元機能でDB全体を一括復元するものではない。\nC（誤り）：Flashback Queryは過去の行を参照するSELECTで物理DBを戻さない。\nD（正しい）：Flashback Databaseは現行データファイルとフラッシュバックログ・REDOを利用し、全体バックアップのリストアを通常省ける。",
+      "topic": "Flashback DatabaseとPITR",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch14q002",
+      "chapter": 14,
+      "question": "Flashback Databaseの一般的な操作手順として正しいものはどれか。",
+      "choices": {
+        "A": "DBをMOUNTし、FLASHBACK DATABASEを実行した後、必要な確認を経てOPEN RESETLOGSする。",
+        "B": "DBをOPENのままFLASHBACK DATABASEし、OPEN NORESETLOGSで再開する。",
+        "C": "DBをNOMOUNTのままFLASHBACK DATABASEし、MOUNTを省いてOPEN RESETLOGSする。",
+        "D": "DBをMOUNTし、先にOPEN RESETLOGSしてからFLASHBACK DATABASEを実行する。"
+      },
+      "correctChoice": "A",
+      "correctText": "DBをMOUNTし、FLASHBACK DATABASEを実行した後、必要な確認を経てOPEN RESETLOGSする。",
+      "explanation": "正解：A\n\nA（正しい）：DB全体の巻戻しは通常MOUNT状態で実施し、巻戻し後に新しいREDO系列を開始するためOPEN RESETLOGSする。\nB（誤り）：開いたまま全体フラッシュバックする手順とは異なり、NORESETLOGSでの再開が標準ではない。\nC（誤り）：NOMOUNTでは対象DBの制御ファイルをマウントしていない。\nD（誤り）：OPEN RESETLOGSは巻戻し完了後の再開手順であり先に実行しない。",
+      "topic": "Flashback Database手順",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch14q003",
+      "chapter": 14,
+      "question": "Flashback Databaseを有効化するための基本条件を2つ選べ。",
+      "choices": {
+        "A": "リカバリカタログへ必ずターゲットDBを登録する。",
+        "B": "高速リカバリ領域(FRA)を構成する。",
+        "C": "ARCHIVELOGモードで運用する。",
+        "D": "Flashback Tableに用いるすべての表のROW MOVEMENTを有効にする。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "高速リカバリ領域(FRA)を構成する。、ARCHIVELOGモードで運用する。",
+      "explanation": "正解：B、C\n\nA（誤り）：リカバリカタログはRMANの任意構成要素でありFlashback Databaseの必須ではない。\nB（正しい）：フラッシュバックログをFRAに格納するため、その領域の構成が必要である。\nC（正しい）：復旧の過程でREDOも必要となるためARCHIVELOG運用が基本条件となる。\nD（誤り）：ROW MOVEMENTは表単位のFlashback Tableの条件でDB全体の有効化要件ではない。",
+      "topic": "Flashback Database構成",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch14q004",
+      "chapter": 14,
+      "question": "次のSQLを実行した後、現在のDBのフラッシュバック機能が有効か確認する。最も直接的な確認方法はどれか。\n```sql\nALTER DATABASE FLASHBACK ON;\n```",
+      "choices": {
+        "A": "DBA_FLASHBACK_ARCHIVEのRETENTION列を確認する。",
+        "B": "V$BLOCK_CHANGE_TRACKINGのSTATUS列を確認する。",
+        "C": "V$DATABASEのFLASHBACK_ON列を確認する。",
+        "D": "V$DATABASEのLOG_MODE列だけを確認する。"
+      },
+      "correctChoice": "C",
+      "correctText": "V$DATABASEのFLASHBACK_ON列を確認する。",
+      "explanation": "正解：C\n\nA（誤り）：DBA_FLASHBACK_ARCHIVEは長期表履歴保存(FDA)の管理情報である。\nB（誤り）：ブロック変更追跡は増分バックアップ高速化の機能である。\nC（正しい）：V$DATABASE.FLASHBACK_ONはFlashback Databaseの有効状態を示す。\nD（誤り）：LOG_MODEはARCHIVELOGかどうかを示す別の状態である。",
+      "topic": "FLASHBACK_ON確認",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch14q005",
+      "chapter": 14,
+      "question": "DB_FLASHBACK_RETENTION_TARGET=1440でFRAが逼迫し、保証付きリストアポイントは存在しない。適切な説明を2つ選べ。",
+      "choices": {
+        "A": "領域確保のため古いフラッシュバックログが削除される場合がある。",
+        "B": "1440分を超えた履歴はどのような容量条件でも必ず即時にすべて消える。",
+        "C": "1440分以内ならFRAの空き容量に関係なくすべてのSCNに戻れる。",
+        "D": "1440分は目標値であり、実際のフラッシュバック可能期間が短くなる場合がある。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "領域確保のため古いフラッシュバックログが削除される場合がある。、1440分は目標値であり、実際のフラッシュバック可能期間が短くなる場合がある。",
+      "explanation": "正解：A、D\n\nA（正しい）：FRAの容量不足時には不要と判断されたログが解放され、可能期間が短縮され得る。\nB（誤り）：期間超過とすべてのログの即時一括削除は同じではない。\nC（誤り）：容量不足などで必要ログが失われれば、設定時間内でも巻戻しはできない。\nD（正しい）：RETENTION_TARGETはフラッシュバック可能時間の目標で、実際の保証ではない。",
+      "topic": "Flashbackログ保持",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch14q006",
+      "chapter": 14,
+      "question": "DBはFlashback DatabaseをOFFにしているが、アップグレード前に保証付きリストアポイントRP1を作成した。正しいものを2つ選べ。",
+      "choices": {
+        "A": "RP1へ戻すための変更前ブロック情報を保持し、RP1へのFlashback Databaseを可能にする。",
+        "B": "フラッシュバックロギングがOFFならRP1だけを根拠に任意の中間SCNへ直接戻すことはできない。",
+        "C": "RP1があればデータファイルが消失した場合もリストア不要で修復できる。",
+        "D": "RP1はCONTROL_FILE_RECORD_KEEP_TIMEの期間を過ぎると必ず消える。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "RP1へ戻すための変更前ブロック情報を保持し、RP1へのFlashback Databaseを可能にする。、フラッシュバックロギングがOFFならRP1だけを根拠に任意の中間SCNへ直接戻すことはできない。",
+      "explanation": "正解：A、B\n\nA（正しい）：保証付きリストアポイントは通常のFlashback DatabaseがOFFでもRP時点へ戻るための必要ログを保持する。\nB（正しい）：Flashback DatabaseがOFFの場合、保証は基本的にRPそのものへの直接巻戻しであり中間SCNの任意指定とは異なる。\nC（誤り）：Flashback Databaseは失った現行データファイルの復元には使用できない。\nD（誤り）：保証付きRPは期限で自動削除されず、明示的にDROPする。",
+      "topic": "保証付きリストアポイント",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch14q007",
+      "chapter": 14,
+      "question": "次のSQLで保証付きリストアポイントを作成した。その後、FRAが空き不足になった。適切な説明はどれか。\n```sql\nCREATE RESTORE POINT BEFORE_PATCH\n  GUARANTEE FLASHBACK DATABASE;\n```",
+      "choices": {
+        "A": "保証付きリストアポイントはFRAとは別の表領域へ必要ログを移す。",
+        "B": "保証を満たすためのログは通常の領域回収で勝手に捨てられず、FRA逼迫時にDB運用が影響を受け得る。",
+        "C": "RETENTION_TARGETを短くすると、保証対象のログは必ず即時削除される。",
+        "D": "通常のリストアポイントと同様に時間経過だけで保証対象のログが消える。"
+      },
+      "correctChoice": "B",
+      "correctText": "保証を満たすためのログは通常の領域回収で勝手に捨てられず、FRA逼迫時にDB運用が影響を受け得る。",
+      "explanation": "正解：B\n\nA（誤り）：必要なフラッシュバックログはFRAに保持される。\nB（正しい）：保証を維持するログは自動回収の対象外になるためFRAの空き容量管理が重要である。\nC（誤り）：保持目標を短縮しても保証付きRPに必要なログの保持義務はなくならない。\nD（誤り）：保証付きRPは期限経過のみで消えず、DROPが必要である。",
+      "topic": "保証とFRA容量",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch14q008",
+      "chapter": 14,
+      "question": "次の2つのSQLで作成される復旧位置の違いとして正しいものはどれか。\n```sql\nCREATE RESTORE POINT RP_A;\nCREATE RESTORE POINT RP_B GUARANTEE FLASHBACK DATABASE;\n```",
+      "choices": {
+        "A": "RP_AのみDROP RESTORE POINTで削除でき、RP_Bは削除できない。",
+        "B": "RP_BはFLASHBACK TABLEで個々の表を戻すためのUNDOを保証する。",
+        "C": "RP_AはSCNの名前付け、RP_BはそのSCNへ戻すためのフラッシュバックログ保持を保証する。",
+        "D": "RP_AもRP_BもSCNだけを登録し、Flashback Databaseを可能にするログ保持に差はない。"
+      },
+      "correctChoice": "C",
+      "correctText": "RP_AはSCNの名前付け、RP_BはそのSCNへ戻すためのフラッシュバックログ保持を保証する。",
+      "explanation": "正解：C\n\nA（誤り）：保証付きRPもDROP RESTORE POINTで明示削除できる。\nB（誤り）：保証対象はDB全体のフラッシュバックログで、Flashback Table用UNDOではない。\nC（正しい）：通常RPは復元先SCNの別名、保証付きRPはその時点へのFlashback Databaseに必要なログを保持する。\nD（誤り）：通常RPにはフラッシュバックログ維持の保証はない。",
+      "topic": "通常RPと保証RP",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch14q009",
+      "chapter": 14,
+      "question": "全データファイルを保持しているが、過去時点へ戻る途中で一部のデータファイルがSHRINKされた。Flashback Databaseについて適切な説明はどれか。",
+      "choices": {
+        "A": "縮小したのがデータファイルなら、フラッシュバックログがあれば無条件に過去のサイズへ戻せる。",
+        "B": "データファイル縮小はFlashback Queryに影響するだけでDB全体の巻戻しには関係しない。",
+        "C": "ROW MOVEMENTを有効にするとデータファイルの縮小制限を解除できる。",
+        "D": "データファイルの縮小はFlashback Databaseの制限であり、通常の単純な巻戻しでは元に戻せない。"
+      },
+      "correctChoice": "D",
+      "correctText": "データファイルの縮小はFlashback Databaseの制限であり、通常の単純な巻戻しでは元に戻せない。",
+      "explanation": "正解：D\n\nA（誤り）：必要なファイル構造をログだけで必ず復元できるわけではない。\nB（誤り）：ファイルサイズ変更はDB全体復旧の制約になる。\nC（誤り）：ROW MOVEMENTは表のFlashback Tableに関する設定である。\nD（正しい）：Flashback Databaseは既存データファイルに対する変更を巻き戻すため、ファイル自体の縮小などは制限となる。",
+      "topic": "Flashback Database制約",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch14q010",
+      "chapter": 14,
+      "question": "DBの全データファイルと制御ファイルは正常だが、誤って表領域TBS1をDROPしている。FLASHBACK DATABASEでDROP前に戻すことについて正しいものはどれか。",
+      "choices": {
+        "A": "DROPされたデータファイル自体をFlashback Databaseだけで復元することはできない。",
+        "B": "Flashback Databaseのログだけで削除済み表領域の全データファイルが再生成される。",
+        "C": "Flashback Databaseは必ずTBS1のみを対象にできるため他表領域は影響しない。",
+        "D": "ごみ箱に表領域が残るのでFlashback Databaseは不要となる。"
+      },
+      "correctChoice": "A",
+      "correctText": "DROPされたデータファイル自体をFlashback Databaseだけで復元することはできない。",
+      "explanation": "正解：A\n\nA（正しい）：Flashback Databaseは現存するデータファイルの巻戻しが中心で、削除したファイル自体は再作成できない。\nB（誤り）：ログは失われたデータファイルの物理コピーの代替にはならない。\nC（誤り）：Flashback DatabaseはDB全体を対象とする機能で表領域単位ではない。\nD（誤り）：Flashback Dropのごみ箱はDROP TABLE向けでDROP TABLESPACEを保存しない。",
+      "topic": "DROP TABLESPACE制約",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch14q011",
+      "chapter": 14,
+      "question": "NOLOGGING操作を含む期間へFlashback Databaseで戻すことを検討する。適切な説明はどれか。",
+      "choices": {
+        "A": "NOLOGGINGが含まれれば、Flashback Queryで完全な復旧用REDOを生成できる。",
+        "B": "REDOに十分な変更情報がない場合があり、操作後に影響ブロック・オブジェクトの検証や再作成が必要となる場合がある。",
+        "C": "NOLOGGING操作は必ずフラッシュバックログに記録されないので、Flashback Databaseは常に開始前に拒否される。",
+        "D": "NOLOGGINGの有無にかかわらず、Flashback DatabaseはREDOを一切参照しない。"
+      },
+      "correctChoice": "B",
+      "correctText": "REDOに十分な変更情報がない場合があり、操作後に影響ブロック・オブジェクトの検証や再作成が必要となる場合がある。",
+      "explanation": "正解：B\n\nA（誤り）：Flashback Queryは参照機能であり欠落したREDOの生成機構ではない。\nB（正しい）：Flashback Databaseでは巻戻しに加えてREDO適用も行うため、REDOが限定されるNOLOGGING操作の影響には注意を要する。\nC（誤り）：NOLOGGINGだから必ず実行そのものが拒否されると一律には言えない。\nD（誤り）：Flashback Databaseはフラッシュバックログだけでなく必要なREDOも使用する。",
+      "topic": "NOLOGGINGとFlashback",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch14q012",
+      "chapter": 14,
+      "question": "FLASHBACK DATABASE TO BEFORE SCN 9000と、FLASHBACK DATABASE TO SCN 9000の違いについて正しいのはどれか。",
+      "choices": {
+        "A": "BEFOREを指定するとSCN 9000以降の変更を残し、9000以前を取り消す。",
+        "B": "BEFORE指定はバックアップをリストアする場合だけ有効となる。",
+        "C": "BEFOREを指定するとSCN 9000に対応する変更を含めず、その直前を対象にする。",
+        "D": "BEFORE指定はSCNでは無効で、TIMEにのみ使用できる。"
+      },
+      "correctChoice": "C",
+      "correctText": "BEFOREを指定するとSCN 9000に対応する変更を含めず、その直前を対象にする。",
+      "explanation": "正解：C\n\nA（誤り）：取り消す方向が逆であり、DBを指定時点より以前へ戻す機能である。\nB（誤り）：FLASHBACK DATABASEはバックアップのリストアなしで実行できる方式である。\nC（正しい）：BEFOREは指定された位置の変更を含めず、その前の状態を目標とする。\nD（誤り）：FLASHBACK DATABASEのBEFORE指定は復旧点の直前を目標とする。",
+      "topic": "FLASHBACK DATABASE BEFORE",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch14q013",
+      "chapter": 14,
+      "question": "Flashback Database実行時のデータ処理について正しいものを2つ選べ。",
+      "choices": {
+        "A": "必要なREDOを使って指定時点まで変更を再適用する。",
+        "B": "イメージコピーのバックアップを全ファイルについてRESTOREすることが必須である。",
+        "C": "UNDO表領域だけを使い全てのデータファイルを前の状態に戻す。",
+        "D": "フラッシュバックログに格納されたブロックの以前のイメージを利用する。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "必要なREDOを使って指定時点まで変更を再適用する。、フラッシュバックログに格納されたブロックの以前のイメージを利用する。",
+      "explanation": "正解：A、D\n\nA（正しい）：戻し過ぎた部分などを必要なREDOで進めて目的の状態にする。\nB（誤り）：全ファイルをバックアップからリストアしないことがFlashback Databaseの主要な利点である。\nC（誤り）：UNDOは表単位のフラッシュバック機能等で使うがDB全体の巻戻しログは別である。\nD（正しい）：フラッシュバックログの過去ブロックを使って巻戻しを行う。",
+      "topic": "Flashback内部動作",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch14q014",
+      "chapter": 14,
+      "question": "保証付きリストアポイントRP1を使用してFlashback Databaseを実行した。今後RP1へ戻す必要がなく、FRAの空き容量が逼迫している。適切な操作はどれか。",
+      "choices": {
+        "A": "DROP RESTORE POINT RP1を実行し、不要となる保証対象ログを回収可能にする。",
+        "B": "ALTER DATABASE FLASHBACK OFFを実行すればRP1も自動削除される。",
+        "C": "DB_FLASHBACK_RETENTION_TARGETを0に設定すればRP1が消える。",
+        "D": "PURGE RECYCLEBINを実行すればRP1が指すフラッシュバックログが回収される。"
+      },
+      "correctChoice": "A",
+      "correctText": "DROP RESTORE POINT RP1を実行し、不要となる保証対象ログを回収可能にする。",
+      "explanation": "正解：A\n\nA（正しい）：保証付きRPは明示削除しない限り保持されるため、不要になった時点でDROPすると保持要件を解除できる。\nB（誤り）：FLASHBACK OFFだけでは保存中の保証付きRPの明示的な削除の代替とはならない。\nC（誤り）：保持目標値はRPの存続を決める条件ではない。\nD（誤り）：RECYCLEBINはDROP済み表の保持機構で、RPやログの管理ではない。",
+      "topic": "保証付きRPの運用",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch14q015",
+      "chapter": 14,
+      "question": "次のコマンド実行順序について適切なものはどれか。\n```sql\nCREATE RESTORE POINT PRE_RELEASE GUARANTEE FLASHBACK DATABASE;\n-- その後にアプリケーション更新を実施\n```\n更新を取り消してPRE_RELEASEへ戻す場合を考える。",
+      "choices": {
+        "A": "DBをMOUNTしてRECOVER TABLESPACE PRE_RELEASEを実行し、その後OPEN NORESETLOGSする。",
+        "B": "DBをMOUNTしてFLASHBACK DATABASE TO RESTORE POINT PRE_RELEASEを実行し、その後OPEN RESETLOGSする。",
+        "C": "DBをOPENしたままFLASHBACK TABLE PRE_RELEASEを実行し、その後OPEN RESETLOGSする。",
+        "D": "RESTORE POINTをDROPしてからFLASHBACK DATABASE TO RESTORE POINT PRE_RELEASEを実行する。"
+      },
+      "correctChoice": "B",
+      "correctText": "DBをMOUNTしてFLASHBACK DATABASE TO RESTORE POINT PRE_RELEASEを実行し、その後OPEN RESETLOGSする。",
+      "explanation": "正解：B\n\nA（誤り）：RECOVER TABLESPACEは表領域向けでRP名をそのまま表領域として扱わない。\nB（正しい）：RPをFlashback Databaseの復旧ターゲットに指定し、DB全体の巻戻し後にRESETLOGSで再開する。\nC（誤り）：PRE_RELEASEは表名ではなくリストアポイントであり、Flashback Tableとは異なる。\nD（誤り）：先にRPを消すと名前による指定も保持保証も失われるため順序が逆である。",
+      "topic": "保証付きRPコマンド",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch14q016",
+      "chapter": 14,
+      "question": "Flashback Databaseを一度実行しOPEN RESETLOGSした。さらに以前の状態へ戻す必要が生じた。正しい説明はどれか。",
+      "choices": {
+        "A": "一度RESETLOGSした後はFlashback TableだけでDB全体を戻す。",
+        "B": "最初のRESETLOGSはUNDOだけを初期化するので以前のDB全体の戻しには無関係である。",
+        "C": "必要なフラッシュバックログとREDO等が利用できれば、さらに過去へFlashback Databaseできる場合がある。",
+        "D": "OPEN RESETLOGSを一度実行すると、Flashback Databaseの再実行は永久に禁止される。"
+      },
+      "correctChoice": "C",
+      "correctText": "必要なフラッシュバックログとREDO等が利用できれば、さらに過去へFlashback Databaseできる場合がある。",
+      "explanation": "正解：C\n\nA（誤り）：Flashback Tableは対象表を戻す機能でDB全体の代替ではない。\nB（誤り）：RESETLOGSはREDOの世代を変更するDBレベルの操作である。\nC（正しい）：使用可能なログやDBの状態など条件を満たせば繰り返し過去へ巻き戻せる。\nD（誤り）：RESETLOGS実行回数だけで永続的にFlashback Databaseを禁止する仕様ではない。",
+      "topic": "Flashback繰り返し",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch14q017",
+      "chapter": 14,
+      "question": "フラッシュバックロギングが有効で保証付きリストアポイントがある環境を考える。正しいものを2つ選べ。",
+      "choices": {
+        "A": "通常のフラッシュバックロギングも有効なら、利用可能なログ範囲内でRPと現在との間の時点へ戻せる場合がある。",
+        "B": "保証付きRPが1つでもあるとフラッシュバックログはまったく生成されなくなる。",
+        "C": "保証付きRPの存在によりFlashback Table用UNDOの保持が完全に保証される。",
+        "D": "保証付きRPを戻し先とするために必要なフラッシュバックログは領域逼迫時も削除対象にならない。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "通常のフラッシュバックロギングも有効なら、利用可能なログ範囲内でRPと現在との間の時点へ戻せる場合がある。、保証付きRPを戻し先とするために必要なフラッシュバックログは領域逼迫時も削除対象にならない。",
+      "explanation": "正解：A、D\n\nA（正しい）：通常のフラッシュバックロギングがONならRP以降の連続した時点への巻戻しが可能な範囲ができる。\nB（誤り）：通常のフラッシュバックロギングが有効なら、フラッシュバックログは継続生成される。\nC（誤り）：保証するのはDBのフラッシュバックログでありUNDOではない。\nD（正しい）：保証付きRPへの戻しを守るためのログは自動回収の対象にならない。",
+      "topic": "保証付きRPと連続期間",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch14q018",
+      "chapter": 14,
+      "question": "FLASHBACK DATABASEにより復旧したいが、現行データファイルの1つが物理的に消失した。最も適切な判断はどれか。",
+      "choices": {
+        "A": "まず失われたデータファイルをバックアップ等から復元する必要があり、Flashback Database単独では修復できない。",
+        "B": "Flashback Databaseはフラッシュバックログに全ファイルの完全コピーを保持しているため単独で復元できる。",
+        "C": "DB_FLASHBACK_RETENTION_TARGETを延長すると消失済みファイルが自動的に再生成される。",
+        "D": "保証付きRPがあれば物理ファイル消失でもFlashback Databaseが無条件に実行できる。"
+      },
+      "correctChoice": "A",
+      "correctText": "まず失われたデータファイルをバックアップ等から復元する必要があり、Flashback Database単独では修復できない。",
+      "explanation": "正解：A\n\nA（正しい）：Flashback Databaseは現在存在するデータファイルを巻き戻す機能で、メディア障害により消失したファイルのリストア代替にはならない。\nB（誤り）：フラッシュバックログは完全なデータファイルのバックアップではない。\nC（誤り）：保持目標はログ保持の目安で、失われた物理ファイルを生成しない。\nD（誤り）：保証付きRPにもFlashback Databaseのメディア障害上の制限がある。",
+      "topic": "Flashback Databaseとファイル消失",
+      "difficulty": "hard"
     }
   ]
 }
