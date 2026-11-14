@@ -1561,13 +1561,19 @@ function formatQuestionText(text) {
   function flush() {
     const text = buffer.join("\n").replace(/\n+$/g, "");
     if (text.trim() !== "") {
-      parts.push({ type: mode, text });
+      parts.push({ type: mode === "fenced" ? "code" : mode, text });
     }
     buffer = [];
   }
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    if (/^\s*```/.test(line)) {
+      flush();
+      mode = mode === "fenced" ? "text" : "fenced";
+      continue;
+    }
+    if (mode === "fenced") { buffer.push(line); continue; }
     const next = i + 1 < lines.length ? lines[i + 1] : "";
     const startsCode =
       isCodeFileHeaderLine(line) ||

@@ -59,6 +59,16 @@
       "chapter": 14,
       "title": "フラッシュバックデータベース",
       "description": "Flashback Database・フラッシュバックログ・保証付きリストアポイント・運用条件"
+    },
+    {
+      "chapter": 28,
+      "title": "マルチテナントアーキテクチャとPDBの作成・移行",
+      "description": "CDB/PDB構造、クローン、切断・接続、再配置、非CDB移行、DBCA"
+    },
+    {
+      "chapter": 29,
+      "title": "CDB/PDBの管理とリソース制御",
+      "description": "コンテナ接続・起動、初期化パラメータ、ローカルUNDO、スナップショット、リソースマネージャ、AWR"
     }
   ],
   "questions": [
@@ -655,14 +665,14 @@
       "chapter": 2,
       "question": "RMANクライアントからターゲットデータベースのバックアップを管理する。RMANリポジトリに関する説明として正しいものを選択してください。",
       "choices": {
-        "A": "リカバリカタログなしではRMANのBACKUP DATABASEは実行できない",
+        "A": "リカバリカタログを使わない場合、RMANリポジトリはターゲットDBのSPFILEに保持される。",
         "B": "RMANの設定とバックアップ履歴は、リカバリカタログを使わない場合もターゲットDBの制御ファイルに記録される",
-        "C": "RMANリポジトリは必ず別サーバーの専用データベースに作成する",
+        "C": "リカバリカタログを構成する場合も、RMANリポジトリはターゲットDBの制御ファイルから移動され、制御ファイルには管理情報が残らない。",
         "D": "RMANリポジトリには物理的なバックアップピース本体が格納される"
       },
       "correctChoice": "B",
       "correctText": "RMANの設定とバックアップ履歴は、リカバリカタログを使わない場合もターゲットDBの制御ファイルに記録される",
-      "explanation": "正解：B\n\nA（誤り）：ターゲット制御ファイルをリポジトリとして使用できるため、カタログは必須ではない。\nB（正しい）：制御ファイルにはRMANのバックアップ記録と構成情報が保持され、カタログ接続がなくても基本機能を利用できる。\nC（誤り）：リカバリカタログは任意であり、ターゲットDBの制御ファイル自体がリポジトリとして働く。\nD（誤り）：リポジトリはメタデータの記録先であり、バックアップピース本体はDISKやSBTなどのバックアップ先に置かれる。",
+      "explanation": "正解：B\n\nA（誤り）：RMANリポジトリの基本的な保存場所は制御ファイルであり、SPFILEは初期化パラメータの保存先である。\nB（正しい）：制御ファイルにはRMANのバックアップ記録と構成情報が保持され、カタログ接続がなくても基本機能を利用できる。\nC（誤り）：カタログを併用してもターゲット制御ファイル側のRMANリポジトリは引き続き使用される。\nD（誤り）：リポジトリはメタデータの記録先であり、バックアップピース本体はDISKやSBTなどのバックアップ先に置かれる。",
       "topic": "RMANの構成と管理情報",
       "difficulty": "hard"
     },
@@ -671,14 +681,14 @@
       "chapter": 2,
       "question": "8つのデータファイルのバックアップに時間がかかっている。RMANチャネルの役割について正しいものを選択してください。",
       "choices": {
-        "A": "チャネル数を増やせばディスク性能に関係なく必ず所要時間が短縮する",
-        "B": "チャネルはRMANリポジトリを格納する専用表領域を表す",
+        "A": "CONFIGURE DEVICE TYPE DISK PARALLELISMでチャネル数を増やすと、1つのデータファイルを複数チャネルが自動的に分割して読み取る。",
+        "B": "チャネル数の設定はバックアップピース数の上限と同義であり、Oracleサーバーセッションの数には影響しない。",
         "C": "複数チャネルを割り当てると、I/O処理を複数のOracleサーバーセッションに分担させられる",
         "D": "チャネルはSQL*Plusの接続定義であり、バックアップのI/Oには関与しない"
       },
       "correctChoice": "C",
       "correctText": "複数チャネルを割り当てると、I/O処理を複数のOracleサーバーセッションに分担させられる",
-      "explanation": "正解：C\n\nA（誤り）：ストレージ帯域やCPUなどがボトルネックなら、チャネル追加が高速化につながるとは限らない。\nB（誤り）：バックアップ情報の格納先と、データを読み書きするサーバーセッションは別の概念である。\nC（正しい）：チャネルはRMANがバックアップ・復旧の入出力に使うサーバーセッションで、複数チャネルは並列実行に利用できる。\nD（誤り）：チャネルはRMAN固有のI/O実行資源であり、接続識別子そのものではない。",
+      "explanation": "正解：C\n\nA（誤り）：単一ファイルを複数チャネルで並列処理するにはマルチセクションなど別の条件が必要で、チャネル数だけでファイル内の並列化は保証されない。\nB（誤り）：チャネルはOracleサーバーセッションに対応するI/O処理の枠組みであり、ピース数そのものの設定値ではない。\nC（正しい）：チャネルはRMANがバックアップ・復旧の入出力に使うサーバーセッションで、複数チャネルは並列実行に利用できる。\nD（誤り）：チャネルはRMAN固有のI/O実行資源であり、接続識別子そのものではない。",
       "topic": "構成要素・チャネル",
       "difficulty": "hard"
     },
@@ -687,14 +697,14 @@
       "chapter": 2,
       "question": "大容量のバックアップをテープライブラリへ出力したい。RMANの出力先と連携方式として正しいものを選択してください。",
       "choices": {
-        "A": "イメージコピーをDEVICE TYPE SBTで直接テープに書き込む",
+        "A": "DEVICE TYPE SBTのチャネルでもイメージコピー形式を指定すれば、バックアップセットと同様にメディア管理ライブラリへ直接出力できる。",
         "B": "OSの通常のファイルコピーを実行するだけでRMANチャネルは自動生成される",
-        "C": "SBTを使う場合はターゲットデータベースへの接続が不要になる",
+        "C": "SBTではRMANクライアントがメディア管理ライブラリと直接通信するため、ターゲットDB側のチャネルは不要になる。",
         "D": "SBTチャネルとメディア管理ライブラリを用いて、テープ等のメディアへバックアップセットを出力する"
       },
       "correctChoice": "D",
       "correctText": "SBTチャネルとメディア管理ライブラリを用いて、テープ等のメディアへバックアップセットを出力する",
-      "explanation": "正解：D\n\nA（誤り）：RMANのイメージコピーはディスクに作成し、テープへの直接出力にはバックアップセットを用いる。\nB（誤り）：OSコピーはRMANチャネルを割り当てず、RMANが管理するバックアップにするには登録などが必要となる。\nC（誤り）：RMANコマンドでバックアップを管理するにはターゲット接続が必要であり、出力デバイスとは別条件である。\nD（正しい）：RMANはSBTインタフェースを介してメディアマネージャと連携し、テープ装置へのバックアップを行う。",
+      "explanation": "正解：D\n\nA（誤り）：RMANのイメージコピーはディスク向けの形式であり、SBTによるテープ出力はバックアップセットを使用する。\nB（誤り）：OSコピーはRMANチャネルを割り当てず、RMANが管理するバックアップにするには登録などが必要となる。\nC（誤り）：SBTもターゲットDB側のチャネルがメディア管理ライブラリと連携してI/Oを行う。\nD（正しい）：RMANはSBTインタフェースを介してメディアマネージャと連携し、テープ装置へのバックアップを行う。",
       "topic": "バックアップ出力先",
       "difficulty": "hard"
     },
@@ -704,13 +714,13 @@
       "question": "ARCHIVELOGモードのデータベースを稼働させたままRMANでデータファイルをバックアップした。復元後の扱いとして正しいものを選択してください。",
       "choices": {
         "A": "オンラインバックアップは非一貫性バックアップであり、復元後に必要なREDOを適用して整合性を回復する",
-        "B": "RMANが取得した時点でオンラインバックアップは必ず一貫性バックアップになる",
+        "B": "RMANのバックアップセットはチェックポイントSCNを一つに揃えるため、OPEN中でもRECOVER不要の一貫性バックアップになる。",
         "C": "OPEN中のバックアップにはREDO情報は一切使用できない",
-        "D": "オンラインバックアップからは必ずバックアップ取得時点のまましか復元できない"
+        "D": "オンラインバックアップからのRESTORE後は、BACKUP DATABASE PLUS ARCHIVELOGを指定していた場合に限りRECOVERは不要となる。"
       },
       "correctChoice": "A",
       "correctText": "オンラインバックアップは非一貫性バックアップであり、復元後に必要なREDOを適用して整合性を回復する",
-      "explanation": "正解：A\n\nA（正しい）：稼働中はデータファイルのコピー時点が揃わないため、メディアリカバリでREDOを適用し一貫した状態にする。\nB（誤り）：RMANは必要なREDOを把握できるが、OPEN中に採ったデータファイルコピーの整合性が自動的に揃うわけではない。\nC（誤り）：ARCHIVELOGモードでは保存したアーカイブREDOや必要なオンラインREDOを適用して復旧を行える。\nD（誤り）：利用可能なREDOに応じてバックアップより後の時点まで回復できる。",
+      "explanation": "正解：A\n\nA（正しい）：稼働中はデータファイルのコピー時点が揃わないため、メディアリカバリでREDOを適用し一貫した状態にする。\nB（誤り）：バックアップ形式で稼働中のデータファイルの一貫性が自動的に保証されるわけではない。\nC（誤り）：ARCHIVELOGモードでは保存したアーカイブREDOや必要なオンラインREDOを適用して復旧を行える。\nD（誤り）：PLUS ARCHIVELOGは必要なアーカイブREDOのバックアップを補うもので、OPEN中の非一貫性自体を解消しない。",
       "topic": "一致・非一致バックアップ",
       "difficulty": "hard"
     },
@@ -751,14 +761,14 @@
       "chapter": 2,
       "question": "バックアップセットとバックアップピースの関係について正しいものを選択してください。",
       "choices": {
-        "A": "バックアップセットとバックアップピースは常に1対1である",
-        "B": "バックアップピースは常にデータファイル1つと1対1に対応する",
+        "A": "バックアップセット1個に対して必ずバックアップピース1個が生成され、MAXPIECESIZEを指定してもピースは増加しない。",
+        "B": "バックアップピースはバックアップ対象のデータファイル番号と1対1で紐づけられ、複数ファイルを同じピースに格納できない。",
         "C": "同一ピースを2種類のバックアップセットへ同時に所属させて領域節約できる",
         "D": "1つのバックアップセットは1個以上のバックアップピースで構成され、1ピースが複数セットに属することはない"
       },
       "correctChoice": "D",
       "correctText": "1つのバックアップセットは1個以上のバックアップピースで構成され、1ピースが複数セットに属することはない",
-      "explanation": "正解：D\n\nA（誤り）：1セットが複数ピースになる設定やマルチセクションバックアップも存在する。\nB（誤り）：バックアップセットは複数入力ファイルのブロックをまとめることができるため、ピースと入力ファイルは1対1とは限らない。\nC（誤り）：ピースは特定セットの構成要素であり、複数セット間で同一ピースを共有しない。\nD（正しい）：バックアップピースはRMANバックアップセットを構成する物理出力ファイルであり、各ピースは特定のセットに属する。",
+      "explanation": "正解：D\n\nA（誤り）：ピースサイズの制限等によりセットを複数ピースへ分割できる。\nB（誤り）：バックアップセットには複数データファイルのブロックを収録できる。\nC（誤り）：ピースは特定セットの構成要素であり、複数セット間で同一ピースを共有しない。\nD（正しい）：バックアップピースはRMANバックアップセットを構成する物理出力ファイルであり、各ピースは特定のセットに属する。",
       "topic": "バックアップセットとピース",
       "difficulty": "hard"
     },
@@ -807,14 +817,14 @@
       "chapter": 2,
       "question": "次のRMANコマンドを実行した。\n\nRMAN> BACKUP AS COPY DEVICE TYPE DISK DATABASE;\n\n出力されるバックアップについて正しいものを選択してください。",
       "choices": {
-        "A": "データファイルがRMAN固有形式のバックアップセットへ格納される",
+        "A": "AS COPYを指定してもDEVICE TYPE DISKがあるため、永続設定のBACKUPSETが優先される。",
         "B": "バックアップ前に必ずNOARCHIVELOGへ変更される",
         "C": "データファイルのイメージコピーがディスク上に作成される",
-        "D": "テープ上にバックアップピースが必ず作成される"
+        "D": "AS COPYを指定した場合、ディスクへのバックアップセットとSBTへのイメージコピーの両方が生成される。"
       },
       "correctChoice": "C",
       "correctText": "データファイルのイメージコピーがディスク上に作成される",
-      "explanation": "正解：C\n\nA（誤り）：バックアップセットにはAS BACKUPSETを指定する。AS COPYは別形式である。\nB（誤り）：BACKUP AS COPYはアーカイブログモードを切り替えるコマンドではない。\nC（正しい）：AS COPYはイメージコピーを指示する構文であり、DEVICE TYPE DISKはディスク出力を指定する。\nD（誤り）：デバイスにDISKを指定しており、SBTのテープ出力ではない。",
+      "explanation": "正解：C\n\nA（誤り）：BACKUPコマンドでAS COPYを明示した場合、その実行指定が既定のバックアップ形式に優先する。\nB（誤り）：BACKUP AS COPYはアーカイブログモードを切り替えるコマンドではない。\nC（正しい）：AS COPYはイメージコピーを指示する構文であり、DEVICE TYPE DISKはディスク出力を指定する。\nD（誤り）：DEVICE TYPE DISKはディスク出力であり、AS COPYはイメージコピーとして生成する。",
       "topic": "出力形式の指定",
       "difficulty": "hard"
     },
@@ -915,14 +925,14 @@
       "chapter": 2,
       "question": "RMANでバックアップの記録と現物に食い違いがある疑いがある。物理的な存在を照合するために最初に使うコマンドを選択してください。",
       "choices": {
-        "A": "CONFIGURE BACKUP OPTIMIZATION ON;",
+        "A": "LIST BACKUPを実行すれば各バックアップピースのファイル存在確認まで必ず実施され、RMANの状態が更新される。",
         "B": "CROSSCHECK BACKUP;",
-        "C": "DELETE BACKUP;",
+        "C": "DELETE EXPIREDを先に実行すれば存在確認が行われ、見つからないバックアップだけがEXPIREDに更新される。",
         "D": "DUPLICATE DATABASE;"
       },
       "correctChoice": "B",
       "correctText": "CROSSCHECK BACKUP;",
-      "explanation": "正解：B\n\nA（誤り）：CONFIGUREはRMANの将来の動作を設定するもので、既存バックアップの存在確認ではない。\nB（正しい）：CROSSCHECKはRMANリポジトリが示すバックアップの存在状態を実際の媒体と照合し、記録の状態を更新する。\nC（誤り）：DELETEはバックアップの削除を行うため、現状把握の段階で無条件に実行する操作ではない。\nD（誤り）：DUPLICATEはデータベース複製であり、バックアップ現物との照合とは異なる。",
+      "explanation": "正解：B\n\nA（誤り）：LISTはリポジトリの記録を表示する操作で、実在性の照合と状態更新はCROSSCHECKを使用する。\nB（正しい）：CROSSCHECKはRMANリポジトリが示すバックアップの存在状態を実際の媒体と照合し、記録の状態を更新する。\nC（誤り）：DELETE EXPIREDはすでにEXPIREDになった記録の整理であり、存在確認自体はCROSSCHECKが担当する。\nD（誤り）：DUPLICATEはデータベース複製であり、バックアップ現物との照合とは異なる。",
       "topic": "RMANコマンド種類",
       "difficulty": "hard"
     },
@@ -947,14 +957,14 @@
       "chapter": 2,
       "question": "担当DBAは「取得済みバックアップの一覧」と「現在のRMAN構成」を別々に確認したい。適切なコマンドの組み合わせを選択してください。",
       "choices": {
-        "A": "RESTORE DATABASE; と RECOVER DATABASE;",
-        "B": "DELETE BACKUP; と SHUTDOWN;",
+        "A": "REPORT SCHEMAとLIST INCARNATIONを実行すれば、バックアップ履歴と現在のCONFIGURE設定の双方を一覧できる。",
+        "B": "LIST COPYとSHOW DEVICE TYPEを実行すれば、バックアップセットを含む取得済みバックアップの全履歴と全設定が表示される。",
         "C": "DUPLICATE DATABASE; と CATALOG START WITH;",
         "D": "LIST BACKUP; と SHOW ALL;"
       },
       "correctChoice": "D",
       "correctText": "LIST BACKUP; と SHOW ALL;",
-      "explanation": "正解：D\n\nA（誤り）：RESTOREとRECOVERは復旧操作であり、構成確認のための照会専用コマンドではない。\nB（誤り）：DELETEはバックアップを削除し、SHUTDOWNはインスタンスを停止するため、参照用途に適さない。\nC（誤り）：DUPLICATEは複製、CATALOGは既存ファイル登録であり、一覧と構成の両方を表示する組合せではない。\nD（正しい）：LISTはバックアップ一覧を表示し、SHOW ALLはRMANの永続的設定内容を表示する。",
+      "explanation": "正解：D\n\nA（誤り）：REPORT SCHEMAは構成オブジェクト、LIST INCARNATIONはDB incarnationの情報であり、指定の2目的と一致しない。\nB（誤り）：LIST COPYはイメージコピー中心で、SHOW DEVICE TYPEはSHOW ALLの代替として全設定を列挙する用途ではない。\nC（誤り）：DUPLICATEは複製、CATALOGは既存ファイル登録であり、一覧と構成の両方を表示する組合せではない。\nD（正しい）：LISTはバックアップ一覧を表示し、SHOW ALLはRMANの永続的設定内容を表示する。",
       "topic": "RMANのメタデータ参照",
       "difficulty": "hard"
     },
@@ -979,14 +989,14 @@
       "chapter": 2,
       "question": "OSコマンドでデータファイルのコピーを別ディスクに取得した。既存ファイルをRMANのリポジトリで利用可能なコピーとして管理したい。適切な操作を選択してください。",
       "choices": {
-        "A": "DELETE NOPROMPTを使用してOSコピーのメタデータを作成する",
+        "A": "CROSSCHECK DATAFILECOPYを実行すれば、RMANに未登録のOSコピーが新しいイメージコピーとして登録される。",
         "B": "RMANでCATALOG DATAFILECOPYを用いてコピーを登録する",
-        "C": "RESTORE CONTROLFILEを実行するとOSコピーが自動的に登録される",
+        "C": "LIST COPYを実行すると、RMAN未登録のすべてのOSコピーも自動探索されてリポジトリに追加される。",
         "D": "SHUTDOWNでDBを停止するとRMANは未登録コピーをすべて自動検出する"
       },
       "correctChoice": "B",
       "correctText": "RMANでCATALOG DATAFILECOPYを用いてコピーを登録する",
-      "explanation": "正解：B\n\nA（誤り）：DELETEは削除用途であり、CATALOGがファイルの登録コマンドである。\nB（正しい）：OSで作成した適切なデータファイルコピーは、CATALOGでRMANリポジトリに認識させられる。\nC（誤り）：RESTORE CONTROLFILEは制御ファイルをバックアップから復元する処理であり、任意のOSコピーの登録ではない。\nD（誤り）：停止操作にコピーの自動登録機能はない。",
+      "explanation": "正解：B\n\nA（誤り）：CROSSCHECKは既存のRMANリポジトリに記録されたファイルの存在照合であり、未登録ファイルの登録はCATALOGを使う。\nB（正しい）：OSで作成した適切なデータファイルコピーは、CATALOGでRMANリポジトリに認識させられる。\nC（誤り）：LISTは登録済みコピーの記録を表示するコマンドで、未登録のOSコピーを自動登録しない。\nD（誤り）：停止操作にコピーの自動登録機能はない。",
       "topic": "CATALOGによるコピー登録",
       "difficulty": "hard"
     },
@@ -1015,14 +1025,14 @@
       "chapter": 2,
       "question": "ARCHIVELOGモードでOPEN中のターゲットDBにRMANで接続している。DB全体のデータファイルをバックアップするための基本コマンドを選択してください。",
       "choices": {
-        "A": "RECOVER DATABASE;",
-        "B": "RESTORE DATABASE;",
+        "A": "BACKUP ARCHIVELOG ALL;を実行すれば、アーカイブログに加え全データファイルも自動バックアップされる。",
+        "B": "BACKUP CURRENT CONTROLFILE;を実行すれば制御ファイルに記録されたデータファイルが全てバックアップされる。",
         "C": "DUPLICATE DATABASE;",
         "D": "BACKUP DATABASE;"
       },
       "correctChoice": "D",
       "correctText": "BACKUP DATABASE;",
-      "explanation": "正解：D\n\nA（誤り）：RECOVERはREDOの適用による回復を行うコマンドであり、バックアップ作成ではない。\nB（誤り）：RESTOREは既存バックアップからファイルを戻す操作であり、バックアップを新規取得しない。\nC（誤り）：DUPLICATEは別DBの複製を目的に使われる。\nD（正しい）：RMANのBACKUP DATABASEはデータベースを構成するデータファイルをバックアップする基本コマンドである。",
+      "explanation": "正解：D\n\nA（誤り）：BACKUP ARCHIVELOGはアーカイブREDOログを対象とし、データファイル全体は含まない。\nB（誤り）：制御ファイルのバックアップと、制御ファイルが管理するデータファイルのバックアップは別である。\nC（誤り）：DUPLICATEは別DBの複製を目的に使われる。\nD（正しい）：RMANのBACKUP DATABASEはデータベースを構成するデータファイルをバックアップする基本コマンドである。",
       "topic": "RMANの基本手順",
       "difficulty": "hard"
     },
@@ -1232,13 +1242,13 @@
       "question": "Oracle Database 19cをNOARCHIVELOGモードからARCHIVELOGモードに変更する。管理者はSYSDBA権限を持ち、データベースは現在OPEN状態である。適切な操作順序はどれか。",
       "choices": {
         "A": "SHUTDOWN IMMEDIATE後にSTARTUP MOUNT、ALTER DATABASE ARCHIVELOG、ALTER DATABASE OPENの順に実行する",
-        "B": "ALTER DATABASE ARCHIVELOGをOPEN中に実行し、続いてSHUTDOWN IMMEDIATEを実行する",
-        "C": "SHUTDOWN ABORT後にSTARTUP NOMOUNT、ALTER DATABASE ARCHIVELOG、ALTER DATABASE OPENの順に実行する",
+        "B": "ALTER DATABASE ARCHIVELOGはDBがOPEN中でも実行でき、MOUNTへの移行は設定変更後の確認時だけ必要となる。",
+        "C": "SHUTDOWN ABORTの後、STARTUP NOMOUNTでALTER DATABASE ARCHIVELOGを実行し、その後MOUNTする。",
         "D": "ALTER DATABASE OPENの直後にALTER DATABASE ARCHIVELOGを実行する"
       },
       "correctChoice": "A",
       "correctText": "SHUTDOWN IMMEDIATE後にSTARTUP MOUNT、ALTER DATABASE ARCHIVELOG、ALTER DATABASE OPENの順に実行する",
-      "explanation": "正解：A\n\nA（正しい）：ARCHIVELOGへの変更は制御ファイルを参照できるMOUNT状態で実施し、変更後にOPENできる。\nB（誤り）：ログモード変更はOPEN状態では行えない。変更前にMOUNTにする必要がある。\nC（誤り）：NOMOUNTでは制御ファイルがマウントされておらずALTER DATABASE ARCHIVELOGを実行できない。\nD（誤り）：OPENは変更後の段階であり、OPENしたままログモードを切り替えられない。",
+      "explanation": "正解：A\n\nA（正しい）：ARCHIVELOGへの変更は制御ファイルを参照できるMOUNT状態で実施し、変更後にOPENできる。\nB（誤り）：ログモード変更は原則MOUNT状態で実行し、OPEN中に直接変更するものではない。\nC（誤り）：ログモード変更には制御ファイルを利用できるMOUNT状態が必要でありNOMOUNTでは実行できない。\nD（誤り）：OPENは変更後の段階であり、OPENしたままログモードを切り替えられない。",
       "topic": "ログモード・操作順序",
       "difficulty": "hard"
     },
@@ -1267,14 +1277,14 @@
       "chapter": 3,
       "question": "次の構成で、アーカイブログの保存先を判断する。\n\nDB_RECOVERY_FILE_DEST=/fra\nDB_RECOVERY_FILE_DEST_SIZE=80G\nLOG_ARCHIVE_DEST_1=\"LOCATION=/arch1\"\n\n他のアーカイブ先は指定していない。最も適切な説明はどれか。",
       "choices": {
-        "A": "FRAが存在するため、指定されたLOCATIONは無視され、/fraのみに出力される",
+        "A": "DB_RECOVERY_FILE_DESTを設定すると、LOG_ARCHIVE_DEST_1でLOCATIONを明示しても常にFRAへの出力が優先される。",
         "B": "明示された有効なアーカイブ先/arch1が使用され、FRAへの既定出力が追加されるとは限らない",
-        "C": "FRAと/arch1の両方に常に自動多重化される",
+        "C": "FRAとLOG_ARCHIVE_DEST_1の両方を設定すると、同じアーカイブログが必ず2箇所へ自動多重化される。",
         "D": "LOG_ARCHIVE_DEST_nのLOCATIONはバックアップセットの出力先を変更する設定である"
       },
       "correctChoice": "B",
       "correctText": "明示された有効なアーカイブ先/arch1が使用され、FRAへの既定出力が追加されるとは限らない",
-      "explanation": "正解：B\n\nA（誤り）：FRAはデフォルトの候補になるが、明示されたアーカイブ先を上書きしない。\nB（正しい）：LOG_ARCHIVE_DEST_1でアーカイブ先が明示されているため、その設定が採用される。\nC（誤り）：アーカイブ先の多重化には複数の宛先を明示するなど構成が必要で、FRA設定だけで自動多重化されない。\nD（誤り）：LOG_ARCHIVE_DEST_nはアーカイブREDOログの宛先であり、RMANバックアップセットの出力先ではない。",
+      "explanation": "正解：B\n\nA（誤り）：有効なLOG_ARCHIVE_DEST_nに明示した宛先がある場合、それが無条件にFRAに置き換えられるわけではない。\nB（正しい）：LOG_ARCHIVE_DEST_1でアーカイブ先が明示されているため、その設定が採用される。\nC（誤り）：FRAの構成とアーカイブ先の複数指定は別であり、FRA設定だけでは2箇所への自動多重化を意味しない。\nD（誤り）：LOG_ARCHIVE_DEST_nはアーカイブREDOログの宛先であり、RMANバックアップセットの出力先ではない。",
       "topic": "アーカイブ先・設定優先",
       "difficulty": "hard"
     },
@@ -1303,14 +1313,14 @@
       "chapter": 3,
       "question": "ARCHIVELOGモードで、ログの多重化を目的として次の設定を行った。\n\nLOG_ARCHIVE_DEST_1=\"LOCATION=/arch_a\"\nLOG_ARCHIVE_DEST_2=\"LOCATION=/arch_b\"\n\n設定の目的と動作として最も適切なのはどれか。",
       "choices": {
-        "A": "オンラインREDOロググループのメンバー数を自動的に2倍に増やす",
-        "B": "RMANのBACKUP DATABASEが同じバックアップピースを2つの場所へ常に保存する",
+        "A": "LOG_ARCHIVE_DEST_1と_2を設定すると、両宛先に書き込む前に各オンラインREDOロググループのメンバーも自動的に2重化される。",
+        "B": "これらの設定はRMANのCONFIGURE DATAFILE BACKUP COPIES FOR DEVICE TYPE DISK TO 2と同じ多重化を行う。",
         "C": "アーカイブREDOログを別々の宛先に保存する構成とし、片方の保存先に障害がある場合のリスクを低減する",
         "D": "DB_RECOVERY_FILE_DEST_SIZEを2倍に増やす"
       },
       "correctChoice": "C",
       "correctText": "アーカイブREDOログを別々の宛先に保存する構成とし、片方の保存先に障害がある場合のリスクを低減する",
-      "explanation": "正解：C\n\nA（誤り）：オンラインREDOの多重化はREDOログメンバーの構成で行い、アーカイブ宛先設定とは別である。\nB（誤り）：RMANの出力先設定はチャネルやFORMATなどで制御し、LOG_ARCHIVE_DEST_nとは独立する。\nC（正しい）：複数のLOG_ARCHIVE_DEST_nを使ってアーカイブ先を構成し、アーカイブログの保存先を分けられる。\nD（誤り）：FRAの割当容量はDB_RECOVERY_FILE_DEST_SIZEで決まり、アーカイブ先の数と連動しない。",
+      "explanation": "正解：C\n\nA（誤り）：アーカイブREDOの出力先設定はオンラインREDOロググループのメンバー数とは別の構成である。\nB（誤り）：RMANバックアップピースの多重化設定とは異なる。\nC（正しい）：複数のLOG_ARCHIVE_DEST_nを使ってアーカイブ先を構成し、アーカイブログの保存先を分けられる。\nD（誤り）：FRAの割当容量はDB_RECOVERY_FILE_DEST_SIZEで決まり、アーカイブ先の数と連動しない。",
       "topic": "ARCHIVELOG・多重化",
       "difficulty": "hard"
     },
@@ -1732,13 +1742,13 @@
       "question": "RMANでディスクチャネルの出力先を設定した直後、次の操作を行った。\n\nCONFIGURE CHANNEL DEVICE TYPE DISK FORMAT \"/rman/a_%U\";\nSHOW ALL;\n\nその後インスタンスを再起動し、RMANに再接続した。正しい説明はどれか。",
       "choices": {
         "A": "SHOW ALLは参照のみで、設定はRMANリポジトリに保持され再接続後も有効である",
-        "B": "FORMAT設定は初期化パラメータファイルにのみ保存され、制御ファイルには含まれない",
-        "C": "SHOW ALLは今回のFORMATを表示するが、インスタンス再起動後は元の既定値に戻る",
+        "B": "SHOW ALLで表示される値はセッションの一時設定なので、DBの再起動後にCONFIGURE CHANNELのFORMATが失われる。",
+        "C": "CONFIGURE CHANNELを実行した後にSHOW ALLを実行すると、永続設定が既定値に戻される。",
         "D": "BACKUPを1回実行しない限りCONFIGUREは保存されない"
       },
       "correctChoice": "A",
       "correctText": "SHOW ALLは参照のみで、設定はRMANリポジトリに保持され再接続後も有効である",
-      "explanation": "正解：A\n\nA（正しい）：SHOW ALLは設定参照であり、設定内容を変えず再起動後も有効となる。\nB（誤り）：RMANのCONFIGURE設定は基本的に制御ファイル側のリポジトリに保持される。\nC（誤り）：CONFIGUREはRMANリポジトリへ永続保存されるため、SHOW ALLや再起動で失効しない。\nD（誤り）：CONFIGUREの反映にBACKUPコマンドの実行は必須ではない。",
+      "explanation": "正解：A\n\nA（正しい）：SHOW ALLは設定参照であり、設定内容を変えず再起動後も有効となる。\nB（誤り）：CONFIGUREはRMANリポジトリの永続設定であり、SHOW ALLは参照用コマンドである。\nC（誤り）：SHOW ALLは設定の表示であり、CONFIGUREで設定した値をリセットしない。\nD（誤り）：CONFIGUREの反映にBACKUPコマンドの実行は必須ではない。",
       "topic": "設定の永続性・実行結果",
       "difficulty": "hard"
     },
@@ -1747,14 +1757,14 @@
       "chapter": 3,
       "question": "ARCHIVELOGモードのDBで、稼働中の更新処理が停止した。アーカイブ先ディスクが満杯だが、FRAには十分な空きがある。LOG_ARCHIVE_DEST_1のLOCATIONは満杯のディスクを指している。最も妥当な初動判断はどれか。",
       "choices": {
-        "A": "FRAに空きがあるので、アーカイブ宛先設定は自動的にFRAへ切り替わっているはずだと判断する",
+        "A": "LOG_ARCHIVE_DEST_1が満杯でもDB_RECOVERY_FILE_DESTの空き領域があれば、ログ再利用時にはFRAへ自動フェイルオーバーされる。",
         "B": "アーカイブログの保存先が不足し、オンラインREDOを再利用できない状況か確認したうえで宛先の容量・設定を復旧する",
-        "C": "RMANの保存ポリシーをNONEにするだけで、そのディスクの空き容量が直ちに増える",
+        "C": "RMANのRETENTION POLICYをNONEへ変更すると、現在必要な未アーカイブREDOが自動的にFRAへ退避される。",
         "D": "アーカイブ先が満杯なら自動的にNOARCHIVELOGへ切り替わるため変更を行わない"
       },
       "correctChoice": "B",
       "correctText": "アーカイブログの保存先が不足し、オンラインREDOを再利用できない状況か確認したうえで宛先の容量・設定を復旧する",
-      "explanation": "正解：B\n\nA（誤り）：明示されたLOG_ARCHIVE_DEST_nはFRAが空いているからといって自動的に置き換わらない。\nB（正しい）：アーカイブが滞るとログ再利用が妨げられるため、アーカイブ先の使用状況とログスイッチを調査するのが適切である。\nC（誤り）：保存ポリシー無効化はディスク上のファイルを物理削除する操作ではない。\nD（誤り）：ログモードはディスク満杯を契機に自動でNOARCHIVELOGへ変更されない。",
+      "explanation": "正解：B\n\nA（誤り）：明示したアーカイブ先が利用できない場合、FRAに空きがあるだけでは自動的な代替保存先になるとは限らない。\nB（正しい）：アーカイブが滞るとログ再利用が妨げられるため、アーカイブ先の使用状況とログスイッチを調査するのが適切である。\nC（誤り）：バックアップ保持ポリシー変更は満杯のアーカイブ先を直接解消する操作ではない。\nD（誤り）：ログモードはディスク満杯を契機に自動でNOARCHIVELOGへ変更されない。",
       "topic": "運用シナリオ・切り分け",
       "difficulty": "hard"
     },
@@ -1763,14 +1773,14 @@
       "chapter": 3,
       "question": "FRA内の再利用可能領域が不足している。保存ポリシーはRECOVERY WINDOW OF 7 DAYSであり、7日前へ復旧するのに必要なバックアップとREDOが存在する。対応策を検討するとき、最も適切な考え方はどれか。",
       "choices": {
-        "A": "FRAを空けるため、必要なREDOを判断せず7日以内のアーカイブログをすべて削除する",
-        "B": "保存ポリシーはディスク容量を自動的に物理拡張するため、追加対処は不要である",
+        "A": "RECOVERY WINDOW OF 7 DAYSの指定があれば、FRAは7日以内のすべてのアーカイブログを容量不足でも必ず無条件に保持する。",
+        "B": "保存ポリシーのリカバリ期間を7日から14日に延長すると、現在のFRAから再利用可能なファイルが直ちに増える。",
         "C": "保存ポリシーは復旧可能性を考慮するため、必要ファイルを保持したままFRA容量拡張や不要ファイルの整理を検討する",
         "D": "バックアップの世代数を増やせば、必ずFRAの空き容量も増える"
       },
       "correctChoice": "C",
       "correctText": "保存ポリシーは復旧可能性を考慮するため、必要ファイルを保持したままFRA容量拡張や不要ファイルの整理を検討する",
-      "explanation": "正解：C\n\nA（誤り）：必要なREDOを消すと復旧可能期間を満たせなくなる可能性がある。\nB（誤り）：保存ポリシーは必要ファイルの保持判断であり、物理ストレージ拡張は行わない。\nC（正しい）：復旧可能期間を維持しつつ、再利用可能ファイルの削除、容量追加、バックアップ先見直しなどを検討する。\nD（誤り）：保持する世代を増やす設定は通常保持対象が増え、空きを増やす保証はない。",
+      "explanation": "正解：C\n\nA（誤り）：保持ポリシーとFRA容量管理は別要因であり、すべてのファイルが一律に無条件保持されるわけではない。\nB（誤り）：要求復旧期間を延長すると必要なバックアップを増やす方向に働き、容量不足の直接の解消にならない。\nC（正しい）：復旧可能期間を維持しつつ、再利用可能ファイルの削除、容量追加、バックアップ先見直しなどを検討する。\nD（誤り）：保持する世代を増やす設定は通常保持対象が増え、空きを増やす保証はない。",
       "topic": "FRA・保持と容量のトレードオフ",
       "difficulty": "hard"
     },
@@ -4740,6 +4750,2102 @@
       "correctText": "まず失われたデータファイルをバックアップ等から復元する必要があり、Flashback Database単独では修復できない。",
       "explanation": "正解：A\n\nA（正しい）：Flashback Databaseは現在存在するデータファイルを巻き戻す機能で、メディア障害により消失したファイルのリストア代替にはならない。\nB（誤り）：フラッシュバックログは完全なデータファイルのバックアップではない。\nC（誤り）：保持目標はログ保持の目安で、失われた物理ファイルを生成しない。\nD（誤り）：保証付きRPにもFlashback Databaseのメディア障害上の制限がある。",
       "topic": "Flashback Databaseとファイル消失",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch28q001",
+      "chapter": 28,
+      "question": "CDB1にはPDB1とPDB2がある。CDBの記憶域・インスタンス構造として正しい記述を2つ選べ。",
+      "choices": {
+        "A": "各PDBは独自のSYSTEM/SYSAUX表領域を持ち、CDBのインスタンスを共有する。",
+        "B": "各PDBには専用制御ファイルが存在する一方、オンラインREDOログのみCDBで共用する。",
+        "C": "PDBのデータファイルはコンテナごとに独立し、CDBルートのデータファイルと同一のファイルを共用しない。",
+        "D": "各PDBは独自SPFILEを持ち、CDBルートの初期化パラメータを参照しない。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "各PDBは独自のSYSTEM/SYSAUX表領域を持ち、CDBのインスタンスを共有する。、PDBのデータファイルはコンテナごとに独立し、CDBルートのデータファイルと同一のファイルを共用しない。",
+      "explanation": "正解：A、C\n\nA（正しい）：CDBのインスタンス（SGAと背景プロセス）は共有されるが、SYSTEM/SYSAUXなどPDBの論理記憶域は個別に存在する。\nB（誤り）：制御ファイルはCDB全体で管理され、PDBごとに専用の制御ファイルを持たない。\nC（正しい）：表領域とデータファイルはコンテナ単位に分離され、PDBの業務データはそのPDBのファイルに格納される。\nD（誤り）：インスタンスを構成するSPFILEはCDBに属し、PDBの個別設定も独立したSPFILEではない。",
+      "topic": "CDBの構成",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch28q002",
+      "chapter": 28,
+      "question": "CDB1は共有UNDOモード、CDB2はローカルUNDOモードである。PDBのUNDO表領域の扱いとして正しいものはどれか。",
+      "choices": {
+        "A": "CDB1の各PDBにもUNDO表領域を作成するが、運用時はCDBルート側のみを使用する。",
+        "B": "CDB2では各PDBが専用UNDO表領域を持つが、CDB1ではCDBルート側のUNDOを共有する。",
+        "C": "CDB1ではPDBがUNDOを持たないため、PDBで更新トランザクションは使用できない。",
+        "D": "CDB2ではローカルUNDOを有効にしたPDBだけが専用UNDOを使用し、他は共有UNDOを使用する。"
+      },
+      "correctChoice": "B",
+      "correctText": "CDB2では各PDBが専用UNDO表領域を持つが、CDB1ではCDBルート側のUNDOを共有する。",
+      "explanation": "正解：B\n\nA（誤り）：共有UNDOモードではPDB専用のUNDO表領域を作成する運用ではない。\nB（正しい）：UNDOモードはCDB単位で選択され、共有UNDOではルート側を共有し、ローカルUNDOではPDBごとにUNDO表領域が設けられる。\nC（誤り）：共有UNDOでもPDBのDMLは可能であり、UNDOは共通領域に記録される。\nD（誤り）：同一CDB内で共有UNDOとローカルUNDOをPDB別に混在させることはできない。",
+      "topic": "UNDO構成",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch28q003",
+      "chapter": 28,
+      "question": "利用者がPDB_SALESに接続する方法を検討している。正しい記述を2つ選べ。",
+      "choices": {
+        "A": "PDBには既定でPDB名に対応するサービスがあり、リモート接続に利用できる。",
+        "B": "PDBは独立したインスタンスを持つため、ORACLE_SIDにPDB名を設定してOS認証で直接接続する。",
+        "C": "PDBへ接続するには、CDBルートのSYSユーザーでログインしてからDBリンクを経由することが必須である。",
+        "D": "CDBルートに接続した後、必要な権限を持つ共通ユーザーはALTER SESSION SET CONTAINERで接続先を変更できる。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "PDBには既定でPDB名に対応するサービスがあり、リモート接続に利用できる。、CDBルートに接続した後、必要な権限を持つ共通ユーザーはALTER SESSION SET CONTAINERで接続先を変更できる。",
+      "explanation": "正解：A、D\n\nA（正しい）：PDBはデフォルトのサービス名を持ち、リスナー経由のクライアント接続に利用できる。\nB（誤り）：ORACLE_SIDはCDBのインスタンスを識別するもので、PDB単位のインスタンスは存在しない。\nC（誤り）：アプリケーションはPDBサービスに直接リモート接続でき、DBリンクによるルート経由接続は必須ではない。\nD（正しい）：共通ユーザーは切替先で必要なSET CONTAINER権限などの条件を満たせば、同じセッションでコンテナを変更できる。",
+      "topic": "接続とサービス",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch28q004",
+      "chapter": 28,
+      "question": "CDBルートで新しいPDBをシードから作る。作成権限と作成直後の状態に関する適切な組み合わせはどれか。",
+      "choices": {
+        "A": "CREATE PLUGGABLE DATABASE権限を持つローカルユーザーがPDB内で作成し、作成直後はREAD WRITEで開く。",
+        "B": "CREATE SESSION権限を持つ共通ユーザーがCDBルートで作成し、作成直後はREAD ONLYで開く。",
+        "C": "CREATE PLUGGABLE DATABASE権限を持つ共通ユーザーがCDBルートで作成し、作成直後はクローズ状態となる。",
+        "D": "PDB_DBAロールを持つローカルユーザーがシードPDBで作成し、作成直後はMOUNT状態のCDBとなる。"
+      },
+      "correctChoice": "C",
+      "correctText": "CREATE PLUGGABLE DATABASE権限を持つ共通ユーザーがCDBルートで作成し、作成直後はクローズ状態となる。",
+      "explanation": "正解：C\n\nA（誤り）：ローカルユーザーのPDB内からCDB直下にPDBを作る操作ではなく、作成直後のOPENも自動ではない。\nB（誤り）：CREATE SESSIONのみではPDB作成権限が不足し、新規PDBは自動でREAD ONLYにならない。\nC（正しい）：CDBルートからCREATE PLUGGABLE DATABASEを実行し、作成後にALTER PLUGGABLE DATABASE OPEN等で開く。\nD（誤り）：PDB_DBAはPDB内部の管理用ロールであり、CDBルートでのPDB作成権限とは異なる。",
+      "topic": "PDB作成の権限",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch28q005",
+      "chapter": 28,
+      "question": "PDB作成時に次の設定がある。\nDB_CREATE_FILE_DEST='+DATA'\nPDB_FILE_NAME_CONVERT=('/seed/','/pdb/default/')\nさらにCREATE PLUGGABLE DATABASE文にFILE_NAME_CONVERT=('/seed/','/pdb/sales/')を指定した。作成ファイル名の判断として適切なものはどれか。",
+      "choices": {
+        "A": "PDB_FILE_NAME_CONVERTが最も高い優先順位で適用される。",
+        "B": "OMFが有効なので、明示したFILE_NAME_CONVERT句よりDB_CREATE_FILE_DESTが優先される。",
+        "C": "PDB_FILE_NAME_CONVERTとDB_CREATE_FILE_DESTが競合するため、作成は必ず失敗する。",
+        "D": "CREATE PLUGGABLE DATABASE文のFILE_NAME_CONVERT句が優先される。"
+      },
+      "correctChoice": "D",
+      "correctText": "CREATE PLUGGABLE DATABASE文のFILE_NAME_CONVERT句が優先される。",
+      "explanation": "正解：D\n\nA（誤り）：初期化パラメータの変換規則は、CREATE文に明示したFILE_NAME_CONVERTより優先しない。\nB（誤り）：OMFは初期化パラメータの変換規則より優先する場合があるが、CREATE文の明示FILE_NAME_CONVERTが優先する。\nC（誤り）：これらの設定は優先順位で解決され、設定が共存するだけで必ずエラーになるわけではない。\nD（正しい）：ファイル名の明示規則をCREATE文で与えた場合、その規則がほかの既定値より優先される。元ファイルがOMF管理対象でないことを前提とする。",
+      "topic": "PDBファイル名の優先順位",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch28q006",
+      "chapter": 28,
+      "question": "CREATE PLUGGABLE DATABASEでCREATE_FILE_DEST句とPDB_FILE_NAME_CONVERT初期化パラメータを併用した。適切な説明はどれか。",
+      "choices": {
+        "A": "CREATE_FILE_DESTはPDBのOMF配置先を指定するため、PDB_FILE_NAME_CONVERTより優先して扱われる。",
+        "B": "CREATE_FILE_DESTを指定すると、PDB_FILE_NAME_CONVERTの変換結果の後ろに自動ファイル名を付加する。",
+        "C": "CREATE_FILE_DESTとPDB_FILE_NAME_CONVERTの両方が必要であり、片方のみではPDBを作成できない。",
+        "D": "CREATE_FILE_DESTは既存データファイルを移動するためだけの句であり、PDBの新規作成では使用できない。"
+      },
+      "correctChoice": "A",
+      "correctText": "CREATE_FILE_DESTはPDBのOMF配置先を指定するため、PDB_FILE_NAME_CONVERTより優先して扱われる。",
+      "explanation": "正解：A\n\nA（正しい）：CREATE_FILE_DESTはPDB作成時のOracle Managed Filesの配置先を指定する。明示OMF配置はPDB_FILE_NAME_CONVERTより優先される。\nB（誤り）：OMFとファイル名変換規則を連結してパスを生成する動作ではない。\nC（誤り）：ファイル配置には明示句・OMF設定・変換パラメータなど複数の代替方式がある。\nD（誤り）：CREATE_FILE_DESTはシードからのPDB作成やクローン時にも使える。",
+      "topic": "OMFとファイル配置",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch28q007",
+      "chapter": 28,
+      "question": "PDB_SRCをREAD WRITEで運用したままローカルクローンを取得したい。クローン元を停止せずに取得できる典型的な前提条件を2つ選べ。",
+      "choices": {
+        "A": "CDBがARCHIVELOGモードである。",
+        "B": "CDBがローカルUNDOモードである。",
+        "C": "クローン先PDBがREAD ONLYでOPENしている。",
+        "D": "複製元PDBはCREATE文実行前にMOUNTへ変更する。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "CDBがARCHIVELOGモードである。、CDBがローカルUNDOモードである。",
+      "explanation": "正解：A、B\n\nA（正しい）：ホットクローンではコピー中の変更を整合させるためREDOを利用するため、ARCHIVELOGモードが必要となる。\nB（正しい）：PDBごとのUNDOを持つローカルUNDOモードが、更新中PDBの整合したホットクローンを可能にする。\nC（誤り）：作成前の複製先PDBはまだ存在せず、事前のREAD ONLY OPENが条件ではない。\nD（誤り）：複製元をREAD WRITEのままにするのがホットクローンであり、MOUNTへ変更するとその目的に反する。",
+      "topic": "ホットクローン",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch28q008",
+      "chapter": 28,
+      "question": "異なるCDBのPDB_SRCを複製先CDBへクローンする。SQL文と接続の前提として最も適切なのはどれか。",
+      "choices": {
+        "A": "複製元CDBでCREATE PLUGGABLE DATABASE PDB_NEW FROM PDB_SRC@DBLINKを実行する。",
+        "B": "複製先CDBでCREATE PLUGGABLE DATABASE PDB_NEW FROM PDB_SRC@DBLINKを実行し、複製元に接続するDBリンクを用意する。",
+        "C": "複製先CDBでCREATE PLUGGABLE DATABASE PDB_NEW USING PDB_SRC@DBLINKを実行し、元データファイルを事前コピーする。",
+        "D": "複製先CDBでALTER PLUGGABLE DATABASE PDB_SRC UNPLUGを実行してから、DBリンク越しにクローンする。"
+      },
+      "correctChoice": "B",
+      "correctText": "複製先CDBでCREATE PLUGGABLE DATABASE PDB_NEW FROM PDB_SRC@DBLINKを実行し、複製元に接続するDBリンクを用意する。",
+      "explanation": "正解：B\n\nA（誤り）：CREATE文は新PDBを配置する複製先CDBで実行する。\nB（正しい）：リモートクローンは複製先CDBから複製元にアクセスするデータベースリンクを使い、FROM ソースPDB@リンク名と指定する。\nC（誤り）：USINGは主に切断したPDBのメタデータなどからプラグする形式であり、FROMによるリモートクローンとは異なる。\nD（誤り）：UNPLUGはPDBを切り離す操作であり、ソースPDBを稼働させて複製するリモートクローンの必須手順ではない。",
+      "topic": "リモートクローン",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch28q009",
+      "chapter": 28,
+      "question": "PDB_SALESを別CDBに移すため、UNPLUG INTOを実行する。XML形式とPDBアーカイブ形式の比較として正しいものを2つ選べ。",
+      "choices": {
+        "A": "PDBアーカイブ形式では接続先CDBから元CDBへのデータベースリンクが必須である。",
+        "B": "XML形式は表の論理データもXMLへ格納するため、元データファイルが不要となる。",
+        "C": "PDBアーカイブ形式はメタデータに加えてPDB関連ファイルを含むパッケージとして扱える。",
+        "D": "XML形式はPDBのメタデータを出力するため、通常は実データファイル等を別途移動または共有する必要がある。"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "PDBアーカイブ形式はメタデータに加えてPDB関連ファイルを含むパッケージとして扱える。、XML形式はPDBのメタデータを出力するため、通常は実データファイル等を別途移動または共有する必要がある。",
+      "explanation": "正解：C、D\n\nA（誤り）：アーカイブを使うプラグは、リモートクローンのようにDBリンクを必須とする操作ではない。\nB（誤り）：XMLはデータファイルそのものの論理ダンプではない。\nC（正しい）：.pdbアーカイブにはXMLメタデータとPDBファイル群が含まれ、移動の単位をまとめられる。\nD（正しい）：UNPLUG INTO XMLでは構成メタデータを出力するため、プラグ先が利用できるデータファイルを準備する。",
+      "topic": "切断とプラグ",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch28q010",
+      "chapter": 28,
+      "question": "PDBを別CDBへ移すため、XMLベースのUNPLUGとPLUGを行う。正しい操作順序に最も近いものはどれか。",
+      "choices": {
+        "A": "UNPLUG → PDBをCLOSE → CREATE PLUGGABLE DATABASE USING → ファイルを移動 → OPEN",
+        "B": "PDBをCLOSE → CREATE PLUGGABLE DATABASE USING → UNPLUG → OPEN → ファイルを移動",
+        "C": "PDBをCLOSE → UNPLUG → 必要なファイルを移動/コピー → CREATE PLUGGABLE DATABASE USING → OPEN",
+        "D": "PDBをCLOSE → UNPLUG → OPEN → CREATE PLUGGABLE DATABASE USING → ファイルを移動"
+      },
+      "correctChoice": "C",
+      "correctText": "PDBをCLOSE → UNPLUG → 必要なファイルを移動/コピー → CREATE PLUGGABLE DATABASE USING → OPEN",
+      "explanation": "正解：C\n\nA（誤り）：UNPLUGの前に対象PDBをCLOSEする必要があり、ファイルを先に利用可能にする。\nB（誤り）：プラグ処理をUNPLUGより先に実施できず、移動対象ファイルの用意が遅すぎる。\nC（正しい）：CLOSEしてUNPLUGメタデータを生成し、ファイルをアクセス可能にした上でCREATE ... USINGによりプラグし、最後にOPENする。\nD（誤り）：アンプラグ後のPDBはOPENして使い続ける状態ではなく、プラグ後にOPENする。",
+      "topic": "UNPLUG/PLUG手順",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch28q011",
+      "chapter": 28,
+      "question": "アンプラグしたPDBのデータファイルをすでに新CDBがアクセスできる場所へ配置した。元ファイルをその場所で使い、複製や移動を増やしたくない。CREATE PLUGGABLE DATABASE ... USINGで指定する方式はどれか。",
+      "choices": {
+        "A": "COPY",
+        "B": "SOURCE_FILE_NAME_CONVERT",
+        "C": "MOVE",
+        "D": "NOCOPY"
+      },
+      "correctChoice": "D",
+      "correctText": "NOCOPY",
+      "explanation": "正解：D\n\nA（誤り）：COPYは別の場所にデータファイルをコピーして利用する。\nB（誤り）：SOURCE_FILE_NAME_CONVERTはXMLに記録された元のパスと現在の配置先を対応付けるための句で、コピー方式を指定しない。\nC（誤り）：MOVEは元のファイルを別の場所へ移動する方式。\nD（正しい）：NOCOPYは既存の指定場所にあるファイルをそのまま使用する。",
+      "topic": "NOCOPY/COPY/MOVE",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch28q012",
+      "chapter": 28,
+      "question": "アンプラグ時のXMLには /old/pdb1/users01.dbf と記録されているが、ファイル実体は /new/pdb1/users01.dbf に配置した。複製せずプラグする場合、パスの対応づけに使う句はどれか。",
+      "choices": {
+        "A": "SOURCE_FILE_NAME_CONVERT",
+        "B": "CREATE_FILE_DEST",
+        "C": "FILE_NAME_CONVERT",
+        "D": "SERVICE_NAME_CONVERT"
+      },
+      "correctChoice": "A",
+      "correctText": "SOURCE_FILE_NAME_CONVERT",
+      "explanation": "正解：A\n\nA（正しい）：SOURCE_FILE_NAME_CONVERTはXML上の元ファイルパスと実際の配置パスが異なる場合に読み替える。\nB（誤り）：CREATE_FILE_DESTはOMFの作成先を指定する。\nC（誤り）：FILE_NAME_CONVERTは新規生成するファイル名への変換に使う。XMLが指す既存ソースパスを読み替える目的にはSOURCE_FILE_NAME_CONVERTを使う。\nD（誤り）：SERVICE_NAME_CONVERTはPDBのユーザー定義サービス名の変換に使い、ファイル名を変更しない。",
+      "topic": "プラグ時のパス変換",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch28q013",
+      "chapter": 28,
+      "question": "PDBをプラグする際にUSER_TABLESPACES=NONEを指定した。対象外にできる表領域について最も正確な説明はどれか。",
+      "choices": {
+        "A": "SYSTEMとSYSAUXを含む全表領域が除外され、PDBのデータディクショナリを移行しない。",
+        "B": "ユーザー表領域は含めないが、SYSTEM・SYSAUXなどPDBの必須表領域は対象外にしない。",
+        "C": "一時表領域だけが除外され、ユーザー表領域はすべて含まれる。",
+        "D": "USER_TABLESPACES句はクローン専用であり、UNPLUG後のプラグでは使用できない。"
+      },
+      "correctChoice": "B",
+      "correctText": "ユーザー表領域は含めないが、SYSTEM・SYSAUXなどPDBの必須表領域は対象外にしない。",
+      "explanation": "正解：B\n\nA（誤り）：SYSTEM/SYSAUXを除外するとPDBが成立せず、USER_TABLESPACESはユーザー表領域を選ぶための句。\nB（正しい）：USER_TABLESPACES=NONEはユーザー用の永続表領域を除外する指定で、必須のシステム表領域まで除外しない。\nC（誤り）：一時表領域の選択だけを指示する句ではない。\nD（誤り）：プラグや変換時に、対象のユーザー表領域を限定する用途で指定できる。",
+      "topic": "ユーザー表領域の選択",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch28q014",
+      "chapter": 28,
+      "question": "異なるCDBへPDBを移動する。サービス停止を最小限にしたい。UNPLUG/PLUG方式と再配置（RELOCATE）の比較として正しいものはどれか。",
+      "choices": {
+        "A": "UNPLUG/PLUGは元PDBを動作させたまま行うが、再配置では先に完全停止が必要。",
+        "B": "再配置では元CDBと先CDBで同じデータファイルを永久共有するため、停止時間がない。",
+        "C": "再配置では複製元を稼働させたままデータを移送でき、切断・接続方式より停止時間を抑えられる構成がある。",
+        "D": "再配置ではPDBデータを移さずサービス名だけ先CDBに変更する。"
+      },
+      "correctChoice": "C",
+      "correctText": "再配置では複製元を稼働させたままデータを移送でき、切断・接続方式より停止時間を抑えられる構成がある。",
+      "explanation": "正解：C\n\nA（誤り）：通常のアンプラグでは対象PDBをクローズする。ホット再配置は元PDBのREAD WRITE運用継続を狙える。\nB（誤り）：移動はファイル・データを先CDBへ移行するもので、永久に同一ファイルを共有する運用ではない。\nC（正しい）：ホットクローン型の仕組みで移行作業中の業務停止を縮小できる。ARCHIVELOG・ローカルUNDOなど構成条件には注意する。\nD（誤り）：サービス名の切替だけではCDB間でPDBを移動したことにならない。",
+      "topic": "PDB再配置",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch28q015",
+      "chapter": 28,
+      "question": "PDB_SALESのデータファイルを保持してCDBから登録解除したい。正しいコマンドと効果の組み合わせはどれか。",
+      "choices": {
+        "A": "DROP PLUGGABLE DATABASE PDB_SALES INCLUDING DATAFILES：データファイルを残す。",
+        "B": "DROP PLUGGABLE DATABASE PDB_SALES INCLUDING DATAFILES：PDB定義だけ残す。",
+        "C": "DROP PLUGGABLE DATABASE PDB_SALES KEEP DATAFILES：関連するファイルをすべて削除する。",
+        "D": "DROP PLUGGABLE DATABASE PDB_SALES KEEP DATAFILES：データファイルを残す。"
+      },
+      "correctChoice": "D",
+      "correctText": "DROP PLUGGABLE DATABASE PDB_SALES KEEP DATAFILES：データファイルを残す。",
+      "explanation": "正解：D\n\nA（誤り）：INCLUDING DATAFILESは削除対象のPDBのデータファイルも削除する指定である。\nB（誤り）：INCLUDING DATAFILESではPDBの登録も削除し、データファイルも削除する。\nC（誤り）：KEEPとINCLUDINGの効果が逆。\nD（正しい）：KEEP DATAFILESはCDBからPDBをDROPしても物理データファイルを残す方式。対象PDBをCLOSEしてから実行する。",
+      "topic": "PDB削除",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch28q016",
+      "chapter": 28,
+      "question": "Oracle 19c対応の非CDBをCDBにプラグする。メタデータXMLを使う方式の操作順序として適切なものはどれか。",
+      "choices": {
+        "A": "非CDBでDBMS_PDB.DESCRIBE → 必要なファイル準備 → CREATE PLUGGABLE DATABASE USING → noncdb_to_pdb.sql → OPEN",
+        "B": "非CDBでCREATE PLUGGABLE DATABASE → DBMS_PDB.DESCRIBE → OPEN → noncdb_to_pdb.sql",
+        "C": "非CDBでDBMS_PDB.DESCRIBE → OPEN → CREATE PLUGGABLE DATABASE USING → noncdb_to_pdb.sql",
+        "D": "非CDBでnoncdb_to_pdb.sql → DBMS_PDB.DESCRIBE → CREATE PLUGGABLE DATABASE USING → OPEN"
+      },
+      "correctChoice": "A",
+      "correctText": "非CDBでDBMS_PDB.DESCRIBE → 必要なファイル準備 → CREATE PLUGGABLE DATABASE USING → noncdb_to_pdb.sql → OPEN",
+      "explanation": "正解：A\n\nA（正しい）：非CDBをREAD ONLYで開いて記述XMLを生成し、先CDBでプラグした後、PDBとして辞書を変換するスクリプトを実行してからREAD WRITEで開く。互換性チェックも必要。\nB（誤り）：CREATE PLUGGABLE DATABASEを非CDB内で直接実行する手順ではなく、変換スクリプトはプラグ後に実行する。\nC（誤り）：変換用スクリプト実行前の新PDBを先にREAD WRITEでOPENする順序ではない。\nD（誤り）：noncdb_to_pdb.sqlは接続先の新PDBに対して実行する変換スクリプトであり、元非CDBで先行実行しない。",
+      "topic": "非CDBからPDBへ",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch28q017",
+      "chapter": 28,
+      "question": "DBCAで実行するPDB管理について、一般的な対応範囲として正しいものを2つ選べ。",
+      "choices": {
+        "A": "リモートPDBクローンは、対話型DBCAでしか実行できない。",
+        "B": "同一CDB内のローカルPDBクローンを対話型で実行できる。",
+        "C": "異なるCDB間のPDB再配置は、サイレントモードで扱える。",
+        "D": "非CDBをPDBへ変換する機能は、DBCAの対話型・サイレント型どちらでも直接サポートされる。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "同一CDB内のローカルPDBクローンを対話型で実行できる。、異なるCDB間のPDB再配置は、サイレントモードで扱える。",
+      "explanation": "正解：B、C\n\nA（誤り）：リモートクローンはサイレントモードで扱う機能であり、対話型に限定されない。\nB（正しい）：DBCAはPDBのローカルクローンを対話型・サイレント型で扱える。\nC（正しい）：DBCAのサイレントモードには別CDBへのPDB再配置がある。\nD（誤り）：DBCAが直接対応するPDB管理機能と、非CDBからの変換処理は区別される。",
+      "topic": "DBCAの対応範囲",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch28q018",
+      "chapter": 28,
+      "question": "同一アプリケーションの構成を持つ多数のPDBを一元管理したい。アプリケーションコンテナについて正しいものを2つ選べ。",
+      "choices": {
+        "A": "アプリケーションコンテナを作るにはCDBルートを廃止し、全PDBをアプリケーションルートに移す。",
+        "B": "アプリケーションルートを中心にアプリケーションPDBを関連付け、共通アプリケーションを管理する。",
+        "C": "アプリケーションコンテナは通常のCDBと異なり、個別インスタンスと制御ファイルを必ず持つ。",
+        "D": "アプリケーションシードを利用して新しいアプリケーションPDBを作成できる。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "アプリケーションルートを中心にアプリケーションPDBを関連付け、共通アプリケーションを管理する。、アプリケーションシードを利用して新しいアプリケーションPDBを作成できる。",
+      "explanation": "正解：B、D\n\nA（誤り）：アプリケーションコンテナはCDB内に構成され、CDBルートがなくなるわけではない。\nB（正しい）：アプリケーションルートはアプリ共通定義を集約し、複数のアプリPDBで利用するための基盤になる。\nC（誤り）：アプリコンテナも既存CDBの構成要素であり、別のインスタンスや制御ファイルを必須としない。\nD（正しい）：アプリケーションシードは同じアプリの構成を持つPDB作成の雛形として機能する。",
+      "topic": "アプリケーションコンテナ",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch28q019",
+      "chapter": 28,
+      "question": "CDBルートでSHOW PDBSを実行した。PDB_SALESのOPEN MODEがMOUNTEDで、アプリから接続できない。管理操作として適切なのはどれか。",
+      "choices": {
+        "A": "ALTER PLUGGABLE DATABASE PDB_SALES OPEN; をCDBルートから実行する。",
+        "B": "ALTER DATABASE PDB_SALES OPEN; をCDBルートから実行する。",
+        "C": "ALTER SESSION SET CONTAINER=PDB_SALES; を通常のローカルユーザーで実行する。",
+        "D": "CREATE PLUGGABLE DATABASE PDB_SALES FROM CDB$SEED; を再度実行する。"
+      },
+      "correctChoice": "A",
+      "correctText": "ALTER PLUGGABLE DATABASE PDB_SALES OPEN; をCDBルートから実行する。",
+      "explanation": "正解：A\n\nA（正しい）：PDBは作成直後やCDB起動時にMOUNTEDのことがあり、ALTER PLUGGABLE DATABASE OPENで開く。\nB（誤り）：PDBのOPENはALTER PLUGGABLE DATABASE構文で行う。\nC（誤り）：コンテナ切替はOPEN操作そのものではなく、通常のローカルユーザーでの切替権限もない。\nD（誤り）：既存PDBのOPENが目的で、新たに同名PDBを作成する必要はない。",
+      "topic": "DBIDとPDB状態",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch28q020",
+      "chapter": 28,
+      "question": "PDB_SRCをCREATE PLUGGABLE DATABASE PDB_COPY FROM PDB_SRC;で複製した。PDB_SRCで作成済みのローカルユーザーの扱いとして最も適切なものはどれか。",
+      "choices": {
+        "A": "ローカルユーザーはCDBルートのデータディクショナリにあるため、複製先では自動的に削除される。",
+        "B": "ローカルユーザーやそのスキーマオブジェクトは、複製元PDBの内容として基本的にクローン先へ引き継がれる。",
+        "C": "ローカルユーザーは引き継がれるが、表と索引はクローン対象外となる。",
+        "D": "ローカルユーザーは複製されないが、共通ユーザーの定義はクローン先のPDB専用に再作成される。"
+      },
+      "correctChoice": "B",
+      "correctText": "ローカルユーザーやそのスキーマオブジェクトは、複製元PDBの内容として基本的にクローン先へ引き継がれる。",
+      "explanation": "正解：B\n\nA（誤り）：ローカルユーザーはPDBに所属する辞書情報であり、CDBルート専用の定義ではない。\nB（正しい）：PDBクローンはPDBの辞書とデータのコピーを作るので、ローカルユーザーやオブジェクトが引き継がれる。\nC（誤り）：通常のPDBクローンは表・索引などのスキーマデータを含む。\nD（誤り）：共通ユーザーはCDBで共有管理されるもので、クローン先に専用の共通ユーザー定義を新設するわけではない。",
+      "topic": "クローン後のユーザー",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch28q021",
+      "chapter": 28,
+      "question": "CDB_AでREAD WRITEのPDB_SRCから、CDB_BにPDB_COPYを作る。CDB_AはARCHIVELOGかつローカルUNDO、CDB_BからCDB_Aへ接続するDBリンクは作成済みである。正しいものを2つ選べ。",
+      "choices": {
+        "A": "リモートクローンではDBリンクがあっても複製元PDBを必ずREAD ONLYに変更する必要がある。",
+        "B": "複製先CDB_BでCREATE PLUGGABLE DATABASE PDB_COPY USING PDB_SRC@LINK_Aを実行する。",
+        "C": "複製元PDBはREAD WRITEのままホットクローン可能な構成であり、コピー中の変更との整合にはREDOが利用される。",
+        "D": "複製先CDB_BのルートでCREATE PLUGGABLE DATABASE PDB_COPY FROM PDB_SRC@LINK_Aを実行する。"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "複製元PDBはREAD WRITEのままホットクローン可能な構成であり、コピー中の変更との整合にはREDOが利用される。、複製先CDB_BのルートでCREATE PLUGGABLE DATABASE PDB_COPY FROM PDB_SRC@LINK_Aを実行する。",
+      "explanation": "正解：C、D\n\nA（誤り）：条件を満たしたホットクローンはREAD WRITEを許容するため、READ ONLYにすることは必須ではない。\nB（誤り）：USING句は切断したPDBのプラグなどに使われ、リモートクローンのFROM構文とは異なる。\nC（正しい）：ARCHIVELOGとローカルUNDOの条件を満たせば、変更中のPDBでもREDOを使用して整合した複製を作成できる。\nD（正しい）：リモートPDBクローンは、複製先のルートでFROMの後に元PDBとDBリンクを指定する。",
+      "topic": "クローン手法の判断",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch28q022",
+      "chapter": 28,
+      "question": "既存の非CDBをXML経由でCDBへプラグする。DBMS_PDB.DESCRIBEとCHECK_PLUG_COMPATIBILITY、noncdb_to_pdb.sqlの役割として適切なものはどれか。",
+      "choices": {
+        "A": "CHECK_PLUG_COMPATIBILITYがデータファイルを複製し、DESCRIBEが辞書変換を実施する。",
+        "B": "DESCRIBEとCHECK_PLUG_COMPATIBILITYはいずれもCDBをREAD WRITEでOPENした後のPDB内でのみ実行する。",
+        "C": "DESCRIBEが非CDBの構成メタデータを記述し、CHECK_PLUG_COMPATIBILITYが接続互換性を検査し、noncdb_to_pdb.sqlがプラグ後に辞書を変換する。",
+        "D": "noncdb_to_pdb.sqlはCDBのルートを非CDBへ変換するために実行する。"
+      },
+      "correctChoice": "C",
+      "correctText": "DESCRIBEが非CDBの構成メタデータを記述し、CHECK_PLUG_COMPATIBILITYが接続互換性を検査し、noncdb_to_pdb.sqlがプラグ後に辞書を変換する。",
+      "explanation": "正解：C\n\nA（誤り）：互換性チェックはコピーや辞書変換そのものを実施する処理ではない。\nB（誤り）：DESCRIBEは元の非CDBからメタデータを作り、変換スクリプトは接続先の新PDBで実行する。\nC（正しい）：それぞれXML作成、プラグの互換性確認、接続後のPDB用辞書変換という別の役割を持つ。\nD（誤り）：noncdb_to_pdb.sqlは元の非CDBをPDBとして使うために辞書内容を調整する。",
+      "topic": "非CDB接続時の検証",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch28q023",
+      "chapter": 28,
+      "question": "CDB$SEEDからPDB_APPを新規作成し、ADMIN USER appadmin IDENTIFIED BY password ROLES=(RESOURCE)を指定した。正しいものを2つ選べ。",
+      "choices": {
+        "A": "ADMIN USERで指定したappadminは新PDBのローカル管理ユーザーとして作成される。",
+        "B": "ADMIN USERで指定したユーザーは自動的にCDB全コンテナの共通ユーザーになる。",
+        "C": "ROLES句を指定するとPDB_DBAロールが失われ、RESOURCEロールのみが管理ユーザーに付与される。",
+        "D": "PDB_DBAロールが管理ユーザーに付与され、ROLES句に記載したロールをPDB_DBAロールに付与できる。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "ADMIN USERで指定したappadminは新PDBのローカル管理ユーザーとして作成される。、PDB_DBAロールが管理ユーザーに付与され、ROLES句に記載したロールをPDB_DBAロールに付与できる。",
+      "explanation": "正解：A、D\n\nA（正しい）：シードからのPDB作成時はADMIN USERでそのPDBの管理ユーザーを指定する。\nB（誤り）：ADMIN USERは作成先PDB内のローカルユーザーを指定するので、CDB全体の共通ユーザーにはならない。\nC（誤り）：ROLES句は追加のロールを指定するためのもので、既定のPDB_DBAを置き換えない。\nD（正しい）：管理ユーザーにはPDB_DBAロールが付与され、ROLES句で追加したロールはPDB_DBAを通じて管理ユーザーに適用される。",
+      "topic": "PDB管理者の権限",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch28q024",
+      "chapter": 28,
+      "question": "PDBの新規作成と複製をDBCAで自動化する。操作と実行モードの組み合わせについて正しいものを2つ選べ。",
+      "choices": {
+        "A": "リモートクローンはDBCAの対話型のみで行い、サイレントモードでは対応しない。",
+        "B": "シードから新しいPDBを作成する操作は、DBCAの対話型とサイレントモードの両方で対応する。",
+        "C": "非CDBを直接PDBへ変換する操作は、DBCAのサイレントモードに限りサポートされる。",
+        "D": "他CDBのPDBをリモートクローンする操作は、DBCAのサイレントモードで対応する。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "シードから新しいPDBを作成する操作は、DBCAの対話型とサイレントモードの両方で対応する。、他CDBのPDBをリモートクローンする操作は、DBCAのサイレントモードで対応する。",
+      "explanation": "正解：B、D\n\nA（誤り）：DBCAのリモートクローンはサイレントモードが対象であり、対話型限定ではない。\nB（正しい）：シードから空のPDBを作るDBCAの処理は対話型とサイレントモードを選べる。\nC（誤り）：非CDBからPDBへの変換はDBCAが直接扱う機能とは区別される。\nD（正しい）：DBCAのサイレントモードでは別CDBのPDBからクローンを作成できる。",
+      "topic": "DBCAのPDB作成",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch29q001",
+      "chapter": 29,
+      "question": "CDBルートに接続した共通ユーザーC##OPSがPDB1へ切り替えたい。ALTER SESSION SET CONTAINER=PDB1について正しいものを2つ選べ。",
+      "choices": {
+        "A": "一般に対象コンテナに対するSET CONTAINER権限が必要となる。",
+        "B": "切替時に新しいログオンが必ず発生するため、PDB1のAFTER LOGONトリガーは必ず発火する。",
+        "C": "ALTER SESSION SET CONTAINERにより現在のセッションの接続先コンテナが変わる。",
+        "D": "切替を実行すると、CDBルートで実行中だったトランザクションは自動コミットされる。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "一般に対象コンテナに対するSET CONTAINER権限が必要となる。、ALTER SESSION SET CONTAINERにより現在のセッションの接続先コンテナが変わる。",
+      "explanation": "正解：A、C\n\nA（正しい）：共通ユーザーは対象コンテナへの切替許可を持っている必要がある（管理権限による例外は別途）。\nB（誤り）：コンテナ切替は新規ログオンとは異なるため、AFTER LOGONトリガーが必ず再実行されるわけではない。\nC（正しい）：ALTER SESSION SET CONTAINERはセッションを維持したまま実行対象のコンテナを変更する。\nD（誤り）：未完了トランザクションは自動コミットされず、元コンテナへ戻るまでその変更を継続できない。",
+      "topic": "コンテナ切替",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch29q002",
+      "chapter": 29,
+      "question": "PDB1でUPDATEを実行したがCOMMITしていない。共通ユーザーがPDB2へALTER SESSION SET CONTAINERで切り替えた。次の操作について適切な説明はどれか。",
+      "choices": {
+        "A": "切替時にPDB1のトランザクションは自動的にROLLBACKされる。",
+        "B": "PDB2でCOMMITを実行すると、PDB1で保留されたトランザクションが確定する。",
+        "C": "元のPDB1に戻るまでトランザクションのDMLやCOMMITは実行できず、PDB1側のトランザクションは保留される。",
+        "D": "切替後のPDB2でDMLを開始すると、同一トランザクションが2つのコンテナへまたがって継続される。"
+      },
+      "correctChoice": "C",
+      "correctText": "元のPDB1に戻るまでトランザクションのDMLやCOMMITは実行できず、PDB1側のトランザクションは保留される。",
+      "explanation": "正解：C\n\nA（誤り）：切替操作は未コミット変更を自動ROLLBACKするものではない。\nB（誤り）：PDBをまたいで同じトランザクションを確定することはできない。\nC（正しい）：コンテナ切替では元のトランザクションは保留され、元コンテナに戻れば操作を継続できる。\nD（誤り）：1つのトランザクションのDML/DDLを異なるコンテナへ跨がせられない。",
+      "topic": "コンテナとトランザクション",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q003",
+      "chapter": 29,
+      "question": "CDBを起動した後、PDB1はMOUNTED、PDB2はREAD WRITEである。PDB2だけは以前にSAVE STATE済みとする。正しい説明はどれか。",
+      "choices": {
+        "A": "SAVE STATEで保存されたPDB2のOPENモードが起動時に再現され、PDB1は保存されていないため通常はMOUNTEDに留まる。",
+        "B": "PDB1も前回の起動でOPENしていたなら、SAVE STATEの有無にかかわらず自動OPENする。",
+        "C": "SAVE STATEはCDBルートの起動モードを保存するため、PDB2の状態には影響しない。",
+        "D": "SAVE STATEがあるとPDB2はCDB起動前に独立してOPENする。"
+      },
+      "correctChoice": "A",
+      "correctText": "SAVE STATEで保存されたPDB2のOPENモードが起動時に再現され、PDB1は保存されていないため通常はMOUNTEDに留まる。",
+      "explanation": "正解：A\n\nA（正しい）：PDBのオープン状態を保持すると、次回CDB起動時に対応するPDBを指定モードでOPENできる。\nB（誤り）：SAVE STATEをしていないPDBは、通常CDB起動だけで自動的に前回モードへ戻らない。\nC（誤り）：この機能はPDBのOPEN状態を保存する。\nD（誤り）：PDBはCDBのインスタンス上で動作するため、CDBの起動前に独立してOPENしない。",
+      "topic": "起動とSAVE STATE",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q004",
+      "chapter": 29,
+      "question": "CDBルートでALTER PLUGGABLE DATABASE ALL OPEN READ WRITE;を実行した。対象の理解として適切なものはどれか。",
+      "choices": {
+        "A": "ALLはCDBルート自身とすべてのPDBを対象にする。",
+        "B": "ALLはユーザー作成PDBなどの対象PDBをまとめてOPENする指定であり、ルートをPDBとしてOPENするわけではない。",
+        "C": "ALLは現在ログインしているユーザーが作ったPDBだけを対象とする。",
+        "D": "ALLはPDB$SEEDのREAD ONLYモードをREAD WRITEに変更してから他PDBを開く。"
+      },
+      "correctChoice": "B",
+      "correctText": "ALLはユーザー作成PDBなどの対象PDBをまとめてOPENする指定であり、ルートをPDBとしてOPENするわけではない。",
+      "explanation": "正解：B\n\nA（誤り）：CDBルートはPDBではなく、PLUGGABLE DATABASE ALLでルート自身をOPENする操作にはならない。\nB（正しい）：CDBルートで実行すると複数のPDBをまとめて開く指定として機能する。\nC（誤り）：ALLは作成者が誰かを基準に対象PDBを選別するものではない。\nD（誤り）：PDB$SEEDは通常READ ONLYであり、ALL OPENでシードをREAD WRITEに変更することを意味しない。",
+      "topic": "PDB OPENの操作範囲",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q005",
+      "chapter": 29,
+      "question": "CDBルートでPDB変更可能な初期化パラメータXを変更した。しかしPDB1ではXが以前の値のままであった。最も妥当な原因はどれか。",
+      "choices": {
+        "A": "PDB1は独立したSPFILEを持つため、CDB側の設定変更を一切参照しない。",
+        "B": "PDBでは初期化パラメータは利用できないため、変更が適用されない。",
+        "C": "CDBルートで設定した初期化パラメータはどれもPDBへ継承されず、常にPDBで再設定が必要。",
+        "D": "PDBで個別設定したXが、CDBルートから継承する値より優先されている。"
+      },
+      "correctChoice": "D",
+      "correctText": "PDBで個別設定したXが、CDBルートから継承する値より優先されている。",
+      "explanation": "正解：D\n\nA（誤り）：PDB固有設定はPDB辞書側に記録され、PDB専用SPFILEを持つ仕組みではない。\nB（誤り）：PDBはCDBの設定を基本的に継承する。\nC（誤り）：各PDBに個別指定がなければCDBルートの設定がデフォルト値として適用される。\nD（正しい）：ISPDB_MODIFIABLEがTRUEの設定をPDBで上書きした場合、継承値より個別値が優先される。",
+      "topic": "初期化パラメータと継承",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q006",
+      "chapter": 29,
+      "question": "CDBルートのSPFILEにはないPDB固有の初期化パラメータ変更を行った。設定値の保存先について正しいものはどれか。",
+      "choices": {
+        "A": "PDB1専用のSPFILEが新しく生成され、そこに保存される。",
+        "B": "CDBルートの制御ファイルにPDB固有設定だけが保存される。",
+        "C": "対象PDBのSYSTEM表領域にあるディクショナリの管理情報に保存される。",
+        "D": "各PDBの一時表領域に保存され、再起動後は常に失われる。"
+      },
+      "correctChoice": "C",
+      "correctText": "対象PDBのSYSTEM表領域にあるディクショナリの管理情報に保存される。",
+      "explanation": "正解：C\n\nA（誤り）：PDB専用のSPFILEがあるわけではない。\nB（誤り）：制御ファイルはPDB固有の全初期化パラメータを保持する記憶域ではない。\nC（正しい）：PDBの個別設定値はPDBの辞書（PDB_SPFILE$など）に保持され、再起動後にも反映される。\nD（誤り）：永続的なPDB設定を一時表領域に格納する設計ではない。",
+      "topic": "PDB固有パラメータ",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q007",
+      "chapter": 29,
+      "question": "CDBでV$SYSTEM_PARAMETER.ISPDB_MODIFIABLEを確認した。PDB内でパラメータXのみ独自に変更できる条件として適切なのはどれか。",
+      "choices": {
+        "A": "XのISPDB_MODIFIABLEがTRUEである。",
+        "B": "XのISPDB_MODIFIABLEがFALSEで、CONTAINER=CURRENTを指定する。",
+        "C": "XがCDBルートのSPFILE内に記録されていない。",
+        "D": "XがPDB$SEEDのSYSTEM表領域で管理されている。"
+      },
+      "correctChoice": "A",
+      "correctText": "XのISPDB_MODIFIABLEがTRUEである。",
+      "explanation": "正解：A\n\nA（正しい）：PDB単位で上書きできるかはISPDB_MODIFIABLEが示す。実際の変更には必要な権限なども必要。\nB（誤り）：FALSEのパラメータはCURRENT句だけで変更可能にならない。\nC（誤り）：SPFILEに記載がないことはPDBでの変更可否条件ではない。\nD（誤り）：シードPDBの辞書にあるか否かではなく、パラメータのPDB変更可能属性が条件。",
+      "topic": "PDB固有設定の可否",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q008",
+      "chapter": 29,
+      "question": "共有UNDOモードのCDBをローカルUNDOモードへ切り替えたい。適切な操作手順はどれか。",
+      "choices": {
+        "A": "CDBを通常モードでOPENしたままALTER DATABASE LOCAL UNDO ONを実行し、各PDBを再起動する。",
+        "B": "CDBを停止しSTARTUP UPGRADEで起動してALTER DATABASE LOCAL UNDO ONを実行し、再起動する。",
+        "C": "各PDBを順番にOPENしALTER PLUGGABLE DATABASE LOCAL UNDO ONを実行する。",
+        "D": "PDB$SEEDだけでALTER DATABASE LOCAL UNDO ONを実行すれば、残りのPDBへ自動継承される。"
+      },
+      "correctChoice": "B",
+      "correctText": "CDBを停止しSTARTUP UPGRADEで起動してALTER DATABASE LOCAL UNDO ONを実行し、再起動する。",
+      "explanation": "正解：B\n\nA（誤り）：UNDOモード変更はCDB全体の構造変更であり、通常のOPEN中に動的に切り替える手順ではない。\nB（正しい）：アップグレードモードでCDBレベルのALTER DATABASE LOCAL UNDO ONを実行し、CDBを再起動する。\nC（誤り）：UNDOモードはPDBごとに独立した設定ではない。\nD（誤り）：シードPDBで変更するのではなくCDB全体のUNDOモードを変更する。",
+      "topic": "ローカルUNDOへの切替",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q009",
+      "chapter": 29,
+      "question": "CDBでMEMORY_TARGETにより自動メモリー管理を有効にしている。PDBごとのメモリー制限を初期化パラメータで構成したい。適切な判断はどれか。",
+      "choices": {
+        "A": "MEMORY_TARGETが有効なまま、PDB専用のSGAを新たに生成して上限を設定する。",
+        "B": "PDBのメモリー制限はCDBのMEMORY_TARGETとは無関係で、常に任意の値へ変更できる。",
+        "C": "PDBごとのメモリー制限は、PDBをREAD ONLYでOPENすれば自動的に有効になる。",
+        "D": "PDB別メモリー制御を使用するには、CDBの自動メモリー管理との非互換性に注意し、SGA/PGA方式などの条件を整える。"
+      },
+      "correctChoice": "D",
+      "correctText": "PDB別メモリー制御を使用するには、CDBの自動メモリー管理との非互換性に注意し、SGA/PGA方式などの条件を整える。",
+      "explanation": "正解：D\n\nA（誤り）：PDB単位に専用インスタンスのSGAを作る機能ではなく、共有リソースの使用量を制限する。\nB（誤り）：初期化パラメータにはCDB/PDB間の整合条件があり、無条件に設定できない。\nC（誤り）：OPENモードだけでメモリー使用量制限は設定されない。\nD（正しい）：PDB別メモリー制御はCDBのAMM（MEMORY_TARGET）との併用制限があり、必要なSGA/PGA設定条件を満たす。",
+      "topic": "PDBメモリー制御",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q010",
+      "chapter": 29,
+      "question": "PDBを複製したところ、複製元に追加していたユーザー定義サービス名が複製先でも同一となった。適切な対応はどれか。",
+      "choices": {
+        "A": "複製時にSERVICE_NAME_CONVERT句でユーザー定義サービス名を変換する。",
+        "B": "複製時にPDB_FILE_NAME_CONVERT句でユーザー定義サービス名を変換する。",
+        "C": "複製後、CDBのDB_NAMEを変更してPDBサービス名を一括変更する。",
+        "D": "複製時にSOURCE_FILE_NAME_CONVERT句で複製元サービス名を変換する。"
+      },
+      "correctChoice": "A",
+      "correctText": "複製時にSERVICE_NAME_CONVERT句でユーザー定義サービス名を変換する。",
+      "explanation": "正解：A\n\nA（正しい）：SERVICE_NAME_CONVERTはPDBクローンで引き継ぐユーザー定義サービス名を変換するための句。\nB（誤り）：PDB_FILE_NAME_CONVERTはデータファイルのファイル名生成に関する設定である。\nC（誤り）：CDB自体のデータベース名を変える操作とPDBサービスの重複回避は別。\nD（誤り）：SOURCE_FILE_NAME_CONVERTはアンプラグメタデータ上のデータファイル位置を読み替える句。",
+      "topic": "ユーザー定義サービス",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q011",
+      "chapter": 29,
+      "question": "CDBルートで共通ユーザーがCONTAINERS(スキーマ名.表名)を使って問い合わせる。正しいものを2つ選べ。",
+      "choices": {
+        "A": "CONTAINERS句を使用すると、PDB内のトランザクションを自動的にCDBルートへ移動する。",
+        "B": "複数コンテナにある対応表の行を横断して参照するために利用できる。",
+        "C": "結果には行の所属コンテナを識別するCON_IDなどの情報を使用できる。",
+        "D": "一般にPDBごとの行をJOIN条件なしで必ず1行へ集約して返す。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "複数コンテナにある対応表の行を横断して参照するために利用できる。、結果には行の所属コンテナを識別するCON_IDなどの情報を使用できる。",
+      "explanation": "正解：B、C\n\nA（誤り）：問い合わせ用の機能であって、進行中のトランザクションを移動するものではない。\nB（正しい）：CONTAINERS句はコンテナを横断した表データ参照のために利用する構文。\nC（正しい）：CON_ID等を用いて元のコンテナを識別し、必要なら絞込みにも利用できる。\nD（誤り）：結果はコンテナの行を連結して扱うもので、任意の行を必ず単一行へ集約するわけではない。",
+      "topic": "コンテナ横断問い合わせ",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch29q012",
+      "chapter": 29,
+      "question": "CDBルートの管理者が複数PDBのユーザー作成表を調べたい。データディクショナリの見え方に関して適切なものはどれか。",
+      "choices": {
+        "A": "各PDBのユーザー表の定義はCDBルートのSYSTEM表領域のみに保存される。",
+        "B": "PDBごとに分離されたオブジェクト管理情報を、CDB_系辞書ビューなどを使いコンテナ識別子とともに確認できる。",
+        "C": "PDBに接続するとCDBの全コンテナについてのすべての辞書情報が自動的に表示される。",
+        "D": "CDB_系ビューはルート接続では使用できず、PDBに個別接続したときだけ表示できる。"
+      },
+      "correctChoice": "B",
+      "correctText": "PDBごとに分離されたオブジェクト管理情報を、CDB_系辞書ビューなどを使いコンテナ識別子とともに確認できる。",
+      "explanation": "正解：B\n\nA（誤り）：ユーザー作成オブジェクトの定義は原則それぞれのPDBのデータディクショナリに属する。\nB（正しい）：CDB_系辞書ビューはCDB全体の管理に使え、CON_IDでどのコンテナの情報か区別する。権限等により可視範囲は変わる。\nC（誤り）：PDBに接続した通常の参照は原則そのPDBにスコープが限定される。\nD（誤り）：CDB_系辞書ビューはCDBルートからの管理用途に適している。",
+      "topic": "ディクショナリとコンテナ",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q013",
+      "chapter": 29,
+      "question": "PDBスナップショットカルーセルを使用する。正しいものを2つ選べ。",
+      "choices": {
+        "A": "スナップショットカルーセルはCDBのUNDOが共有モードでも使用できることが前提である。",
+        "B": "MAX_PDB_SNAPSHOTSを超えると、最も新しいスナップショットが自動削除される。",
+        "C": "最大数に達して新しいスナップショットを作ると、通常は最も古いスナップショットが削除される。",
+        "D": "スナップショットそのものはPDBとしてOPENできず、クローン元として用いる。"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "最大数に達して新しいスナップショットを作ると、通常は最も古いスナップショットが削除される。、スナップショットそのものはPDBとしてOPENできず、クローン元として用いる。",
+      "explanation": "正解：C、D\n\nA（誤り）：PDBスナップショットはローカルUNDOモードのCDBを前提とする。\nB（誤り）：最も新しいものを削除するのではなく、古いものから入れ替える。\nC（正しい）：カルーセルが上限に達すると古いスナップショットが削除され、最新のものが残る。\nD（正しい）：スナップショットはPDBのある時点のコピーであり、通常のPDBのように接続対象として直接OPENしない。",
+      "topic": "PDBスナップショット",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch29q014",
+      "chapter": 29,
+      "question": "PDBスナップショットとSNAPSHOT COPY PDBについて、正しい区別はどれか。",
+      "choices": {
+        "A": "どちらもPDBのようにREAD WRITEでOPENできる。",
+        "B": "SNAPSHOT COPY PDBはスナップショットカルーセルの保持上限MAX_PDB_SNAPSHOTSに含まれる。",
+        "C": "PDBスナップショットは直接OPENできないが、SNAPSHOT COPYとして作成したPDBはPDBとしてOPENできる。",
+        "D": "PDBスナップショットは必ずデータをフルコピーし、SNAPSHOT COPY PDBは必ず元PDBから完全独立したフルコピーとなる。"
+      },
+      "correctChoice": "C",
+      "correctText": "PDBスナップショットは直接OPENできないが、SNAPSHOT COPYとして作成したPDBはPDBとしてOPENできる。",
+      "explanation": "正解：C\n\nA（誤り）：スナップショット自体はPDBではなく、PDBとして直接OPENできない。\nB（誤り）：SNAPSHOT COPY PDBはPDBであって、スナップショットカルーセル内のスナップショットそのものではない。\nC（正しい）：スナップショットはPDBを作る元情報であり、SNAPSHOT COPYで作成された新PDBは開いて利用できる。\nD（誤り）：スパースコピーを利用する場合は差分を保持し、常に完全コピーになるわけではない。",
+      "topic": "スナップショットとクローン",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q015",
+      "chapter": 29,
+      "question": "稼働中のPDBでスナップショット取得を定期実行したい。必要条件について正しいものを2つ選べ。",
+      "choices": {
+        "A": "CDBがローカルUNDOモードである。",
+        "B": "CDBの各PDBを停止し、CDBをNOMOUNTにしてから毎回取得する。",
+        "C": "PDBのデータファイルがすべてREAD ONLYである。",
+        "D": "PDBがOPEN中の取得では、CDBがARCHIVELOGモードである。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "CDBがローカルUNDOモードである。、PDBがOPEN中の取得では、CDBがARCHIVELOGモードである。",
+      "explanation": "正解：A、D\n\nA（正しい）：カルーセル用PDBスナップショットはローカルUNDOを要件とする。\nB（誤り）：オンライン取得可能な構成では全PDB停止やNOMOUNTは必要ない。\nC（誤り）：READ WRITEでOPENしているPDBでも条件を満たせばスナップショット取得が可能。\nD（正しい）：OPEN中のPDBから取得するにはARCHIVELOGモードが必要となる。",
+      "topic": "スナップショット前提",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch29q016",
+      "chapter": 29,
+      "question": "CDBルートとPDB1でそれぞれAWRスナップショットを採取した。保存先・対象に関して適切なものはどれか。",
+      "choices": {
+        "A": "双方ともPDB1のSYSAUXへ格納され、CDB全体の統計として扱われる。",
+        "B": "PDBレベルAWRはCDBのすべてのコンテナの統計だけを収集する。",
+        "C": "CDBレベルとPDBレベルのAWRは、両方ともCDBルートの一時表領域へ格納される。",
+        "D": "CDBレベルはルートSYSAUX、PDBレベルは対象PDBのSYSAUXに保存され、それぞれの対象範囲の統計を扱う。"
+      },
+      "correctChoice": "D",
+      "correctText": "CDBレベルはルートSYSAUX、PDBレベルは対象PDBのSYSAUXに保存され、それぞれの対象範囲の統計を扱う。",
+      "explanation": "正解：D\n\nA（誤り）：PDB側のスナップショットは各PDBのSYSAUXに置かれ、ルート側と別に扱われる。\nB（誤り）：PDBレベルは対象のPDBを中心とした統計を扱う。\nC（誤り）：AWR統計を保持するのはSYSAUXであり、一時表領域ではない。\nD（正しい）：CDBの統計はルート、PDB個別の統計はPDBに蓄積されるので、移動後もPDBレベルの履歴を利用できる。",
+      "topic": "AWRの保存先",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q017",
+      "chapter": 29,
+      "question": "CDBルートからDBMS_STATS.GATHER_DATABASE_STATSを実行した。PDB個別のオプティマイザ統計に関する判断として適切なのはどれか。",
+      "choices": {
+        "A": "CDBルートで実行すると全PDBのユーザー表の統計も常に一括更新される。",
+        "B": "基本的に実行先コンテナが対象であり、PDBの統計を個別収集するにはそのPDBで実行する。",
+        "C": "PDBの統計収集はREAD ONLYでOPENした状態でのみ実行できる。",
+        "D": "PDBの統計はCDBルートのUNDO表領域へ保存されるので、PDBごとの収集は不要。"
+      },
+      "correctChoice": "B",
+      "correctText": "基本的に実行先コンテナが対象であり、PDBの統計を個別収集するにはそのPDBで実行する。",
+      "explanation": "正解：B\n\nA（誤り）：DBMS_STATSの手動収集処理は接続中のコンテナに対するもので、全PDBのユーザー表統計を無条件に更新しない。\nB（正しい）：各PDBの統計はコンテナ単位で管理され、対象PDBへ接続して収集する。\nC（誤り）：収集した統計を辞書へ記録するにはPDBがREAD WRITEである必要がある。\nD（誤り）：統計は各コンテナのデータディクショナリに保持される。",
+      "topic": "オプティマイザ統計",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q018",
+      "chapter": 29,
+      "question": "CDBレベルとPDBレベルのResource Managerの役割を説明したものを2つ選べ。",
+      "choices": {
+        "A": "CDBリソースプランは主として各PDBへの資源配分を管理する。",
+        "B": "PDBリソースプランは主として各PDB内のコンシューマグループなどへの配分を管理する。",
+        "C": "CDBリソースプランは各PDB内の個々のセッションに直接しか資源を配分できない。",
+        "D": "PDBリソースプランを設定すると、CDBリソースプランは一切不要となり、PDB間のCPU分配もPDBのみで完結する。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "CDBリソースプランは主として各PDBへの資源配分を管理する。、PDBリソースプランは主として各PDB内のコンシューマグループなどへの配分を管理する。",
+      "explanation": "正解：A、B\n\nA（正しい）：CDBレベルではPDBを配分対象として共有CPUなどを制御する。\nB（正しい）：PDB内ではコンシューマグループ等の単位で資源を配分する。\nC（誤り）：CDBのディレクティブは通常、セッションのグループではなくPDB単位の配分を指定する。\nD（誤り）：二階層の役割は異なり、PDB間配分はCDBレベルのプランで扱う。",
+      "topic": "Resource Manager二階層",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch29q019",
+      "chapter": 29,
+      "question": "CDBリソースプランでPDB1のshares=1、PDB2のshares=2。どちらもCPUを十分要求し、utilization_limitには抵触しない場合、適切な説明はどれか。",
+      "choices": {
+        "A": "CPU分配の相対重みはPDB1:PDB2=1:2となる。ただしCPUに余裕があれば追加利用できる場合がある。",
+        "B": "PDB2は必ず全CPUの2%だけ割り当てられる。",
+        "C": "PDB2はCPU利用率を常にPDB1の2倍に固定される。",
+        "D": "PDB1はCPU負荷がなければ、PDB2が空きリソースを使用することも禁止される。"
+      },
+      "correctChoice": "A",
+      "correctText": "CPU分配の相対重みはPDB1:PDB2=1:2となる。ただしCPUに余裕があれば追加利用できる場合がある。",
+      "explanation": "正解：A\n\nA（正しい）：sharesは相対的な配分重みであり、競合時の割当を決める。使われない資源は他のPDBが活用できる。\nB（誤り）：sharesはパーセント値ではなく相対重みである。\nC（誤り）：処理負荷や空き資源によって実際の利用量は変化し、常時固定の比率ではない。\nD（誤り）：未使用リソースを別PDBが活用できるため、分配は固定割当ではない。",
+      "topic": "sharesの相対配分",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q020",
+      "chapter": 29,
+      "question": "CDBリソースプランのディレクティブについて正しい組み合わせはどれか。",
+      "choices": {
+        "A": "sharesはCPU上限、utilization_limitは相対比率、parallel_server_limitは実行可能なSQL種類を指定する。",
+        "B": "sharesはメモリー固定割当、utilization_limitはPDB数上限、parallel_server_limitはUNDO領域上限を指定する。",
+        "C": "sharesは相対的配分、utilization_limitはCPU利用上限、parallel_server_limitはパラレル実行サーバー割合の上限を指定する。",
+        "D": "sharesはSQLの優先度、utilization_limitはアーカイブログ出力上限、parallel_server_limitは接続セッション数の上限を指定する。"
+      },
+      "correctChoice": "C",
+      "correctText": "sharesは相対的配分、utilization_limitはCPU利用上限、parallel_server_limitはパラレル実行サーバー割合の上限を指定する。",
+      "explanation": "正解：C\n\nA（誤り）：sharesとutilization_limitの役割が逆で、parallel_server_limitもSQLの種類を制御しない。\nB（誤り）：各ディレクティブはここに記載されたメモリー・PDB数・UNDO量を直接指定するものではない。\nC（正しい）：CDB配下のPDBごとにCPUの相対分配、CPU使用上限、並列実行サーバー使用上限を制御する。\nD（誤り）：各ディレクティブの対象リソースの取り違え。",
+      "topic": "上限ディレクティブ",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q021",
+      "chapter": 29,
+      "question": "CDBのリソースプランでPDB_AとPDB_Bのディレクティブを明示した。その後PDB_Cを新規作成し、個別のディレクティブを設定しなかった。PDB_Cに適用されるものはどれか。",
+      "choices": {
+        "A": "既存PDB_Aのsharesを自動コピーして、明示設定として適用する。",
+        "B": "PDB_BのCPU利用率が最低であれば、その利用率をPDB_Cの上限として設定する。",
+        "C": "PDB_Cは個別ディレクティブがない限りリソースをまったく使用できない。",
+        "D": "ORA$DEFAULT_PDB_DIRECTIVEの設定がPDB_Cに適用される。"
+      },
+      "correctChoice": "D",
+      "correctText": "ORA$DEFAULT_PDB_DIRECTIVEの設定がPDB_Cに適用される。",
+      "explanation": "正解：D\n\nA（誤り）：既存PDBの個別ディレクティブを自動複製するわけではない。\nB（誤り）：利用率の計測値から他PDBの上限を自動コピーする仕組みではない。\nC（誤り）：デフォルトディレクティブがあるため、未定義でもリソース利用が不可能になるわけではない。\nD（正しい）：未定義PDBにはCDBプラン内のデフォルトPDBディレクティブが適用される。",
+      "topic": "デフォルトディレクティブ",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q022",
+      "chapter": 29,
+      "question": "PDB_Aにリソースプランを作成してRESOURCE_MANAGER_PLANへ設定したが、CDBルートではRESOURCE_MANAGER_PLANを設定していない。教材の構成を前提に、適切な判断はどれか。",
+      "choices": {
+        "A": "CDBレベルのプランを有効にしていないため、PDB間配分など意図した二階層の制御が行われない。",
+        "B": "PDB_Aの設定を行った時点で、CDBルートのRESOURCE_MANAGER_PLANには自動的に同名プランが設定される。",
+        "C": "CDBレベルのプラン未設定でも、PDB間のshares・utilization_limitの値が必ず自動生成される。",
+        "D": "PDB_AでRESOURCE_MANAGER_PLANを指定すると、CDBの全PDBへ同じプランが継承される。"
+      },
+      "correctChoice": "A",
+      "correctText": "CDBレベルのプランを有効にしていないため、PDB間配分など意図した二階層の制御が行われない。",
+      "explanation": "正解：A\n\nA（正しい）：CDB側とPDB側のプランは異なる階層の制御を担当し、CDBのプランを有効化しなければCDB側のPDB間制御は機能しない。\nB（誤り）：PDBのプラン名からCDB側のプランを自動設定しない。\nC（誤り）：CDBレベルのディレクティブはCDBプラン内に定義するもので、PDBレベル設定だけでは発生しない。\nD（誤り）：PDBリソースプランは対象PDBのコンシューマグループを制御し、他PDBのプランを自動上書きしない。",
+      "topic": "PDB Resource Manager設定",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q023",
+      "chapter": 29,
+      "question": "PDBにユーザー定義サービスを追加したい。シングルインスタンス構成とRAC構成の操作として適切な組み合わせはどれか。",
+      "choices": {
+        "A": "シングルインスタンスではsrvctlのみ、RACではDBMS_SERVICEのみを使用する。",
+        "B": "シングルインスタンスではDBMS_SERVICE、RACではsrvctlを使用する。",
+        "C": "どちらの構成でも、PDBの新規サービスはALTER SESSION SET CONTAINERで作成される。",
+        "D": "どちらの構成でも、サービス作成はPDBのSAVE STATEを実行すれば完了する。"
+      },
+      "correctChoice": "B",
+      "correctText": "シングルインスタンスではDBMS_SERVICE、RACではsrvctlを使用する。",
+      "explanation": "正解：B\n\nA（誤り）：シングルとRACのサービス管理手段を取り違えている。\nB（正しい）：非RACのサービス管理ではDBMS_SERVICE、RAC環境ではsrvctlでサービスを管理する。\nC（誤り）：ALTER SESSION SET CONTAINERは接続先を変更する操作で、サービスを作成しない。\nD（誤り）：SAVE STATEはPDBのOPEN状態を保存し、サービスの新規作成ではない。",
+      "topic": "PDBサービス作成",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q024",
+      "chapter": 29,
+      "question": "CDB内にPDB1・PDB2がある。各PDBで障害が発生した場合のアラートログの格納について適切なのはどれか。",
+      "choices": {
+        "A": "PDBごとに独立したインスタンスADRホームが必ず作成され、その中のアラートログだけに記録される。",
+        "B": "障害のあるPDBのUNDO表領域内に専用アラートログが記録される。",
+        "C": "CDB単位の診断リポジトリに記録され、各PDBの診断情報はCDBのアラートログから確認できる。",
+        "D": "CDBルートから各PDBに接続するときだけアラートログが作成される。"
+      },
+      "correctChoice": "C",
+      "correctText": "CDB単位の診断リポジトリに記録され、各PDBの診断情報はCDBのアラートログから確認できる。",
+      "explanation": "正解：C\n\nA（誤り）：PDBは独立したインスタンスを持たず、CDB単位でADR/アラートログを管理する。\nB（誤り）：UNDO表領域は変更前データ等の管理用途であり、アラートログの格納先ではない。\nC（正しい）：各PDBの診断イベントはCDBで管理するアラートログ等に記録される。\nD（誤り）：アラートログはインスタンスの診断情報を記録するもので、ログオンのたびに新規作成するわけではない。",
+      "topic": "ADRとPDB",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch29q025",
+      "chapter": 29,
+      "question": "CDBで自動メモリー管理は使用せず、PDB1に対してSGA_TARGETとSGA_MIN_SIZEを設定する。これら2つのパラメータの説明として正しいものを2つ選べ。",
+      "choices": {
+        "A": "SGA_MIN_SIZEはPDB1専用のSGAを新たに確保し、PDB1だけが使う別インスタンスを構築する。",
+        "B": "SGA_TARGETはPDB1が使用できるSGAの最大サイズに関する制御である。",
+        "C": "SGA_TARGETはPDB1が使用するSGAの最低保証値であり、SGA_MIN_SIZEがその上限値である。",
+        "D": "SGA_MIN_SIZEはPDB1に割り当てが保証される最小SGAサイズに関する制御である。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "SGA_TARGETはPDB1が使用できるSGAの最大サイズに関する制御である。、SGA_MIN_SIZEはPDB1に割り当てが保証される最小SGAサイズに関する制御である。",
+      "explanation": "正解：B、D\n\nA（誤り）：インスタンスのSGA自体はCDB内で共有され、PDBの初期化パラメータが別インスタンスを生成するわけではない。\nB（正しい）：PDB用SGA_TARGETは共有SGAの中で対象PDBの使用量上限を制限する。\nC（誤り）：SGA_TARGETは上限、SGA_MIN_SIZEは下限という役割であり、逆ではない。\nD（正しい）：SGA_MIN_SIZEは負荷が発生しても対象PDBに保証するSGA容量の下限を指定する。設定にはCDB側との比率制約がある。",
+      "topic": "PDBメモリー関連の初期化パラメータ",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch29q026",
+      "chapter": 29,
+      "question": "PDB1のメモリー制御でDB_CACHE_SIZE、SHARED_POOL_SIZE、PGA_AGGREGATE_LIMITを設定する。機能と適用の説明として正しいものを2つ選べ。",
+      "choices": {
+        "A": "DB_CACHE_SIZEはPDB1のバッファキャッシュ領域の最大サイズを設定する。",
+        "B": "SHARED_POOL_SIZEはPDB1に割り当てが保証される共有プールの最小サイズに関する制御である。",
+        "C": "PGA_AGGREGATE_LIMITはPDB1へ必ず割り当てられるPGAの最小サイズに関する制御である。",
+        "D": "PGA_AGGREGATE_LIMITはPDB1で利用できるPGA総量の上限に関する制御である。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "SHARED_POOL_SIZEはPDB1に割り当てが保証される共有プールの最小サイズに関する制御である。、PGA_AGGREGATE_LIMITはPDB1で利用できるPGA総量の上限に関する制御である。",
+      "explanation": "正解：B、D\n\nA（誤り）：PDBのDB_CACHE_SIZEは、使用するバッファキャッシュの下限に関する制御であり、最大サイズを直接指定するパラメータではない。\nB（正しい）：SHARED_POOL_SIZEは対象PDBに保証される共有プールの最小サイズを管理する。\nC（誤り）：PGAの下限保証ではなく、PGA_AGGREGATE_LIMITは最大利用量を制限するパラメータである。\nD（正しい）：PGA_AGGREGATE_LIMITはPDBのPGA使用の上限であり、他のPDBと共有するインスタンス内で制約を掛ける。",
+      "topic": "PDBメモリー制御の上限と下限",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "chapter": 28,
+      "question": "CDBルートで以下を設定した。\nDB_CREATE_FILE_DEST = +DATA\nPDB_FILE_NAME_CONVERT = ('/seed/','/fallback/')\nこの状態でシードからPDBを作成する際、CREATE PLUGGABLE DATABASE文にCREATE_FILE_DEST='+FAST'を指定し、FILE_NAME_CONVERT句は省略した。新PDBのファイル配置について最も適切なのはどれか。",
+      "choices": {
+        "A": "CREATE_FILE_DESTの+FASTが優先され、PDB固有のOMF配置先として使用される。",
+        "B": "DB_CREATE_FILE_DESTの+DATAが優先され、CREATE_FILE_DESTは無視される。",
+        "C": "PDB_FILE_NAME_CONVERTが優先され、/fallback/へファイルが作成される。",
+        "D": "CREATE_FILE_DESTとDB_CREATE_FILE_DESTが同時指定されたため、PDBは作成できない。"
+      },
+      "correctChoice": "A",
+      "correctText": "CREATE_FILE_DESTの+FASTが優先され、PDB固有のOMF配置先として使用される。",
+      "explanation": "正解：A\n\nA（正しい）：CREATE文のCREATE_FILE_DESTは、文にFILE_NAME_CONVERTがなければDB_CREATE_FILE_DESTやPDB_FILE_NAME_CONVERTより優先してOMF配置先を定める。\nB（誤り）：DB_CREATE_FILE_DESTはCREATE_FILE_DESTが指定されない場合に使用されるデフォルトであり、明示的なPDB用指定を上書きしない。\nC（誤り）：PDB_FILE_NAME_CONVERTはOMFでの明示的／デフォルト配置先が優先する場合には採用されない。\nD（誤り）：両者はPDB固有指定とCDBデフォルトの関係であり、併存だけを理由にSQLが失敗するわけではない。",
+      "topic": "ファイル配置の優先順位",
+      "difficulty": "hard",
+      "id": "ch28q025"
+    },
+    {
+      "chapter": 28,
+      "question": "アンプラグしたPDBを新CDBへプラグする。ユーザー表領域SALESのみ取り込み、そのデータファイルを新しい場所へ移動したい。SYSTEMおよびSYSAUXは引き続き利用できる必要がある。適切な説明を2つ選べ。",
+      "choices": {
+        "A": "USER_TABLESPACES=(SALES)により、ユーザー表領域の取り込み対象をSALESに限定できる。",
+        "B": "USER_TABLESPACES=(SALES)によりSYSTEMおよびSYSAUXも除外され、別途CREATE TABLESPACEが必要になる。",
+        "C": "USER_TABLESPACES=(SALES) MOVEは、選択したユーザー表領域のデータファイルを移動する指定に使える。",
+        "D": "USER_TABLESPACES=(SALES) NOCOPYは、SALESのファイルを必ず新しいパスへ移動する指定である。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "USER_TABLESPACES=(SALES)により、ユーザー表領域の取り込み対象をSALESに限定できる。、USER_TABLESPACES=(SALES) MOVEは、選択したユーザー表領域のデータファイルを移動する指定に使える。",
+      "explanation": "正解：A、C\n\nA（正しい）：USER_TABLESPACESはSYSTEM等を除いたユーザー表領域の取り込み範囲を限定する。\nB（誤り）：SYSTEM/SYSAUXなどPDBの必須表領域をUSER_TABLESPACESで除外することはできない。\nC（正しい）：MOVEは元ファイルを新しい配置先へ移動する方式であり、指定されたユーザー表領域について使用できる。\nD（誤り）：NOCOPYは既存ファイルをその場所で利用する方式であり、移動とは異なる。",
+      "topic": "USER_TABLESPACESとファイル操作",
+      "difficulty": "hard",
+      "id": "ch28q026",
+      "multiple": true
+    },
+    {
+      "chapter": 28,
+      "question": "CDB_A上のPDB_APPをCDB_Bへ再配置する。オンライン再配置の前提を満たし、複製処理が終わった後もCDB_A側で接続を受け付けている。切替に関する記述として正しいものはどれか。",
+      "choices": {
+        "A": "複製処理の完了と同時に、移動元PDBは移動先のOPENとは無関係に必ず削除される。",
+        "B": "移動先PDBをOPENした時点で切替処理が進み、移動元PDBはその段階で削除される。",
+        "C": "移動元PDBをUNPLUGしてXMLを出力するまでは移動先PDBをOPENできない。",
+        "D": "移動先PDBをOPENしても移動元PDBを明示的にUNREGISTER DATABASEしなければ削除されない。"
+      },
+      "correctChoice": "B",
+      "correctText": "移動先PDBをOPENした時点で切替処理が進み、移動元PDBはその段階で削除される。",
+      "explanation": "正解：B\n\nA（誤り）：オンライン再配置では移動元の削除はデータコピー完了だけではなく移動先のOPENに連動する。\nB（正しい）：再配置の切替は移動先PDBのOPENと結びついており、そこで移動元の削除が行われる。\nC（誤り）：再配置はUNPLUG/PLUGを手作業で組み合わせる方式ではなく、オンラインの同期を伴う。\nD（誤り）：UNREGISTER DATABASEはRMANリカバリカタログの登録解除であり、PDBの再配置切替を行うコマンドではない。",
+      "topic": "PDB再配置の切替時点",
+      "difficulty": "hard",
+      "id": "ch28q027"
+    },
+    {
+      "chapter": 28,
+      "question": "別CDBからアンプラグしたPDBのXMLを使用し、CREATE PLUGGABLE DATABASE PDB_APP USING ... NOCOPYを正常終了した。対象データファイルは接続先からアクセス可能である。次に必要な操作として適切なのはどれか。",
+      "choices": {
+        "A": "PDBの登録は完了したので、既定ではREAD WRITEでOPEN済みである。",
+        "B": "接続したPDBに対してALTER PLUGGABLE DATABASE OPENを実行し、利用可能な状態にする。",
+        "C": "同じXMLを使ってCREATE PLUGGABLE DATABASEを再度実行しないとデータディクショナリが有効にならない。",
+        "D": "接続先CDBをNOMOUNTに戻し、CREATE CONTROLFILEを実行してPDBをOPENする。"
+      },
+      "correctChoice": "B",
+      "correctText": "接続したPDBに対してALTER PLUGGABLE DATABASE OPENを実行し、利用可能な状態にする。",
+      "explanation": "正解：B\n\nA（誤り）：CREATE PLUGGABLE DATABASEはプラグ処理を完了するが、新規作成PDBは原則MOUNTEDであり自動的にOPENしない。\nB（正しい）：登録したPDBを利用開始するにはOPEN操作が必要である。\nC（誤り）：同じPDBを再登録する必要はなく、むしろ同名のPDBが既にあるため再実行は適切ではない。\nD（誤り）：制御ファイルはCDB全体で管理され、PDBをOPENするために再作成するものではない。",
+      "topic": "PDBプラグ後の状態",
+      "difficulty": "hard",
+      "id": "ch28q028"
+    },
+    {
+      "chapter": 28,
+      "question": "異なるCDBにPDBを移す。XMLアンプラグ方式と.pdbアーカイブ方式について、運用上の違いを2つ選べ。",
+      "choices": {
+        "A": "XML方式の成果物は主にメタデータであり、データファイル等を別途接続先から利用可能にする必要がある。",
+        "B": "XML方式ではCREATE PLUGGABLE DATABASE USINGの後に必ずRMAN DUPLICATEを実行する。",
+        "C": ".pdbアーカイブにはPDBの接続に必要なメタデータと関連ファイルをまとめて格納できる。",
+        "D": ".pdbアーカイブ方式はXML方式と異なり、接続先でPDBをOPENする操作が不要である。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "XML方式の成果物は主にメタデータであり、データファイル等を別途接続先から利用可能にする必要がある。、.pdbアーカイブにはPDBの接続に必要なメタデータと関連ファイルをまとめて格納できる。",
+      "explanation": "正解：A、C\n\nA（正しい）：UNPLUG INTOで生成されるXMLはメタデータであり、データファイル等を別途移動・共有する必要がある。\nB（誤り）：XMLでのプラグはRMAN DUPLICATEではなくCREATE PLUGGABLE DATABASE USINGによって実行する。\nC（正しい）：PDBアーカイブはXMLメタデータとデータファイル等をパッケージ化して運搬できる。\nD（誤り）：アーカイブ形式でもプラグ後のPDBは利用開始のためOPENが必要である。",
+      "topic": "XMLとPDBアーカイブ",
+      "difficulty": "hard",
+      "id": "ch28q029",
+      "multiple": true
+    },
+    {
+      "chapter": 28,
+      "question": "管理者はDBCAを利用してマルチテナント構成を複製したい。DBCAのモードと対象範囲の関係について正しいものを2つ選べ。",
+      "choices": {
+        "A": "DBCAのサイレントモードにはCDB全体を複製する機能がある。",
+        "B": "DBCAの対話型モードは、別CDBのPDBをリモートクローンする専用モードである。",
+        "C": "CDB全体をDBCAのサイレントモードで複製する場合、RMAN DUPLICATEと同一の補助インスタンスを管理者が事前に必ず準備する。",
+        "D": "DBCAのリモートPDBクローンはサイレントモードで実行する機能として提供される。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "DBCAのサイレントモードにはCDB全体を複製する機能がある。、DBCAのリモートPDBクローンはサイレントモードで実行する機能として提供される。",
+      "explanation": "正解：A、D\n\nA（正しい）：DBCAはサイレントモードでCDB全体の複製に対応している。\nB（誤り）：リモートPDBクローンはDBCAの対話型だけに限定されず、教材ではサイレントモードが対象となる。\nC（誤り）：DBCAによるCDB複製はRMAN DUPLICATEの操作をそのまま手作業で準備する方式ではない。\nD（正しい）：別CDBからのPDB複製はDBCAのサイレントモードで扱われる。",
+      "topic": "DBCAによるCDB全体の複製",
+      "difficulty": "hard",
+      "id": "ch28q030",
+      "multiple": true
+    },
+    {
+      "chapter": 28,
+      "question": "Oracle 19cのCDBへ、別サーバーにある非CDBをリモートクローンで取り込みたい。元の非CDBはNOARCHIVELOGモードである。実行条件と手順について適切なものを2つ選べ。",
+      "choices": {
+        "A": "複製元の非CDBはREAD ONLYでOPENする必要がある。",
+        "B": "複製元の非CDBがNOARCHIVELOGでも、READ WRITEでOPENしたままホットクローンできる。",
+        "C": "複製先でCREATE PLUGGABLE DATABASE ... FROM 非CDB@DBリンクを実行し、変換用noncdb_to_pdb.sqlを新PDBで実行する。",
+        "D": "複製先でDBMS_PDB.DESCRIBEを実行してXMLを作成し、そのXMLだけでリモート複製する。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "複製元の非CDBはREAD ONLYでOPENする必要がある。、複製先でCREATE PLUGGABLE DATABASE ... FROM 非CDB@DBリンクを実行し、変換用noncdb_to_pdb.sqlを新PDBで実行する。",
+      "explanation": "正解：A、C\n\nA（正しい）：NOARCHIVELOGの場合、変更中のデータを整合させるためのアーカイブログが利用できないためREAD ONLYが必要である。\nB（誤り）：READ WRITEのホットクローンにはローカルUNDOとARCHIVELOGなどの前提があり、NOARCHIVELOGでは成立しない。\nC（正しい）：DBリンクによるFROMの構文でリモート複製し、非CDBからPDBへの辞書変換を対象PDB内で行う。\nD（誤り）：DESCRIBEは非CDBをXML方式で接続する場合の手順であり、DBリンクを使うリモートクローンそのものとは別方式である。",
+      "topic": "非CDBからのリモート複製",
+      "difficulty": "hard",
+      "id": "ch28q031",
+      "multiple": true
+    },
+    {
+      "chapter": 28,
+      "question": "PDBをXMLでアンプラグした後、XML中のデータファイルの記載パスと、プラグ前に実際に配置したファイルのパスが異なっている。既に配置したファイルを移動せずに使用する場合に適切なのはどれか。",
+      "choices": {
+        "A": "FILE_NAME_CONVERTでPDB内の既存ファイルを移動し、SOURCE_FILE_NAME_CONVERTは利用しない。",
+        "B": "CREATE_FILE_DESTでXMLに記載された元ファイルの場所を指定し、NOCOPYで必ず新しいファイルを作成する。",
+        "C": "SOURCE_FILE_NAME_CONVERTでXMLの記載名と実ファイルの所在を対応づけ、NOCOPYを併用する。",
+        "D": "PDB_FILE_NAME_CONVERTだけを設定し、XMLに記載されたファイルの場所は考慮しない。"
+      },
+      "correctChoice": "C",
+      "correctText": "SOURCE_FILE_NAME_CONVERTでXMLの記載名と実ファイルの所在を対応づけ、NOCOPYを併用する。",
+      "explanation": "正解：C\n\nA（誤り）：FILE_NAME_CONVERTは主にコピー／移動後の出力ファイル名を変換する目的で、XML記載のソース名と現在の配置のずれを埋めるSOURCE_FILE_NAME_CONVERTとは異なる。\nB（誤り）：CREATE_FILE_DESTは出力先のOMF配置指定であり、NOCOPYによりファイルを新規生成するわけではない。\nC（正しい）：SOURCE_FILE_NAME_CONVERTはXMLで記載されたソース名と実在するファイル名のずれを解決でき、NOCOPYなら配置済みファイルをそのまま用いる。\nD（誤り）：PDB_FILE_NAME_CONVERTは入力XMLのソースファイルパスの再マッピングを常に代替するものではない。",
+      "topic": "PDBファイル名の変換",
+      "difficulty": "hard",
+      "id": "ch28q032"
+    },
+    {
+      "chapter": 28,
+      "question": "READ WRITEで稼働中のPDB_SRCを複製したい。ローカルUNDOは有効だが、CDBはNOARCHIVELOGモードである。この環境でクローン元PDBについて適切なものはどれか。",
+      "choices": {
+        "A": "ローカルUNDOが有効ならNOARCHIVELOGでもREAD WRITEのままホットクローンできる。",
+        "B": "NOARCHIVELOGではREAD WRITEクローンの要件を満たさないため、複製元をREAD ONLYでOPENしてコールドクローンする。",
+        "C": "NOARCHIVELOGではPDB自体を一切クローンできず、CDB全体の複製だけが可能である。",
+        "D": "複製元をMOUNTEDにすれば、ARCHIVELOGの要件を回避してホットクローンできる。"
+      },
+      "correctChoice": "B",
+      "correctText": "NOARCHIVELOGではREAD WRITEクローンの要件を満たさないため、複製元をREAD ONLYでOPENしてコールドクローンする。",
+      "explanation": "正解：B\n\nA（誤り）：ホットクローンはローカルUNDOに加えてARCHIVELOGも条件となり、UNDOだけでは足りない。\nB（正しい）：NOARCHIVELOG構成でのクローンには変更が発生しないREAD ONLYの複製元が必要となる。\nC（誤り）：NOARCHIVELOGでもREAD ONLYによるクローンは可能である。\nD（誤り）：クローン元はOPENしている必要があり、MOUNTEDはREAD WRITEの代替条件にならない。",
+      "topic": "PDB複製元と開放状態",
+      "difficulty": "hard",
+      "id": "ch28q033"
+    },
+    {
+      "chapter": 28,
+      "question": "CREATE PLUGGABLE DATABASEでPDB_TESTを作成する処理が途中で失敗し、DBA_PDBSのSTATUSがUNUSABLEになった。修正して同名で作り直す際の適切な対応はどれか。",
+      "choices": {
+        "A": "UNUSABLEのPDBをALTER PLUGGABLE DATABASE OPEN READ WRITEで再利用可能にする。",
+        "B": "UNUSABLEのPDBをいったんDROPしてから、原因を修正して同名で作り直す。",
+        "C": "ALTER PLUGGABLE DATABASE SAVE STATEで状態を正常化してから同名のCREATEを再実行する。",
+        "D": "既存PDBをUNPLUGしてXMLを作成すれば、UNUSABLEであってもそのまま同名PDBにプラグできる。"
+      },
+      "correctChoice": "B",
+      "correctText": "UNUSABLEのPDBをいったんDROPしてから、原因を修正して同名で作り直す。",
+      "explanation": "正解：B\n\nA（誤り）：UNUSABLEは作成処理を完了できなかったPDBの状態であり、OPENだけでは正常化できない。\nB（正しい）：作成失敗によるUNUSABLEのPDBは削除してから同名で再作成する。\nC（誤り）：SAVE STATEはPDBのOPENモードを起動後に復元するためのもので、作成失敗の修復機能ではない。\nD（誤り）：UNUSABLEのPDBは単にメタデータをアンプラグして再利用できる状態ではない。",
+      "topic": "PDB新規作成の障害",
+      "difficulty": "hard",
+      "id": "ch28q034"
+    },
+    {
+      "chapter": 29,
+      "question": "PDB_APPに未コミットの更新を行うセッションがある。管理者は既存接続の終了を待たずにPDBをクローズしたいが、次回OPEN時のインスタンスリカバリを避けたい。適切な操作はどれか。",
+      "choices": {
+        "A": "ALTER PLUGGABLE DATABASE PDB_APP CLOSE;",
+        "B": "ALTER PLUGGABLE DATABASE PDB_APP CLOSE IMMEDIATE;",
+        "C": "ALTER PLUGGABLE DATABASE PDB_APP CLOSE ABORT;",
+        "D": "ALTER PLUGGABLE DATABASE PDB_APP SAVE STATE;"
+      },
+      "correctChoice": "B",
+      "correctText": "ALTER PLUGGABLE DATABASE PDB_APP CLOSE IMMEDIATE;",
+      "explanation": "正解：B\n\nA（誤り）：オプションを省略した通常クローズでは接続終了を待つため要件を満たさない。\nB（正しい）：IMMEDIATEはセッションを切断し未完了トランザクションをロールバックして正常にクローズする。\nC（誤り）：ABORTは強制的にクローズするためチェックポイントを行わず、次回OPEN時の回復が必要になる場合がある。\nD（誤り）：SAVE STATEは次回起動時のOPENモード保存であって、その場でのセッション切断ではない。",
+      "topic": "PDB CLOSEモード",
+      "difficulty": "hard",
+      "id": "ch29q027"
+    },
+    {
+      "chapter": 29,
+      "question": "CDBルートでPDB変更可能なパラメータXを値100に設定した。その後PDB_AでX=60を個別設定した。続いてルートでX=150に変更し、PDB_Aの個別設定は解除していない。Xの有効値として適切なのはどれか。",
+      "choices": {
+        "A": "PDB_Aは150、個別設定がないPDB_Bは150。",
+        "B": "PDB_Aは60、個別設定がないPDB_Bは150。",
+        "C": "PDB_Aは60、個別設定がないPDB_Bは100。",
+        "D": "PDB_AもPDB_Bも60。"
+      },
+      "correctChoice": "B",
+      "correctText": "PDB_Aは60、個別設定がないPDB_Bは150。",
+      "explanation": "正解：B\n\nA（誤り）：ルートの変更は個別設定を持たないPDBに継承されるが、既存のPDB個別設定まで上書きしない。\nB（正しい）：PDB_Aは自身の個別値60が優先され、PDB_Bには新しいルート値150が継承される。\nC（誤り）：PDB_Bは独自設定がないため変更前の100を固定するわけではない。\nD（誤り）：PDB_Aの個別設定は他のPDBへ伝播せず、PDB_Bに60は適用されない。",
+      "topic": "パラメータ継承と優先順位",
+      "difficulty": "hard",
+      "id": "ch29q028"
+    },
+    {
+      "chapter": 29,
+      "question": "共通ユーザーがPDB_AでUPDATEを実行して未コミットのままPDB_Bに切り替えた。PDB_Bで別表にUPDATEを実行しようとしている。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "元のPDB_Aのトランザクションは、コンテナ切替時点で自動コミットされている。",
+        "B": "PDB_Bでは未完了のPDB_Aのトランザクションを持つため、DMLやCOMMITなどのトランザクション操作を実行できない。",
+        "C": "PDB_Aへ戻れば、保留されていた未完了トランザクションの処理を継続できる。",
+        "D": "PDB_BでCOMMITすればPDB_Aの未完了トランザクションも正常に確定する。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "PDB_Bでは未完了のPDB_Aのトランザクションを持つため、DMLやCOMMITなどのトランザクション操作を実行できない。、PDB_Aへ戻れば、保留されていた未完了トランザクションの処理を継続できる。",
+      "explanation": "正解：B、C\n\nA（誤り）：ALTER SESSION SET CONTAINERは元のトランザクションを暗黙的にコミットしない。\nB（正しい）：トランザクションを複数コンテナにまたがって実行できないため、元のコンテナへ戻るまでDMLなどを制限される。\nC（正しい）：切り替え時にトランザクションは保留され、元コンテナに戻れば再開できる。\nD（誤り）：別PDBでのCOMMITにより元PDBのトランザクションを跨いで確定させることはできない。",
+      "topic": "トランザクションとコンテナ切替",
+      "difficulty": "hard",
+      "id": "ch29q029",
+      "multiple": true
+    },
+    {
+      "chapter": 29,
+      "question": "共有UNDOで運用しているCDBの各PDBをローカルUNDOへ変更する。正しい手順を2つ選べ。",
+      "choices": {
+        "A": "CDBを正常停止し、STARTUP UPGRADEで起動する。",
+        "B": "各PDBでALTER DATABASE LOCAL UNDO ONを実行すれば、CDBルートは共有UNDOのままでよい。",
+        "C": "CDBルートでALTER DATABASE LOCAL UNDO ONを実行し、再起動する。",
+        "D": "CDBをOPEN READ WRITEのまま、各PDBに異なるUNDOモードを割り当てる。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "CDBを正常停止し、STARTUP UPGRADEで起動する。、CDBルートでALTER DATABASE LOCAL UNDO ONを実行し、再起動する。",
+      "explanation": "正解：A、C\n\nA（正しい）：UNDOモードの切替はCDB単位で行い、UPGRADEモードでの起動が必要である。\nB（誤り）：ローカル／共有UNDOを同じCDB内のPDBごとに混在設定することはできない。\nC（正しい）：CDBルートでLOCAL UNDOを変更して再起動すると、PDB用UNDOの構成が反映される。\nD（誤り）：運用中の各PDBに別々のUNDOモードを割り当てる仕組みではない。",
+      "topic": "ローカルUNDOへの切替",
+      "difficulty": "hard",
+      "id": "ch29q030",
+      "multiple": true
+    },
+    {
+      "chapter": 29,
+      "question": "PDB_AでSGA_TARGET=2G、SGA_MIN_SIZE=3Gを設定しようとしている。PDB別SGA制御の意味から適切な判断はどれか。",
+      "choices": {
+        "A": "SGA_TARGETはPDB専用SGAを新たに確保する値なのでSGA_MIN_SIZEより小さくても問題ない。",
+        "B": "SGA_MIN_SIZEはPDB使用SGAの下限、SGA_TARGETは上限に関する値なので、下限が上限を上回る指定は不整合である。",
+        "C": "SGA_MIN_SIZEはPDBのPGA上限を設定するため、SGA_TARGETとの大小関係に制約はない。",
+        "D": "SGA_TARGETとSGA_MIN_SIZEはどちらもCDB全体の共有プールだけに適用されるため、PDBごとの関係はない。"
+      },
+      "correctChoice": "B",
+      "correctText": "SGA_MIN_SIZEはPDB使用SGAの下限、SGA_TARGETは上限に関する値なので、下限が上限を上回る指定は不整合である。",
+      "explanation": "正解：B\n\nA（誤り）：SGA_TARGETとSGA_MIN_SIZEはいずれもPDBが共有SGAを使う際の制約であり、別SGAの作成ではない。\nB（正しい）：最小保証と最大利用を同じPDBに設定する場合、最小値が最大値より大きくなることはできない。\nC（誤り）：SGA_MIN_SIZEはSGAの最小値に関するパラメータであり、PGAの上限はPGA_AGGREGATE_LIMITなどで制御する。\nD（誤り）：PDB単位で変更可能なメモリーパラメータであり、共有プールだけにしか関係しないわけではない。",
+      "topic": "メモリー上限と下限の整合",
+      "difficulty": "hard",
+      "id": "ch29q031"
+    },
+    {
+      "chapter": 29,
+      "question": "PDB_APPのMAX_PDB_SNAPSHOTS=3である。手動スナップショットを3つ作成し、さらに4つ目を取得した。保存済みスナップショットの扱いとして適切なのはどれか。",
+      "choices": {
+        "A": "4つ目の作成は容量に関係なく失敗し、古い3つは保持される。",
+        "B": "4つ目の作成に伴い、最も古いスナップショットが削除される。",
+        "C": "4つ目の作成に伴い、最も新しいスナップショットが削除される。",
+        "D": "自動取得でない限りMAX_PDB_SNAPSHOTSは制限として機能せず、4つとも保持される。"
+      },
+      "correctChoice": "B",
+      "correctText": "4つ目の作成に伴い、最も古いスナップショットが削除される。",
+      "explanation": "正解：B\n\nA（誤り）：スナップショットカルーセルは上限到達後に最古のスナップショットを置き換えられる。\nB（正しい）：スナップショットの上限を超えて追加すると、古いものから削除されて上限が維持される。\nC（誤り）：新規に取得したスナップショットではなく、履歴中で最も古いものが削除対象である。\nD（誤り）：上限は手動・自動スナップショットを含むカルーセル全体に適用される。",
+      "topic": "スナップショットカルーセル",
+      "difficulty": "hard",
+      "id": "ch29q032"
+    },
+    {
+      "chapter": 29,
+      "question": "PDB_SRCのスナップショットコピー方式でPDB_CLONEを作成した。PDB_CLONEはスパースな差分データを保持している。元PDB_SRCの削除について適切なのはどれか。",
+      "choices": {
+        "A": "差分だけのコピーなのでPDB_SRCを直ちに削除でき、PDB_CLONEは元データなしで動作する。",
+        "B": "PDB_CLONEが存在する間は元PDB_SRCのデータファイルに依存するため、元PDBを削除できない。",
+        "C": "PDB_CLONEがREAD ONLYであれば元PDB_SRCを削除できるが、READ WRITEでは削除できない。",
+        "D": "元PDB_SRCのSAVE STATEを解除すればPDB_CLONEの依存が解消され削除できる。"
+      },
+      "correctChoice": "B",
+      "correctText": "PDB_CLONEが存在する間は元PDB_SRCのデータファイルに依存するため、元PDBを削除できない。",
+      "explanation": "正解：B\n\nA（誤り）：スナップショットコピーは元のファイルを参照するため、独立した完全コピーではない。\nB（正しい）：複製先が元のデータファイルを参照するので、元PDBの削除は制限される。\nC（誤り）：元ファイルへの依存はOPENモードではなくコピー方式に基づく。\nD（誤り）：SAVE STATEはPDBの起動状態の保存であり、ファイル参照関係を解消するものではない。",
+      "topic": "スナップショットコピーの依存関係",
+      "difficulty": "hard",
+      "id": "ch29q033"
+    },
+    {
+      "chapter": 29,
+      "question": "CDBにはPDB_AとPDB_Bがある。各PDBの自動メンテナンスタスクを個別に管理したい。PDB_Bだけ自動オプティマイザ統計収集を含む自動メンテナンスを止めたい場合の適切な操作はどれか。",
+      "choices": {
+        "A": "PDB_BでENABLE_AUTOMATIC_MAINTENANCE_PDB=FALSEを設定する。",
+        "B": "CDBルートでENABLE_AUTOMATIC_MAINTENANCE_PDB=FALSEにすると、PDB_Bだけが停止する。",
+        "C": "PDB_BでDBMS_STATS.GATHER_DATABASE_STATSを実行すると、以後の自動メンテナンスが停止する。",
+        "D": "PDB_AでRESOURCE_MANAGER_PLANをNULLにすると、PDB_Bの統計収集が停止する。"
+      },
+      "correctChoice": "A",
+      "correctText": "PDB_BでENABLE_AUTOMATIC_MAINTENANCE_PDB=FALSEを設定する。",
+      "explanation": "正解：A\n\nA（正しい）：PDBの自動メンテナンスタスクを無効化するためにPDB側のENABLE_AUTOMATIC_MAINTENANCE_PDBを変更する。\nB（誤り）：CDBルート側での変更ではPDB_Bのみを対象にした変更にはならない。\nC（誤り）：DBMS_STATS.GATHER_DATABASE_STATSは手動で統計を収集する処理であり、スケジュールの無効化ではない。\nD（誤り）：RESOURCE_MANAGER_PLANはリソース配分の設定であり、他PDBの自動統計収集を停止する手段ではない。",
+      "topic": "自動オプティマイザ統計",
+      "difficulty": "hard",
+      "id": "ch29q034"
+    },
+    {
+      "chapter": 29,
+      "question": "CDBのリソースプランでは、PDB_Aのshares=1、PDB_Bのshares=3、両者のutilization_limit=100とし、他のPDBは存在しない。双方でCPUを十分に要求する場合の説明として正しいものを2つ選べ。",
+      "choices": {
+        "A": "競合時の相対的なCPU割当は、PDB_Aが約1/4、PDB_Bが約3/4となる考え方である。",
+        "B": "PDB_Bのshares=3はCPU使用率3%の上限を表す。",
+        "C": "PDB_AがCPUを使用しない場合、PDB_Bは他の制限に抵触しなければ割当比率を超えてCPUを利用できる。",
+        "D": "utilization_limit=100を設定しているため、sharesの相対比はまったく参照されない。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "競合時の相対的なCPU割当は、PDB_Aが約1/4、PDB_Bが約3/4となる考え方である。、PDB_AがCPUを使用しない場合、PDB_Bは他の制限に抵触しなければ割当比率を超えてCPUを利用できる。",
+      "explanation": "正解：A、C\n\nA（正しい）：sharesは競合するPDB間の相対重みであり、1対3なら競合時はおおむね1対3で配分する。\nB（誤り）：sharesはCPU使用率の絶対上限ではなく、利用上限を設定するのはutilization_limitである。\nC（正しい）：未使用の割当を他PDBが利用できるため、競合しなければ相対配分より多く利用できる。\nD（誤り）：utilization_limit=100は上限を100%にする意味で、競合時のsharesを無効化しない。",
+      "topic": "Resource Managerの相対割当",
+      "difficulty": "hard",
+      "id": "ch29q035",
+      "multiple": true
+    },
+    {
+      "chapter": 29,
+      "question": "CDBリソースプランでPDB_Aのparallel_server_limit=30、shares=2に設定した。並列実行サーバーが十分に要求されるときの動作として正しいものはどれか。",
+      "choices": {
+        "A": "shares=2はPDB_Aの並列実行サーバーを常にちょうど2個に固定する。",
+        "B": "parallel_server_limit=30はPDB_Aが使用できる並列実行サーバーの割合の上限を指定する。",
+        "C": "parallel_server_limit=30を超えた場合でも、utilization_limit=100なら要求を無制限に実行する。",
+        "D": "parallel_server_limit=30はPDB_AのCPU使用率を最大30%に制限する。"
+      },
+      "correctChoice": "B",
+      "correctText": "parallel_server_limit=30はPDB_Aが使用できる並列実行サーバーの割合の上限を指定する。",
+      "explanation": "正解：B\n\nA（誤り）：sharesは相対的な分配重みであり、実際のサーバープロセスの絶対個数ではない。\nB（正しい）：parallel_server_limitはPDBが利用できる並列実行サーバーの割合の上限であり、超過要求は待機させられる。\nC（誤り）：CPU上限と並列実行サーバーの上限は別の制御であり、CPU上限100が並列制限を解除しない。\nD（誤り）：CPU使用率の上限はutilization_limitが扱い、parallel_server_limitは並列実行サーバーが対象である。",
+      "topic": "並列実行サーバー制御",
+      "difficulty": "hard",
+      "id": "ch29q036"
+    },
+    {
+      "chapter": 29,
+      "question": "CDBリソースプランでPDB_AとPDB_Bにのみ明示的なディレクティブがある。その後PDB_Cを追加したが、まだPDB_Cのディレクティブは登録していない。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "PDB_CにはORA$DEFAULT_PDB_DIRECTIVEで定義される割当が適用される。",
+        "B": "PDB_CにはPDB_Bのsharesが自動的にコピーされる。",
+        "C": "PDB_Cの明示的ディレクティブを作らない限り、CDBリソースプランから完全に除外される。",
+        "D": "デフォルトディレクティブの内容はDBMS_RESOURCE_MANAGER.UPDATE_CDB_DEFAULT_DIRECTIVEで変更できる。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "PDB_CにはORA$DEFAULT_PDB_DIRECTIVEで定義される割当が適用される。、デフォルトディレクティブの内容はDBMS_RESOURCE_MANAGER.UPDATE_CDB_DEFAULT_DIRECTIVEで変更できる。",
+      "explanation": "正解：A、D\n\nA（正しい）：明示されていないPDBにはデフォルトディレクティブが適用される。\nB（誤り）：新規PDBが既存PDBの個別設定を自動継承するわけではない。\nC（誤り）：PDBは明示的な指定がなくてもデフォルトディレクティブに従ってリソース配分の対象となる。\nD（正しい）：デフォルトディレクティブの設定はDBMS_RESOURCE_MANAGERの指定プロシージャで変更できる。",
+      "topic": "デフォルトリソースディレクティブ",
+      "difficulty": "hard",
+      "id": "ch29q037",
+      "multiple": true
+    },
+    {
+      "chapter": 29,
+      "question": "PDB_AでAWRスナップショットを収集し、その後PDB_Aを別のCDBへ移動した。CDBルートとPDBのAWRデータの違いとして正しいものはどれか。",
+      "choices": {
+        "A": "CDBルートで採取したAWRはPDB_A内のSYSAUXに保存され、移動先にもコピーされる。",
+        "B": "PDB_Aで収集したAWRはPDB_AのSYSAUXに格納され、PDB移動後もそのPDBのスナップショットを利用できる。",
+        "C": "PDB_Aで収集したAWRは元CDBルートのSYSAUXのみに格納され、移動後に参照できない。",
+        "D": "CDBとPDBのAWRスナップショットはどちらも常にCDBルートのSYSTEM表領域に保存される。"
+      },
+      "correctChoice": "B",
+      "correctText": "PDB_Aで収集したAWRはPDB_AのSYSAUXに格納され、PDB移動後もそのPDBのスナップショットを利用できる。",
+      "explanation": "正解：B\n\nA（誤り）：CDBレベルのスナップショットはCDBルートのSYSAUXに格納され、PDBのSYSAUXに属さない。\nB（正しい）：PDBレベルのAWRは対象PDBのSYSAUXに保存されるため、PDBと共に移動する。\nC（誤り）：PDBレベルのスナップショットをCDBルート側だけに保存するという理解は誤りである。\nD（誤り）：AWRの保存先はSYSTEMではなくそれぞれのSYSAUXである。",
+      "topic": "AWRの保存とPDB移動",
+      "difficulty": "hard",
+      "id": "ch29q038"
+    },
+    {
+      "chapter": 29,
+      "question": "共通ユーザーがCDBルートでCONTAINERS(APP.ORDERS)を実行する。PDBごとにORDERS表があり、出力をコンテナ別に区別したい。正しいものを2つ選べ。",
+      "choices": {
+        "A": "CONTAINERS句はCDBルートの共通ユーザーから複数コンテナの対象表を問い合わせる用途に使える。",
+        "B": "CONTAINERS句はセッションの接続先を順番に各PDBへ変更し、PDBごとに別々の結果セットを返す。",
+        "C": "CON_IDによって行の属するコンテナを判別でき、対象表がCON_IDを持たない場合も情報が付加される。",
+        "D": "CONTAINERS句で問合せを行うには、全PDBを一つの共有UNDO表領域に切り替える必要がある。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "CONTAINERS句はCDBルートの共通ユーザーから複数コンテナの対象表を問い合わせる用途に使える。、CON_IDによって行の属するコンテナを判別でき、対象表がCON_IDを持たない場合も情報が付加される。",
+      "explanation": "正解：A、C\n\nA（正しい）：共通ユーザーがルートで問い合わせ、該当する複数コンテナの結果を横断的に扱う機能である。\nB（誤り）：CONTAINERS句は各PDBへ接続し直して個別に結果を返すのではなく、統合した結果を返す。\nC（正しい）：結果にコンテナの識別子が付加され、CON_IDによる絞り込みもできる。\nD（誤り）：共有／ローカルUNDOモードはCONTAINERS句の結果集合の仕組みとは別問題である。",
+      "topic": "CONTAINERS句の条件",
+      "difficulty": "hard",
+      "id": "ch29q039",
+      "multiple": true
+    },
+    {
+      "chapter": 29,
+      "question": "PDB_AはREAD ONLY、PDB_BはREAD WRITEでOPENしている。CDBルートでALTER PLUGGABLE DATABASE ALL SAVE STATEを実行し、その後CDBを正常停止して再起動した。保存状態の扱いについて正しいものはどれか。",
+      "choices": {
+        "A": "ALL SAVE STATEは各PDBの現在のOPENモードを保存し、次回起動時に対応するモードでOPENするために使用する。",
+        "B": "ALL SAVE STATEはすべてのPDBをREAD WRITEに変更したうえで、そのモードを保存する。",
+        "C": "SAVE STATEの対象はシードPDBだけであり、通常PDBのOPENモードには影響しない。",
+        "D": "ALL SAVE STATEはセッションの現在状態を保存するため、PDBのOPENモードは保存されない。"
+      },
+      "correctChoice": "A",
+      "correctText": "ALL SAVE STATEは各PDBの現在のOPENモードを保存し、次回起動時に対応するモードでOPENするために使用する。",
+      "explanation": "正解：A\n\nA（正しい）：SAVE STATEは現在のPDBのOPENモードを再起動後に復元する設定である。\nB（誤り）：SAVE STATEはOPENモードを変更する命令ではなく、現在のモードを記憶する。\nC（誤り）：対象はユーザーPDBを含み、シードのみの機能ではない。\nD（誤り）：セッションの状態ではなくPDBの起動時のOPENモードを管理する。",
+      "topic": "PDB OPEN状態の保存",
+      "difficulty": "hard",
+      "id": "ch29q040"
+    },
+    {
+      "id": "ch06q020",
+      "chapter": 6,
+      "question": "日曜にレベル0、月曜と火曜にレベル1差分、さらに水曜にレベル1累積を取得した。木曜未明にデータファイルが失われた。取得した全バックアップおよび障害時点までのREDOは利用可能である。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "日曜のレベル0から水曜の累積を適用し、その後のREDOを適用する復旧経路を選択できる。",
+        "B": "水曜の累積を適用する前に、月曜と火曜の差分を適用することが必須である。",
+        "C": "水曜の累積には直近のレベル0以降に変更されたブロックが含まれるため、月曜と火曜の差分を個別に適用しない経路が成立する。",
+        "D": "水曜の累積を取得したため、日曜のレベル0は不要となり水曜の累積だけからリストアできる。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "日曜のレベル0から水曜の累積を適用し、その後のREDOを適用する復旧経路を選択できる。、水曜の累積には直近のレベル0以降に変更されたブロックが含まれるため、月曜と火曜の差分を個別に適用しない経路が成立する。",
+      "explanation": "正解：A、C\n\nA（正しい）：レベル1累積はレベル0を基点として変更をまとめるので、レベル0と最新の累積、その後のREDOという経路をとれる。\nB（誤り）：累積には月曜と火曜の変更も含むため、これらの差分を順番に適用する必要はない。\nC（正しい）：レベル0以降の変更ブロックを包含するのが累積の特性で、差分チェーンの途中を省略できる。\nD（誤り）：レベル1累積は差分データであり、必要な基点のレベル0全体の代わりにはならない。",
+      "topic": "増分の復旧チェーン",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch06q021",
+      "chapter": 6,
+      "question": "ブロックチェンジトラッキング（BCT）が有効なデータベースで、前日のレベル1バックアップ後に一部のブロックが更新された。次回のレベル1増分バックアップについて正しいものを2つ選べ。",
+      "choices": {
+        "A": "BCTのビットマップだけでバックアップ対象ブロックを最終確定するため、対象ブロック内のSCNは確認しない。",
+        "B": "BCTは変更のあったブロックの候補を絞り、不要なデータファイル読取りを減らすために使われる。",
+        "C": "BCTを有効にすると、差分増分と累積増分の基点を決定する規則が入れ替わる。",
+        "D": "RMANは読み込んだブロックのSCNを確認して、増分バックアップに含めるか判断する。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "BCTは変更のあったブロックの候補を絞り、不要なデータファイル読取りを減らすために使われる。、RMANは読み込んだブロックのSCNを確認して、増分バックアップに含めるか判断する。",
+      "explanation": "正解：B、D\n\nA（誤り）：ビットマップは読み取り対象を絞るための手掛かりであり、最終的な変更判定はブロックSCNを用いる。\nB（正しい）：変更履歴を別ファイルで記録するため、データファイルの全ブロックを調べる負荷を軽減できる。\nC（誤り）：基点は差分なら直近の増分、累積なら直近のレベル0であり、BCTによって変わらない。\nD（正しい）：BCTの候補に基づいて読み込んだブロックも、SCNによって対象に含めるか確認する。",
+      "topic": "BCTと増分の対象",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch06q022",
+      "chapter": 6,
+      "question": "次の増分更新スクリプトを毎日深夜に実行している。イメージコピーは数日間継続更新されている。\n```rman\nRUN {\n  RECOVER COPY OF DATABASE WITH TAG 'incr_update';\n  BACKUP INCREMENTAL LEVEL 1 FOR RECOVER OF COPY WITH TAG 'incr_update' DATABASE;\n}\n```\n本日のスクリプト完了直後にメディア障害が発生した。復旧方式に関する正しい説明はどれか。",
+      "choices": {
+        "A": "本日取得したレベル1が、同じRUNブロックのRECOVER COPYで既に適用されている。",
+        "B": "本日のRECOVER COPYは、先に存在していたレベル1をイメージコピーに適用し、その後本日のレベル1を別途取得する。",
+        "C": "イメージコピーは障害直前までの全変更を必ず含むため、REDOを適用する必要がない。",
+        "D": "イメージコピーがあっても、RESTORE DATABASEによるデータファイルコピー処理が必須である。"
+      },
+      "correctChoice": "B",
+      "correctText": "本日のRECOVER COPYは、先に存在していたレベル1をイメージコピーに適用し、その後本日のレベル1を別途取得する。",
+      "explanation": "正解：B\n\nA（誤り）：RUNブロックのRECOVERが先に実行され、その後に本日の増分バックアップを生成するため時系列が逆になる。\nB（正しい）：前回までに作成された増分でコピーを前進させた後、次回に適用する増分を取得する構成である。\nC（誤り）：更新済みコピーはバックアップ時点までの状態に留まるため、障害時点に進めるためのREDOが必要となり得る。\nD（誤り）：利用可能なイメージコピーをSWITCHで現行データファイルへ切り替えれば、ファイルの再コピーを省略する構成が可能。",
+      "topic": "増分更新と障害時点",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch06q023",
+      "chapter": 6,
+      "question": "RMANのリポジトリにはバックアップピースPがAVAILABLEとして登録されていたが、OSでPを別ディレクトリへ移動した。元パスではPを参照できない。次の処理と結果について正しいものを2つ選べ。",
+      "choices": {
+        "A": "CROSSCHECK BACKUPの実行で元パスに存在しないPはEXPIREDになり得る。",
+        "B": "DELETE OBSOLETEを実行すれば、Pの移動先を自動検出してAVAILABLEに戻せる。",
+        "C": "CROSSCHECKは実ファイルを照合する操作であり、移動先ファイルを新たにRMANへ認識させるにはCATALOGなどの操作を検討する。",
+        "D": "DELETE EXPIREDは移動先のPを物理削除し、元パスへ復元する。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "CROSSCHECK BACKUPの実行で元パスに存在しないPはEXPIREDになり得る。、CROSSCHECKは実ファイルを照合する操作であり、移動先ファイルを新たにRMANへ認識させるにはCATALOGなどの操作を検討する。",
+      "explanation": "正解：A、C\n\nA（正しい）：リポジトリの記録位置と実ファイルの存在を照合し、見つからなければEXPIREDにできる。\nB（誤り）：OBSOLETEは保持ポリシー上の不要判定であり、移動した実ファイルの再登録処理ではない。\nC（正しい）：CROSSCHECKは参照先の存在を検査する。別の場所にある実ファイルの再登録はCATALOGなど別の作業となる。\nD（誤り）：DELETE EXPIREDは期限切れとされた記録の削除であり、見つからなかった実ファイルの復元ではない。",
+      "topic": "バックアップの管理状態",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch06q024",
+      "chapter": 6,
+      "question": "NOARCHIVELOG運用で、正常停止・MOUNT状態にてレベル0とレベル1の一貫性増分バックアップを取得している。データベースをバックアップ時点まで復旧するコマンドについて正しいものはどれか。",
+      "choices": {
+        "A": "RESTORE DATABASEの後にRECOVER DATABASE NOREDOを用い、利用可能な増分バックアップを適用する。",
+        "B": "RESTORE DATABASEの後にRECOVER DATABASEを実行すれば、未アーカイブのREDOを自動生成して障害直前まで進められる。",
+        "C": "レベル1を利用する場合は、ARCHIVELOGモードへ切り替えてからRESTORE DATABASEしなければならない。",
+        "D": "NOARCHIVELOGモードではレベル0しか復旧に使えず、レベル1は適用対象にならない。"
+      },
+      "correctChoice": "A",
+      "correctText": "RESTORE DATABASEの後にRECOVER DATABASE NOREDOを用い、利用可能な増分バックアップを適用する。",
+      "explanation": "正解：A\n\nA（正しい）：NOREDOによりアーカイブログに依存せず、利用可能な増分の変更ブロックを反映できる。\nB（誤り）：失われたREDOを作成することはできず、バックアップ取得後の変更を必ず回復できるわけではない。\nC（誤り）：一貫性増分バックアップを用いたNOREDO復旧はNOARCHIVELOG運用でも可能である。\nD（誤り）：レベル1増分もリカバリに適用できるが、バックアップより後のREDOがない変更は戻せない。",
+      "topic": "NOARCHIVELOGと増分適用",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch06q025",
+      "chapter": 6,
+      "question": "DBAは次の2点を別々に確認したい。①RMANが記録する利用可能なイメージコピーの一覧、②指定した保持ポリシー上で不要と判断されるバックアップ。正しいコマンドの組合せはどれか。",
+      "choices": {
+        "A": "① LIST BACKUP、② REPORT NEED BACKUP",
+        "B": "① LIST COPY、② REPORT NEED BACKUP",
+        "C": "① LIST BACKUP、② REPORT OBSOLETE",
+        "D": "① LIST COPY、② REPORT OBSOLETE"
+      },
+      "correctChoice": "D",
+      "correctText": "① LIST COPY、② REPORT OBSOLETE",
+      "explanation": "正解：D\n\nA（誤り）：LIST BACKUPは基本的にバックアップセットを表示し、保持ポリシー上の不要判定にはREPORT OBSOLETEを用いる。\nB（誤り）：LIST COPYは画像コピーの一覧に適切だが、REPORT NEED BACKUPは追加のバックアップが必要なファイルの判定である。\nC（誤り）：REPORT OBSOLETEは②に適切だが、①のイメージコピー一覧にはLIST COPYを用いる。\nD（正しい）：LIST COPYはイメージコピー、REPORT OBSOLETEは保存ポリシー上不要なバックアップをそれぞれ確認する。",
+      "topic": "LISTとREPORTの使い分け",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q023",
+      "chapter": 7,
+      "question": "COMPATIBLE=19.0.0、ローカル管理表領域を使用するDBで、保証付きリストアポイントが存在する。RMANで全体のバックアップセットを取得するとき、未使用ブロックの省略について正しいものを2つ選べ。",
+      "choices": {
+        "A": "保証付きリストアポイントがある場合、HWMより前に位置する未割当ブロックを省略できる条件は満たされない。",
+        "B": "保証付きリストアポイントがあっても、バックアップセットの未使用ブロック圧縮はすべてのブロックについて同じ規則で動く。",
+        "C": "保証付きリストアポイントがあるという条件だけで、バイナリ圧縮を使わなければバックアップを取得できなくなる。",
+        "D": "未使用ブロック圧縮とバイナリ圧縮は別機能であり、COMPRESSED BACKUPSETの指定有無と未使用ブロックの除外条件を混同してはならない。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "保証付きリストアポイントがある場合、HWMより前に位置する未割当ブロックを省略できる条件は満たされない。、未使用ブロック圧縮とバイナリ圧縮は別機能であり、COMPRESSED BACKUPSETの指定有無と未使用ブロックの除外条件を混同してはならない。",
+      "explanation": "正解：A、D\n\nA（正しい）：Oracleの未使用ブロック圧縮には保証付きリストアポイントが存在しないことなどの条件がある。\nB（誤り）：HWM以前の未割当ブロックを省けるかには個別の前提があり、無条件で同じにはならない。\nC（誤り）：バイナリ圧縮は追加の圧縮方式で、保証付きリストアポイントが存在しても必須になるわけではない。\nD（正しい）：圧縮バックアップセットのバイナリ圧縮と、不要ブロックを読まずに省略する処理は別個に制御される。",
+      "topic": "圧縮の適用条件",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch07q024",
+      "chapter": 7,
+      "question": "Oracle Advanced Compressionオプションを利用できる環境で、バックアップ用のCPU使用率は十分に余裕があるが、保存先容量が厳しい。BASIC／LOW／MEDIUM／HIGHの選択について正しいものはどれか。",
+      "choices": {
+        "A": "LOWはHIGHより高い圧縮率を基本的に期待できるがCPU消費が増える。",
+        "B": "HIGHはLOWより高い圧縮率を狙える一方、CPU負荷と処理時間が増える可能性がある。",
+        "C": "MEDIUMは圧縮を無効化し、BASICと同じ未使用ブロックの省略だけを行う。",
+        "D": "BASIC以外のアルゴリズムは出力先デバイスがSBTのときだけ指定できる。"
+      },
+      "correctChoice": "B",
+      "correctText": "HIGHはLOWより高い圧縮率を狙える一方、CPU負荷と処理時間が増える可能性がある。",
+      "explanation": "正解：B\n\nA（誤り）：LOWは処理負荷を比較的抑える設計であり、HIGHの方が一般に圧縮率を重視する。\nB（正しい）：容量削減を優先できる場合はHIGHを検討できるが、計算負荷とバックアップ時間はトレードオフとなる。\nC（誤り）：MEDIUMもバイナリ圧縮を実行するアルゴリズムで、圧縮無効ではない。\nD（誤り）：アルゴリズムの選択はディスクバックアップでも可能であり、SBT専用ではない。",
+      "topic": "圧縮アルゴリズムの選択",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch07q025",
+      "chapter": 7,
+      "question": "次の永続設定を持つRMAN環境で、RUNブロック内に手動で2本のDISKチャネルを割り当ててBACKUP DATABASEを実行した。\n```rman\nCONFIGURE DEVICE TYPE DISK PARALLELISM 4;\nRUN {\n  ALLOCATE CHANNEL c1 DEVICE TYPE DISK;\n  ALLOCATE CHANNEL c2 DEVICE TYPE DISK;\n  BACKUP DATABASE;\n}\n```\n正しい説明を2つ選べ。",
+      "choices": {
+        "A": "このRUNブロックのBACKUPでは手動割当された2チャネルが使用される。",
+        "B": "永続設定の並列度4に合わせて、c1とc2のほかに自動チャネル2本が必ず追加される。",
+        "C": "手動チャネルの使用は自動チャネルの永続設定を4から2へ書き換える。",
+        "D": "RUNブロック外の自動チャネルを使うバックアップでは、別途変更しない限りDISK並列度4の設定が残る。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "このRUNブロックのBACKUPでは手動割当された2チャネルが使用される。、RUNブロック外の自動チャネルを使うバックアップでは、別途変更しない限りDISK並列度4の設定が残る。",
+      "explanation": "正解：A、D\n\nA（正しい）：手動割当があるRUNブロックでは指定したチャネルを用いてバックアップ処理を構成する。\nB（誤り）：自動チャネル設定と手動割当は同時に本数を補完する仕組みではない。\nC（誤り）：ALLOCATE CHANNELはそのRUNブロックのチャネル割当であり、CONFIGUREの永続値を変更しない。\nD（正しい）：CONFIGURE DEVICE TYPEの永続設定はRUNブロックでの手動割当後も保持される。",
+      "topic": "チャネル割当と複数ファイル",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch07q026",
+      "chapter": 7,
+      "question": "1本の巨大データファイルを4チャネルで並列読取りし、別途バックアップセットを2コピー保存したい。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "SECTION SIZEは巨大ファイルを複数のセクションに分割して並列処理させるための指定である。",
+        "B": "COPIES 2を指定すれば、1本の巨大データファイルの読取りが自動的に2チャネルへ分割される。",
+        "C": "SECTION SIZEとCOPIESは異なる目的の機能であり、並列読取りと保存先冗長化を別々に考える必要がある。",
+        "D": "セクション化すると各セクションのピースが別々のバックアップセットとして独立して管理される。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "SECTION SIZEは巨大ファイルを複数のセクションに分割して並列処理させるための指定である。、SECTION SIZEとCOPIESは異なる目的の機能であり、並列読取りと保存先冗長化を別々に考える必要がある。",
+      "explanation": "正解：A、C\n\nA（正しい）：マルチセクションは単一ファイルを複数範囲に分け、複数チャネルで処理できる。\nB（誤り）：COPIESはバックアップセットの複数コピーを作る冗長化で、ファイル読取りの分割指定ではない。\nC（正しい）：多重化コピーは保存の冗長性、SECTION SIZEは単一ファイルのバックアップ並列性に関係する。\nD（誤り）：同一マルチセクションバックアップセットに複数ピースができるのであり、必ずセクションごとに別セットとはならない。",
+      "topic": "セクションとコピーの区別",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch07q027",
+      "chapter": 7,
+      "question": "監査のため過去の特定日時のDB状態を5年間保持したい。RMANリカバリカタログが構成されておらず、高速リカバリ領域（FRA）がDISKバックアップの既定出力先である。適切な方針を2つ選べ。",
+      "choices": {
+        "A": "KEEP UNTIL TIMEを利用する場合でも、バックアップの出力先をFRA以外に明示する必要がある。",
+        "B": "KEEP FOREVERを利用すれば、リカバリカタログがなくても永続保存を指定できる。",
+        "C": "KEEP UNTIL TIMEは、通常の保存ポリシーから独立して指定期限まで保持する用途に適する。",
+        "D": "5年間の全時点に戻せることを保証するため、監査用のKEEPバックアップでは日々の全REDOを5年間保存することが必須である。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "KEEP UNTIL TIMEを利用する場合でも、バックアップの出力先をFRA以外に明示する必要がある。、KEEP UNTIL TIMEは、通常の保存ポリシーから独立して指定期限まで保持する用途に適する。",
+      "explanation": "正解：A、C\n\nA（正しい）：KEEPバックアップはFRA外に配置する制限があるため、出力先指定が必要である。\nB（誤り）：KEEP FOREVERにはリカバリカタログが必要であり、カタログなしでは利用できない。\nC（正しい）：特定時点の長期保存に使う機能で、通常のリテンションによる削除判定から切り離せる。\nD（誤り）：指定した時点へ戻すための保持と、過去5年間の任意時点への復旧の保持要件は異なる。",
+      "topic": "長期保存と復旧時点",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch07q028",
+      "chapter": 7,
+      "question": "FRA内にバックアップピースA、FRA外のDISKにバックアップピースBがある。いずれもRMANに認識されており、未バックアップで最適化により除外されない。コマンドの対象について正しいものを2つ選べ。",
+      "choices": {
+        "A": "BACKUP RECOVERY AREAはFRA外のBも必ず対象とする。",
+        "B": "BACKUP RECOVERY FILESはFRA内AとFRA外Bの双方を対象候補にする。",
+        "C": "BACKUP RECOVERY AREAとBACKUP RECOVERY FILESは、バックアップ元の範囲が同じである。",
+        "D": "BACKUP RECOVERY AREAはFRA内のAを対象候補にする一方、FRA外のBは対象にしない。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "BACKUP RECOVERY FILESはFRA内AとFRA外Bの双方を対象候補にする。、BACKUP RECOVERY AREAはFRA内のAを対象候補にする一方、FRA外のBは対象にしない。",
+      "explanation": "正解：B、D\n\nA（誤り）：RECOVERY AREAはFRA内のリカバリ関連ファイルを対象にする指定である。\nB（正しい）：RECOVERY FILESはFRA内外を問わずディスク上のリカバリ関連ファイルを扱う。\nC（誤り）：前者はFRA、後者はディスク全体のリカバリ関連ファイルという範囲差がある。\nD（正しい）：FRAの範囲内という条件があるためBは含まれない。",
+      "topic": "リカバリ関連ファイルの範囲",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch07q029",
+      "chapter": 7,
+      "question": "ARCHIVELOGモードでOPEN中のDBについて、DATA表領域のデータファイルをOSコピーでオンラインバックアップする。障害復旧に利用できるようにするための適切な手順はどれか。",
+      "choices": {
+        "A": "ALTER TABLESPACE DATA BEGIN BACKUP → OSで該当データファイルをコピー → ALTER TABLESPACE DATA END BACKUP → ALTER SYSTEM ARCHIVE LOG CURRENT",
+        "B": "OSで該当データファイルをコピー → ALTER TABLESPACE DATA BEGIN BACKUP → ALTER SYSTEM ARCHIVE LOG CURRENT → ALTER TABLESPACE DATA END BACKUP",
+        "C": "ALTER TABLESPACE DATA BEGIN BACKUP → ALTER SYSTEM ARCHIVE LOG CURRENT → ALTER TABLESPACE DATA END BACKUP → OSで該当データファイルをコピー",
+        "D": "ALTER SYSTEM ARCHIVE LOG CURRENT → OSで該当データファイルをコピー → ALTER TABLESPACE DATA BEGIN BACKUP → ALTER TABLESPACE DATA END BACKUP"
+      },
+      "correctChoice": "A",
+      "correctText": "ALTER TABLESPACE DATA BEGIN BACKUP → OSで該当データファイルをコピー → ALTER TABLESPACE DATA END BACKUP → ALTER SYSTEM ARCHIVE LOG CURRENT",
+      "explanation": "正解：A\n\nA（正しい）：表領域をバックアップモードにしてコピーし、終了後にログをアーカイブすることでリカバリに必要な変更履歴を保護する。\nB（誤り）：ファイルコピーを開始する前に対象表領域をバックアップモードへ遷移させる必要がある。\nC（誤り）：バックアップモード終了後にコピーするのでは、オンラインコピーの手順として適切でない。\nD（誤り）：先にログだけアーカイブしても、OSコピー中に生成されるREDOを確保する操作が抜ける。",
+      "topic": "ユーザー管理バックアップ手順",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch11q024",
+      "chapter": 11,
+      "question": "制御ファイルを3個多重化し、うち1個がディスク障害で失われた。残り2個は正常かつ障害直前まで更新されており、データファイル・REDOにも障害はない。最も適切な復旧方針はどれか。",
+      "choices": {
+        "A": "正常な制御ファイルから損失した配置先へコピーして必要なパスを復元し、インスタンスを起動する。",
+        "B": "正常な制御ファイルは使わず、旧バックアップ制御ファイルをRESTOREしてRESETLOGSで起動する。",
+        "C": "正常な制御ファイルからCREATE CONTROLFILEを作り直して、全データファイルをRESTOREする。",
+        "D": "残った正常な制御ファイルを削除し、制御ファイルの自動バックアップから全3個を復元する。"
+      },
+      "correctChoice": "A",
+      "correctText": "正常な制御ファイルから損失した配置先へコピーして必要なパスを復元し、インスタンスを起動する。",
+      "explanation": "正解：A\n\nA（正しい）：制御ファイルの現行コピーは同じ内容を保持するため、正常コピーの複製で失われたメンバーを復旧できる。\nB（誤り）：現行の正常コピーが使えるのに古い制御ファイルを採用すると、管理情報の不必要な巻戻しを招く。\nC（誤り）：データファイルは正常で、制御ファイルの一部損失だけなら全ファイルのリストアは不要。\nD（誤り）：正常な現行コピーを故意に失う操作は不要で、復旧のリスクを増やす。",
+      "topic": "制御ファイル一部損失と全損失",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch11q025",
+      "chapter": 11,
+      "question": "制御ファイルのバイナリバックアップと、BACKUP CONTROLFILE TO TRACEによるテキストバックアップを両方保持している。全制御ファイルを失った場合の違いについて正しいものを2つ選べ。",
+      "choices": {
+        "A": "トレースバックアップからのCREATE CONTROLFILEは構成を再作成するが、元の制御ファイルにあったRMAN履歴をそのまま取り戻す方法ではない。",
+        "B": "トレースバックアップには元の制御ファイルのRMANバックアップ履歴がバイナリ形式で完全保存される。",
+        "C": "バイナリバックアップをRESTOREした場合はバックアップ取得時点の制御ファイル管理情報を復元できる。",
+        "D": "バイナリバックアップを使用するとRESTORE DATABASEもRECOVER DATABASEも一切実行できなくなる。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "トレースバックアップからのCREATE CONTROLFILEは構成を再作成するが、元の制御ファイルにあったRMAN履歴をそのまま取り戻す方法ではない。、バイナリバックアップをRESTOREした場合はバックアップ取得時点の制御ファイル管理情報を復元できる。",
+      "explanation": "正解：A、C\n\nA（正しい）：トレースはCREATE CONTROLFILE文の再実行用SQLで、過去のリポジトリ記録が完全復元されるわけではない。\nB（誤り）：バイナリ形式の制御ファイルそのものを保存するバックアップではない。\nC（正しい）：制御ファイルの内容をバイナリで復元するため、そのバックアップに含まれていた管理情報も戻せる。\nD（誤り）：必要なバックアップとREDOが利用できれば、制御ファイル復元後にデータベースをリカバリできる。",
+      "topic": "制御ファイルのトレースと管理情報",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch11q026",
+      "chapter": 11,
+      "question": "SPFILEとPFILEが失われ、インスタンスは停止中。制御ファイルもMOUNTできず、リカバリカタログは使っていないが、制御ファイル自動バックアップはDISK上に存在する。RMANからの初期対処として正しいものを2つ選べ。",
+      "choices": {
+        "A": "RMANのSTARTUP FORCE NOMOUNTでは、適切な条件でダミーパラメータファイルを利用して起動できる。",
+        "B": "SPFILEがない場合、まずRESTORE DATABASEを実行してからSTARTUP NOMOUNTする。",
+        "C": "バックアップを検索するため、通常はDBIDや自動バックアップの保存先・形式などの情報を把握する必要がある。",
+        "D": "制御ファイルをMOUNTできない状態では、RESTORE SPFILE FROM AUTOBACKUPも絶対に実行できない。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "RMANのSTARTUP FORCE NOMOUNTでは、適切な条件でダミーパラメータファイルを利用して起動できる。、バックアップを検索するため、通常はDBIDや自動バックアップの保存先・形式などの情報を把握する必要がある。",
+      "explanation": "正解：A、C\n\nA（正しい）：RMANのSTARTUP FORCE NOMOUNTはSPFILE喪失時にダミーのパラメータで起動する復旧経路がある。\nB（誤り）：RMANからのデータベース全体リストアには制御ファイル等のリポジトリ参照が必要であり順番が逆。\nC（正しい）：カタログを使わない場合はバックアップ検索にDBIDが重要になる。ただしFRAの場所とDB_NAMEを指定する例外的な経路もある。\nD（誤り）：NOMOUNTの段階から自動バックアップを使ってSPFILEを戻す操作は可能である。",
+      "topic": "SPFILE消失時のRMAN実行",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch11q027",
+      "chapter": 11,
+      "question": "ARCHIVELOGモードの稼働中DBで、V$LOGに以下が表示された。GROUP 2の全メンバーが失われたが、他のログとデータファイルは健全である。\n```text\nGROUP#  STATUS    ARCHIVED\n1       CURRENT   NO\n2       ACTIVE    NO\n3       INACTIVE  YES\n```\nグループ2の障害対応について正しいものはどれか。",
+      "choices": {
+        "A": "ACTIVEだがCURRENTではないので、チェックポイントの成否に関わらずCLEAR LOGFILEだけで完全復旧できる。",
+        "B": "CHECKPOINTが成功してグループ2がINACTIVEになれば、未アーカイブであることも考慮してログのクリアとバックアップ方針を検討する。",
+        "C": "ACTIVEのログは既にすべてデータファイルへ反映されているため、INACTIVEと同じ扱いでよい。",
+        "D": "グループ2の障害では最初に必ずRESTORE CONTROLFILE FROM AUTOBACKUPを実行する。"
+      },
+      "correctChoice": "B",
+      "correctText": "CHECKPOINTが成功してグループ2がINACTIVEになれば、未アーカイブであることも考慮してログのクリアとバックアップ方針を検討する。",
+      "explanation": "正解：B\n\nA（誤り）：ACTIVEはインスタンスリカバリに必要なREDOが残る状態であり、チェックポイント結果に依存する。\nB（正しい）：チェックポイントによって必要な変更をデータファイルへ反映できればINACTIVEになり、その後の再初期化を検討できる。未アーカイブログの消失は既存バックアップからの復旧可能性に影響する。\nC（誤り）：INACTIVEと異なり、ACTIVEはインスタンス回復に必要な変更を保持している。\nD（誤り）：制御ファイルには障害がなく、RESTORE CONTROLFILEは直接の対処ではない。",
+      "topic": "オンラインREDO ACTIVEの操作判断",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch11q028",
+      "chapter": 11,
+      "question": "ARCHIVELOGモードのDBで、INACTIVEかつARCHIVED=NOのREDOグループ4の全メンバーが恒久的に破損した。現在のDBは稼働し、制御ファイルとデータファイルは正常である。正しいものを2つ選べ。",
+      "choices": {
+        "A": "グループ4はINACTIVEなのでインスタンスリカバリには不要だが、未アーカイブのREDOを失えば古いバックアップからのメディアリカバリに欠落が生じ得る。",
+        "B": "ALTER DATABASE CLEAR LOGFILE GROUP 4は、ARCHIVED=NOのログを無条件に安全に再初期化する構文である。",
+        "C": "未アーカイブログをクリアする場合はUNARCHIVEDを指定する方法があり、その後のバックアップ再取得が重要となる。",
+        "D": "ARCHIVED=NOのINACTIVEログをクリアすれば、失われたREDOは自動的にアーカイブログとして復元される。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "グループ4はINACTIVEなのでインスタンスリカバリには不要だが、未アーカイブのREDOを失えば古いバックアップからのメディアリカバリに欠落が生じ得る。、未アーカイブログをクリアする場合はUNARCHIVEDを指定する方法があり、その後のバックアップ再取得が重要となる。",
+      "explanation": "正解：A、C\n\nA（正しい）：INACTIVEであることはインスタンス回復に不要という意味であり、過去のバックアップからのメディア回復で必要になる可能性は残る。\nB（誤り）：未アーカイブである点に注意が必要で、通常のCLEARと同一視して安全とは断定できない。\nC（正しい）：CLEAR UNARCHIVED LOGFILEで再初期化する経路があるが、未アーカイブログが欠けるため新しいバックアップの取得が重要となる。\nD（誤り）：クリアはログを初期化する操作であり、すでに失われた変更履歴を再生成するものではない。",
+      "topic": "INACTIVE未アーカイブログのクリア",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch11q029",
+      "chapter": 11,
+      "question": "APP.ORDERSの現在の内容は保持したまま、昨日の状態をORDERS_OLDとして復元するため、RMANでRECOVER TABLE ... REMAP TABLEを使用する。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "REMAP TABLEで新しい名前に取り込む場合も、元のAPP.ORDERSの既存データを上書きすることが前提になる。",
+        "B": "RMANは補助環境で対象時点まで回復した後、Data Pumpの機能を用いて表データをターゲットへ取り込む。",
+        "C": "REMAP TABLEを指定すれば、元表に付いていた名前付き索引・制約もすべて同じ名前で移行される。",
+        "D": "REMAP TABLEにより既存表との名前衝突を回避できるが、名前付き索引や制約はインポートされない制限がある。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "RMANは補助環境で対象時点まで回復した後、Data Pumpの機能を用いて表データをターゲットへ取り込む。、REMAP TABLEにより既存表との名前衝突を回避できるが、名前付き索引や制約はインポートされない制限がある。",
+      "explanation": "正解：B、D\n\nA（誤り）：REMAPによって別表名を指定するため、現在の元表の上書きを避けることができる。\nB（正しい）：RMAN表リカバリは補助インスタンスへ過去状態を構築し、Data Pumpで対象表を戻す仕組みである。\nC（誤り）：名前付き索引・制約にはREMAP TABLE時にインポートされない制限がある。\nD（正しい）：別名で戻すことで既存表と共存できるが、従属オブジェクトの復元には条件がある。",
+      "topic": "表リカバリとREMAPの帰結",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch11q030",
+      "chapter": 11,
+      "question": "ユーザー表領域SALES_TBS内で複数表が誤更新された。復旧対象時刻のバックアップと必要なREDOが存在し、ARCHIVELOGモードで稼働中。他の表領域の最新データは残したいが、問題の表領域全体を昨日時点に戻したい。正しい判断はどれか。",
+      "choices": {
+        "A": "FLASHBACK DATABASEを実行すれば、対象表領域だけを昨日に戻し、他表領域の現在の内容を自動的に保持する。",
+        "B": "データベース全体の不完全リカバリを実行し、他の表領域を自動的に現在時点へ前進させる。",
+        "C": "対象表領域がTSPITRの制限対象でないことを確認し、補助環境を使う表領域Point-in-Timeリカバリを検討する。",
+        "D": "RESTORE TABLESPACEだけを実行すれば、REDOを適用せずに任意の昨日の時刻を選べる。"
+      },
+      "correctChoice": "C",
+      "correctText": "対象表領域がTSPITRの制限対象でないことを確認し、補助環境を使う表領域Point-in-Timeリカバリを検討する。",
+      "explanation": "正解：C\n\nA（誤り）：FLASHBACK DATABASEはデータベース全体を過去に戻すため、他表領域の最新状態を維持する目的と異なる。\nB（誤り）：全体PITRは他の表領域も復旧時点へ戻すため、要求を満たさない。\nC（正しい）：TSPITRは表領域単位で過去の時点へ復旧し、ほかの表領域を現在のまま保持するために使える。\nD（誤り）：リストアだけではバックアップ取得時点に戻るにすぎず、指定した時刻まで進めるには復旧処理が必要。",
+      "topic": "フラッシュバックとTSPITR",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch11q031",
+      "chapter": 11,
+      "question": "READ ONLYに変更した直後にRMANバックアップを取得した表領域HISTがある。その後もREAD ONLYのままで、データファイルを喪失した。障害後に必要な処理について正しいものを2つ選べ。",
+      "choices": {
+        "A": "変更されていないことを前提に、READ ONLY後の有効なバックアップからリストアすれば、通常はREDOによるロールフォワードを必要としない。",
+        "B": "READ ONLYでも毎日チェックポイントSCNが増えるため、どのバックアップを使っても全アーカイブログの適用が必須である。",
+        "C": "READ ONLYへ変更する前の古いバックアップであっても、データファイル内容は同じとみなして一切のリカバリを省略できる。",
+        "D": "リストアに使用するバックアップがREAD ONLYへの変更後に取得されたかなど、バックアップ時点と表領域の状態が重要である。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "変更されていないことを前提に、READ ONLY後の有効なバックアップからリストアすれば、通常はREDOによるロールフォワードを必要としない。、リストアに使用するバックアップがREAD ONLYへの変更後に取得されたかなど、バックアップ時点と表領域の状態が重要である。",
+      "explanation": "正解：A、D\n\nA（正しい）：READ ONLYにした後でデータファイルの更新が行われていないため、適切なバックアップはそのまま利用できる。\nB（誤り）：変化しない読取専用データファイルに対して一律にREDO適用が必要になるわけではない。\nC（誤り）：READ ONLY以前のバックアップは変更・切替時点との差を埋める必要がある可能性を無視できない。\nD（正しい）：取得時点と読み取り専用への移行時点の関係が、追加のリカバリ必要性を左右する。",
+      "topic": "読取専用表領域の復旧条件",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch05q013",
+      "chapter": 5,
+      "question": "ARCHIVELOGモードのデータベースで、RMANが次を正常終了した。バックアップ後のアーカイブREDOログの状態について正しいものはどれか。\n```rman\nBACKUP DATABASE PLUS ARCHIVELOG DELETE INPUT;\n```\nアーカイブ先は複数あり、アーカイブログ削除ポリシーによる追加制約はない。",
+      "choices": {
+        "A": "RMANがバックアップ元に使用したアーカイブログのコピーは削除対象となるが、同一順序番号の別のアーカイブ先にあるコピーまで一律に削除する指定ではない。",
+        "B": "バックアップされた順序番号のすべてのコピーがアーカイブ先の数にかかわらず削除対象となる。",
+        "C": "DELETE INPUTはデータファイルのバックアップを完了した時点でオンラインREDOログを削除する指定である。",
+        "D": "PLUS ARCHIVELOGではアーカイブログのバックアップ後に削除が抑止されるので、DELETE INPUTの指定は無効になる。"
+      },
+      "correctChoice": "A",
+      "correctText": "RMANがバックアップ元に使用したアーカイブログのコピーは削除対象となるが、同一順序番号の別のアーカイブ先にあるコピーまで一律に削除する指定ではない。",
+      "explanation": "正解：A\n\nA（正しい）：DELETE INPUTはバックアップに使用した入力のアーカイブログコピーを削除する。すべての宛先のコピーを消す指定はDELETE ALL INPUTであり、両者は異なる。\nB（誤り）：この動作はDELETE ALL INPUTの説明であり、DELETE INPUT単独は別宛先の同一ログまで削除しない。\nC（誤り）：オンラインREDOログは現行の変更記録であり、DELETE INPUTによる削除対象ではない。対象はバックアップ入力として使用したアーカイブ済みログである。\nD（誤り）：PLUS ARCHIVELOGはアーカイブログもバックアップ対象に含めるため、DELETE INPUTと組み合わせた入力削除の効果を打ち消さない。",
+      "topic": "アーカイブログ多重化とDELETE INPUT",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch05q014",
+      "chapter": 5,
+      "question": "ARCHIVELOGモードで開いているデータベースに対し、RMANで次のコマンドを順に実行した。いずれも正常終了した。両コマンドの動作を比較した説明として正しいものを2つ選べ。\n```rman\nBACKUP DATABASE;\nBACKUP DATABASE PLUS ARCHIVELOG;\n```",
+      "choices": {
+        "A": "前者はオンラインREDOログを直接バックアップ対象に含め、後者はログスイッチを行ったうえでオンラインREDOログをコピーする。",
+        "B": "後者ではデータベースバックアップの前後に現行REDOのアーカイブを行い、バックアップと必要なアーカイブログを組み合わせて保持する。",
+        "C": "前者でもOPEN中のデータベースをバックアップできるが、完全復旧に必要なアーカイブログを確保する責任までそのコマンド単独で満たすとは限らない。",
+        "D": "後者はデータファイルを一貫性バックアップに変えるため、OPEN中であってもリカバリ不要なファイルを生成する。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "後者ではデータベースバックアップの前後に現行REDOのアーカイブを行い、バックアップと必要なアーカイブログを組み合わせて保持する。、前者でもOPEN中のデータベースをバックアップできるが、完全復旧に必要なアーカイブログを確保する責任までそのコマンド単独で満たすとは限らない。",
+      "explanation": "正解：B、C\n\nA（誤り）：RMANはオンラインREDOログファイルを通常のBACKUP DATABASEのバックアップ対象としない。PLUS ARCHIVELOGもログスイッチで生成されたアーカイブログをバックアップする。\nB（正しい）：PLUS ARCHIVELOGは開始時とデータベースバックアップ終了時にログのアーカイブを行い、前後のログのバックアップを取得する処理を含む。\nC（正しい）：OPEN中のバックアップは非一貫性バックアップであり、復旧には取得後のREDOが必要となる。コマンドにアーカイブログを含めなければ別途保全が必要になる。\nD（誤り）：OPEN中に取得したデータファイルは必ずしも同一SCNで揃わないため、PLUS ARCHIVELOGを指定しても非一貫性バックアップである点は変わらない。",
+      "topic": "PLUS ARCHIVELOGの実行シーケンス",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch05q015",
+      "chapter": 5,
+      "question": "バックアップセットの保存先を整備するDBAが、RMANの`BACKUP DATABASE`だけを別サイトに保管した。災害でDBサーバー全体を喪失した場合、この保護範囲の評価として正しいものはどれか。",
+      "choices": {
+        "A": "SPFILEと制御ファイルはバックアップされ得るが、パスワードファイルやOracle Net構成は通常のBACKUP DATABASEの対象外なので別途保全を検討する。",
+        "B": "SPFILEと制御ファイルはバックアップされ得るが、パスワードファイルはRMANが自動的にバックアップセットに格納する。",
+        "C": "SPFILEと制御ファイルはバックアップされ得るが、listener.oraとtnsnames.oraはデータディクショナリからRMANが復元する。",
+        "D": "SPFILEと制御ファイルはバックアップされ得るが、オンラインREDOログの実体もバックアップセットに含まれるため別途考慮は不要である。"
+      },
+      "correctChoice": "A",
+      "correctText": "SPFILEと制御ファイルはバックアップされ得るが、パスワードファイルやOracle Net構成は通常のBACKUP DATABASEの対象外なので別途保全を検討する。",
+      "explanation": "正解：A\n\nA（正しい）：RMANが保護する主対象はデータベース関連ファイルであり、OS・ネットワーク設定・パスワードファイル・ソフトウェアの保全は別の管理領域となる。\nB（誤り）：パスワードファイルは標準のBACKUP DATABASEで自動的にバックアップされるファイルではない。\nC（誤り）：Net構成ファイルはOS側のテキストファイルであり、データディクショナリから元のファイルそのものを自動復元するものではない。\nD（誤り）：オンラインREDOログは通常のRMANバックアップ対象外であり、必要なアーカイブREDOログの保全と区別する。",
+      "topic": "バックアップの保護対象境界",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch05q016",
+      "chapter": 5,
+      "question": "RMANの出力形式の既定値はバックアップセットである。障害時にDATA表領域だけでなく、データベース全体の復旧に利用できるようバックアップを計画する。次の評価のうち正しいものはどれか。",
+      "choices": {
+        "A": "BACKUP TABLESPACE DATAだけを取得すれば、同一CDB内のSYSTEMやUNDOも制御ファイルから自動再生成できるため全体復旧に使える。",
+        "B": "BACKUP DATABASEでデータファイル一式を取得したうえで、ARCHIVELOG運用中は復旧に必要なREDOを別途保全する設計が適切である。",
+        "C": "BACKUP DATABASEはオンラインREDOログを含むため、バックアップ時点より後のREDOの保全は不要となる。",
+        "D": "BACKUP DATABASEが正常終了すれば、パスワードファイルも含めてOracle環境の全ファイルがバックアップセットに収録される。"
+      },
+      "correctChoice": "B",
+      "correctText": "BACKUP DATABASEでデータファイル一式を取得したうえで、ARCHIVELOG運用中は復旧に必要なREDOを別途保全する設計が適切である。",
+      "explanation": "正解：B\n\nA（誤り）：表領域単位のバックアップは対象外のデータファイルを保護しないため、SYSTEMやUNDOを自動再生成できるという想定は誤り。\nB（正しい）：データファイル一式と、バックアップ取得後の更新に対応する必要なアーカイブREDO／オンラインREDOを組み合わせて復旧する。\nC（誤り）：オンラインREDOログそのものはRMANのバックアップ対象ではなく、バックアップ後の変更を戻すにはREDOの保存状態が重要。\nD（誤り）：BACKUP DATABASEはサーバー全体の構成ファイルを無条件に包含するOSレベルのバックアップではない。",
+      "topic": "全体バックアップと復旧成立条件",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch08q011",
+      "chapter": 8,
+      "question": "キーストアはOPEN済みで、RMANの暗号化バックアップセットを取得する。取得後にキーストアを持たないDRサイトで復元する可能性がある。次の指定について正しいものを2つ選べ。\n```rman\nSET ENCRYPTION ON FOR ALL TABLESPACES IDENTIFIED BY 'RestoreKey';\nBACKUP AS BACKUPSET DATABASE;\n```",
+      "choices": {
+        "A": "取得時はキーストアに格納された鍵と指定したパスワードの両方を利用可能とする暗号化で、復号時はいずれかの方法を利用できる。",
+        "B": "ONLYを省略しているため、キーストアを使わないパスワード専用暗号化となり、復号には必ずパスワードが必要である。",
+        "C": "DRサイトに取得元のキーストアがなくても、取得時のパスワードを用意してRMANで復号可能な方式である。",
+        "D": "DRサイトでキーストアを使用できない場合、指定したパスワードが正しくてもデュアルモードのバックアップは復号できない。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "取得時はキーストアに格納された鍵と指定したパスワードの両方を利用可能とする暗号化で、復号時はいずれかの方法を利用できる。、DRサイトに取得元のキーストアがなくても、取得時のパスワードを用意してRMANで復号可能な方式である。",
+      "explanation": "正解：A、C\n\nA（正しい）：ONLYを省略してキーストアが利用できるときはデュアルモードとなり、キーストアかパスワードのいずれかで復号できる。\nB（誤り）：パスワード専用モードはONLYを指定した場合であり、ONLYなしの構文とは意味が異なる。\nC（正しい）：デュアルモードならば災害復旧先にキーストアを移送できない場合でも、取得時のパスワードを使って復旧できる。\nD（誤り）：キーストアが唯一の復号経路ではないため、パスワードが残っていれば復元可能である。",
+      "topic": "デュアルモードの代替復号経路",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch08q012",
+      "chapter": 8,
+      "question": "同じRMANセッションで暗号化バックアップの設定を切り替えた。パスワードは既知であり、キーストアは閉じている。次のうち、キーストアをOPENせずバックアップセットをパスワード方式で暗号化できる設定はどれか。",
+      "choices": {
+        "A": "SET ENCRYPTION ON FOR ALL TABLESPACES IDENTIFIED BY 'Key1';",
+        "B": "SET ENCRYPTION ON FOR ALL TABLESPACES IDENTIFIED BY 'Key1' ONLY;",
+        "C": "CONFIGURE ENCRYPTION FOR DATABASE ON;",
+        "D": "SET ENCRYPTION ON;"
+      },
+      "correctChoice": "B",
+      "correctText": "SET ENCRYPTION ON FOR ALL TABLESPACES IDENTIFIED BY 'Key1' ONLY;",
+      "explanation": "正解：B\n\nA（誤り）：ONLYなしはデュアルモードであり、キーストアの利用が必要となる。閉じたままのキーストアを利用しない条件とは合わない。\nB（正しい）：ONLYはパスワード専用暗号化を指定し、キーストアを使わずにパスワードだけでバックアップセットを暗号化できる。\nC（誤り）：暗号化を有効にする永続設定だが、パスワード専用暗号化を指定するものではなく透過モードの鍵管理を前提とする。\nD（誤り）：セッションで暗号化を有効化するが、パスワード識別子とONLYによる専用モード指定がないため要件を満たさない。",
+      "topic": "暗号化構文ONLYによる差異",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch08q013",
+      "chapter": 8,
+      "question": "透過モードで暗号化したバックアップセットを別環境へ移送した。RMANからリストアするときの操作条件について正しいものはどれか。",
+      "choices": {
+        "A": "取得時に使用したマスター暗号化鍵が利用できるキーストアを準備し、必要に応じてキーストアをOPENしたうえで復号させる。",
+        "B": "取得時のキーストアがない場合でも、RMANのSET DECRYPTION IDENTIFIED BYに任意の復旧用パスワードを指定すれば復号できる。",
+        "C": "透過モードの暗号化バックアップは、キーストアが失われた場合でも制御ファイルのバックアップをリストアすることで鍵が再生成される。",
+        "D": "暗号化バックアップセットであっても、RESTORE時にはデータファイルを生成するのでキーストアへのアクセスは不要である。"
+      },
+      "correctChoice": "A",
+      "correctText": "取得時に使用したマスター暗号化鍵が利用できるキーストアを準備し、必要に応じてキーストアをOPENしたうえで復号させる。",
+      "explanation": "正解：A\n\nA（正しい）：透過モードはキーストアのマスター暗号化鍵で復号経路を確保するため、取得時に使用した鍵へアクセス可能である必要がある。\nB（誤り）：パスワード復号経路はパスワードモードまたはデュアルモードで取得されたバックアップ向けで、透過専用に任意のパスワードを後付けできない。\nC（誤り）：制御ファイルはRMANメタデータを含むが、マスター暗号化鍵の代用品にはならない。\nD（誤り）：暗号化されたバックアップピースの読込みに復号が必要であり、出力先データファイルの生成とは別の条件である。",
+      "topic": "透過暗号化バックアップの移送と復号",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch08q014",
+      "chapter": 8,
+      "question": "同一データベースで、RMANの永続設定`CONFIGURE ENCRYPTION FOR DATABASE ON`が有効である。今回だけ暗号化されていないイメージコピーを取得し、次回以降の暗号化バックアップセット運用は維持したい。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "RMANの暗号化はバックアップセットに適用されるため、イメージコピーのバックアップは暗号化されない。",
+        "B": "永続設定をONにすると、`BACKUP AS COPY DATABASE`の生成データも常に同じ暗号化形式で保存される。",
+        "C": "イメージコピー形式は暗号化バックアップセットとは異なり、バックアップセットに適用される暗号化機能の対象外である。",
+        "D": "暗号化を無効化したイメージコピーを取得すると、以後のRMAN暗号化永続設定が自動的にOFFへ変更される。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "RMANの暗号化はバックアップセットに適用されるため、イメージコピーのバックアップは暗号化されない。、イメージコピー形式は暗号化バックアップセットとは異なり、バックアップセットに適用される暗号化機能の対象外である。",
+      "explanation": "正解：A、C\n\nA（正しい）：RMANによるバックアップ暗号化はバックアップセットを対象とするため、イメージコピー形式での取得は同じ暗号化形式ではない。\nB（誤り）：イメージコピーはデータファイル形式のコピーであり、バックアップセット用の暗号化が自動適用されるわけではない。\nC（正しい）：バックアップ形式そのものによる制限なので、永続設定がONでもイメージコピーが暗号化バックアップセットに変わることはない。\nD（誤り）：個々のBACKUPの実行形式によって、RMANの永続暗号化設定が自動的に書き換わることはない。",
+      "topic": "バックアップ形式による暗号化対象",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch13q025",
+      "chapter": 13,
+      "question": "トランザクションT1がORDERSの行#10と#20を更新し、その後T2が行#10を更新した。DBAはT1で変更された行#20だけを取り消し、T2の変更には影響させたくない。`DBMS_FLASHBACK.TRANSACTION_BACKOUT`のOPTIONSに指定する値として最も適切なのはどれか。",
+      "choices": {
+        "A": "NOCASCADE",
+        "B": "CASCADE",
+        "C": "NONCONFLICT_ONLY",
+        "D": "NOCASCADE_FORCE"
+      },
+      "correctChoice": "C",
+      "correctText": "NONCONFLICT_ONLY",
+      "explanation": "正解：C\n\nA（誤り）：NOCASCADEは依存トランザクションが存在するとエラーとなり、競合しない行だけを選ぶ動作ではない。\nB（誤り）：CASCADEは依存するT2もバックアウトするため、T2の変更を保持するという要件に適合しない。\nC（正しい）：NONCONFLICT_ONLYは競合のない行の変更だけをバックアウトする。T1の原子性は失われ得るが、行#10に影響せず行#20を処理できる。\nD（誤り）：NOCASCADE_FORCEは依存関係を無視してT1を強制的にバックアウトするため、T2の変更との整合性を慎重に扱う必要がある。",
+      "topic": "バックアウトの競合しない行",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q026",
+      "chapter": 13,
+      "question": "`DBMS_FLASHBACK.TRANSACTION_BACKOUT`を`CASCADE`で実行し、例外なく終了した。T1とそれに依存するT2が対象となり、データ内容は想定どおりであった。永続的に変更を確定させるための次の対応として正しいものはどれか。",
+      "choices": {
+        "A": "プロシージャの正常終了によって既にコミット済みなので、何も必要ない。",
+        "B": "プロシージャが補正DMLを実施しても自動コミットはしないため、結果を検証してCOMMITする。",
+        "C": "プロシージャの正常終了直後に再実行すると初回の補正DMLがコミットされる。",
+        "D": "プロシージャの正常終了後には元のT1とT2をALTER SYSTEMでKILLしなければ確定できない。"
+      },
+      "correctChoice": "B",
+      "correctText": "プロシージャが補正DMLを実施しても自動コミットはしないため、結果を検証してCOMMITする。",
+      "explanation": "正解：B\n\nA（誤り）：バックアウト処理では補正DMLを生成・実行するが、プロシージャがその内容を暗黙にCOMMITするわけではない。\nB（正しい）：結果を確認してCOMMITすることで補正トランザクションを確定する。期待と異なればROLLBACKも選択できる。\nC（誤り）：再実行はコミット操作の代わりにならず、さらにバックアウト処理を行うことになる。\nD（誤り）：元トランザクションはすでに完了した過去の変更であり、補正処理の確定は現セッションのCOMMITで管理する。",
+      "topic": "TRANSACTION_BACKOUTのコミット",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q027",
+      "chapter": 13,
+      "question": "Flashback Data Archive（FDA）を使い、表SALESの長期履歴を保持している。FDAの指定表領域で割当QUOTAに到達し、保存期限内の履歴を保持する必要がある。正しいものを2つ選べ。",
+      "choices": {
+        "A": "FDAが使用する表領域の割当上限に到達すると、履歴を記録できないため対象表へのDMLが失敗することがある。",
+        "B": "FDAが容量不足になった場合、Oracleは指定したRETENTION期間内の履歴から優先的に削除するため対象表へのDMLは必ず成功する。",
+        "C": "保存対象の履歴を残したまま容量不足を解消するには、FDAのQUOTA調整などが検討できる。",
+        "D": "FDAにOPTIMIZE DATAを設定すれば容量制限が解除され、QUOTAによるDML失敗は起こらない。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "FDAが使用する表領域の割当上限に到達すると、履歴を記録できないため対象表へのDMLが失敗することがある。、保存対象の履歴を残したまま容量不足を解消するには、FDAのQUOTA調整などが検討できる。",
+      "explanation": "正解：A、C\n\nA（正しい）：FDAは対象表の過去状態を保存するため、履歴の記録ができないと変更操作を成功させられない場合がある。\nB（誤り）：RETENTION期間内の履歴を自由に破棄してDMLを保証する仕組みではない。\nC（正しい）：QUOTAはアーカイブ表領域の容量管理に関係し、増枠や配置の見直しで必要な履歴を保持しつつ運用を継続する。\nD（誤り）：OPTIMIZE DATAは履歴の圧縮等による最適化であり、領域使用の上限自体を解除する設定ではない。",
+      "topic": "FDAのQUOTAとDML失敗",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch13q028",
+      "chapter": 13,
+      "question": "Flashback Data Archive（FDA）`HISTORY_FDA`は既に作成され、表ORDERSが有効化されている。管理者はアーカイブ全体の保持期間だけを変更し、表ORDERSへの関連付けは維持したい。適切なSQLはどれか。",
+      "choices": {
+        "A": "ALTER TABLE ORDERS FLASHBACK ARCHIVE HISTORY_FDA RETENTION 3 YEAR;",
+        "B": "ALTER FLASHBACK ARCHIVE HISTORY_FDA MODIFY RETENTION 3 YEAR;",
+        "C": "CREATE FLASHBACK ARCHIVE HISTORY_FDA RETENTION 3 YEAR;",
+        "D": "ALTER FLASHBACK ARCHIVE HISTORY_FDA PURGE BEFORE TIMESTAMP (SYSTIMESTAMP - INTERVAL '3' YEAR);"
+      },
+      "correctChoice": "B",
+      "correctText": "ALTER FLASHBACK ARCHIVE HISTORY_FDA MODIFY RETENTION 3 YEAR;",
+      "explanation": "正解：B\n\nA（誤り）：ALTER TABLEのFLASHBACK ARCHIVE句は表の履歴追跡先の有効化・関連付けを扱うもので、FDA自体の保持期間変更ではない。\nB（正しい）：ALTER FLASHBACK ARCHIVEのMODIFY RETENTION句は既存FDAの履歴保存期間を変更するための構文である。\nC（誤り）：CREATE FLASHBACK ARCHIVEは新規FDA作成の操作であり、既存オブジェクトの設定変更には使わない。\nD（誤り）：PURGEは指定した時点より古い履歴データを削除する操作であり、以後の保存期間設定そのものを変更しない。",
+      "topic": "FDAの保存期間とパージ操作",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q029",
+      "chapter": 13,
+      "question": "FDAに対して次のSQLを実行する。履歴の保持と問合せについて正しい説明を2つ選べ。\n```sql\nALTER FLASHBACK ARCHIVE HISTORY_FDA\n  PURGE BEFORE SCN 500000;\n```",
+      "choices": {
+        "A": "指定SCNより前のアーカイブ履歴を削除するが、UNDOに過去の情報が残っていればその範囲のFlashback Queryが可能な場合はある。",
+        "B": "PURGE BEFORE SCNはFDAのRETENTION設定値をSCN 500000に変更する構文である。",
+        "C": "FDAの古い履歴をPURGEしても、指定SCNより新しい期間の履歴を一律に削除する操作ではない。",
+        "D": "FDA履歴をPURGEすると、当該FDAに登録された全表の現在の行もSCN 500000時点に戻される。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "指定SCNより前のアーカイブ履歴を削除するが、UNDOに過去の情報が残っていればその範囲のFlashback Queryが可能な場合はある。、FDAの古い履歴をPURGEしても、指定SCNより新しい期間の履歴を一律に削除する操作ではない。",
+      "explanation": "正解：A、C\n\nA（正しい）：FDA内の古い履歴が消えても、対象の過去状態がUNDO保存期間内にあるなら通常のUNDOベースの過去問合せが成立する場合がある。\nB（誤り）：PURGEは過去の履歴データを削除する操作であり、保持期間はMODIFY RETENTIONで変更する。\nC（正しい）：BEFORE SCNはそのSCNより前を削除基準とするため、新しい履歴まで一律削除する指定とは異なる。\nD（誤り）：FDAの履歴管理操作であり、業務表の現行行に対してFLASHBACK TABLEのような巻戻し処理を行わない。",
+      "topic": "FDAのSCN指定パージ",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch13q030",
+      "chapter": 13,
+      "question": "トランザクションバックアウトで、依存するT2の変更は維持したまま、指定したT1の補正SQLを依存関係にかかわらず実行しようとしている。制約違反や結果の確認は管理者が別途行う。この目的に最も一致するOPTIONSはどれか。",
+      "choices": {
+        "A": "NONCONFLICT_ONLY",
+        "B": "NOCASCADE",
+        "C": "CASCADE",
+        "D": "NOCASCADE_FORCE"
+      },
+      "correctChoice": "D",
+      "correctText": "NOCASCADE_FORCE",
+      "explanation": "正解：D\n\nA（誤り）：NONCONFLICT_ONLYは依存する変更と競合しない行に対象を限定するため、T1全体を強制的に処理する目的とは異なる。\nB（誤り）：NOCASCADEは依存関係が存在すればエラーにする既定の方式であり、依存を無視して実行はしない。\nC（誤り）：CASCADEは依存するT2も含めて取り消すため、T2の変更を維持したい条件と一致しない。\nD（正しい）：NOCASCADE_FORCEは依存トランザクションを無視して指定したT1だけをバックアウトしようとする。整合性制約を破る可能性があるため結果の確認が不可欠である。",
+      "topic": "バックアウトでの依存関係無視",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q031",
+      "chapter": 13,
+      "question": "`DROP TABLE SALES`が同じスキーマで2回行われ、ごみ箱に別世代のSALESが残っている。DBAは最も古い世代だけを確実に復元し、他の世代を残したい。適切な対応はどれか。",
+      "choices": {
+        "A": "FLASHBACK TABLE SALES TO BEFORE DROPを実行すれば、最も古い世代が常に復元される。",
+        "B": "RECYCLEBINから対象のシステム生成名を確認し、その名前をダブルクォートで囲んでFLASHBACK TABLE ... TO BEFORE DROPを実行する。",
+        "C": "PURGE RECYCLEBINを実行した後、FLASHBACK TABLE SALES TO BEFORE DROPで古い世代を復元する。",
+        "D": "FLASHBACK TABLE SALES TO SCNで最も古い削除SCNを指定すると、ごみ箱内の対象世代だけが復元される。"
+      },
+      "correctChoice": "B",
+      "correctText": "RECYCLEBINから対象のシステム生成名を確認し、その名前をダブルクォートで囲んでFLASHBACK TABLE ... TO BEFORE DROPを実行する。",
+      "explanation": "正解：B\n\nA（誤り）：元の表名だけで復元する場合、同名の複数世代から最も古い世代が常に選ばれると断定できない。\nB（正しい）：ごみ箱に記録された各世代のシステム生成名を指定することで、復元する削除済みオブジェクトを特定できる。特殊文字を含むため引用符が必要。\nC（誤り）：PURGEはごみ箱からオブジェクトを完全削除するため、復元したい世代自体を失う。\nD（誤り）：FLASHBACK TABLE ... TO SCNはUNDOを用いた表データの時点復元であり、DROP後のごみ箱の個別世代選択とは異なる。",
+      "topic": "Flashback Dropの世代識別",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch13q032",
+      "chapter": 13,
+      "question": "FDA`ARCHIVE_A`の管理を引き継いだ。対象表と関連付けられたFDA名、そのFDAが使用する表領域、FDAの保存期間をそれぞれ調査したい。該当するディクショナリビューの組合せとして正しいものを2つ選べ。",
+      "choices": {
+        "A": "DBA_FLASHBACK_ARCHIVE_TABLESで、FDAに登録されている対象表とアーカイブ名の対応を調べる。",
+        "B": "DBA_FLASHBACK_ARCHIVE_TSで、各FDAの表に対する行移動の有効・無効を調べる。",
+        "C": "DBA_FLASHBACK_ARCHIVEで、FDAのRETENTIONなどアーカイブ自体の情報を調べる。",
+        "D": "DBA_FLASHBACK_ARCHIVE_TABLESで、FDAを構成する各表領域の最大QUOTAの一覧を調べる。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "DBA_FLASHBACK_ARCHIVE_TABLESで、FDAに登録されている対象表とアーカイブ名の対応を調べる。、DBA_FLASHBACK_ARCHIVEで、FDAのRETENTIONなどアーカイブ自体の情報を調べる。",
+      "explanation": "正解：A、C\n\nA（正しい）：DBA_FLASHBACK_ARCHIVE_TABLESは履歴管理が有効な表の情報と利用中のFDAを対応づけて示す。\nB（誤り）：DBA_FLASHBACK_ARCHIVE_TSはFDAが利用する表領域に関するビューであり、ユーザー表のROW MOVEMENT設定を示す用途ではない。\nC（正しい）：DBA_FLASHBACK_ARCHIVEはFDAそのものの属性を確認するため、保存期間などの設定を調査できる。\nD（誤り）：FDAの表領域割当などを確認するのはDBA_FLASHBACK_ARCHIVE_TSであり、テーブル対応のビューとは役割が異なる。",
+      "topic": "FDAディクショナリビューの使い分け",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch10q014",
+      "chapter": 10,
+      "question": "ARCHIVELOGモードの19cデータベースで、データファイル9のバックアップは3日前、レベル1増分バックアップは昨日取得した。現在の制御ファイルと必要なREDOは利用可能。RMANで次を実行する場合の説明として正しいものを2つ選べ。\n```rman\nRESTORE DATAFILE 9;\nRECOVER DATAFILE 9;\n```",
+      "choices": {
+        "A": "RESTOREは通常、適合する全体またはレベル0のバックアップからデータファイルを戻す。",
+        "B": "RESTOREは昨日のレベル1差分をデータファイルとして直接置いて完了し、RECOVERではREDOだけを使う。",
+        "C": "RECOVERでは適用可能なレベル1増分を先に適用し、その後に必要なREDOを適用できる。",
+        "D": "RECOVERでは増分バックアップを利用せず、常に3日前から全REDOを適用することが必須になる。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "RESTOREは通常、適合する全体またはレベル0のバックアップからデータファイルを戻す。、RECOVERでは適用可能なレベル1増分を先に適用し、その後に必要なREDOを適用できる。",
+      "explanation": "正解：A、C\n\nA（正しい）：データファイルそのものを作る基点には全体バックアップまたはレベル0増分を用いる。\nB（誤り）：レベル1は基点データファイルではなく、復元後に適用して更新するための増分である。\nC（正しい）：RMANは利用可能な増分を使用して変更済みブロックを更新し、以後のREDOを適用できる。\nD（誤り）：必要な増分を利用できる場合はREDO適用範囲を縮められるので、全期間のREDO適用が必須ではない。",
+      "topic": "増分とREDOの自動適用順序",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch10q015",
+      "chapter": 10,
+      "question": "ARCHIVELOGモードのDBで全データファイルが破損したが、現在の制御ファイルと十分なバックアップ・REDOは残っている。データベース全体を完全リカバリする場合の正しい操作順序はどれか。",
+      "choices": {
+        "A": "STARTUP MOUNT → RECOVER DATABASE → RESTORE DATABASE → ALTER DATABASE OPEN",
+        "B": "STARTUP NOMOUNT → RESTORE DATABASE → RECOVER DATABASE → ALTER DATABASE MOUNT → ALTER DATABASE OPEN",
+        "C": "STARTUP MOUNT → RESTORE DATABASE → RECOVER DATABASE → ALTER DATABASE OPEN RESETLOGS",
+        "D": "STARTUP MOUNT → RESTORE DATABASE → RECOVER DATABASE → ALTER DATABASE OPEN"
+      },
+      "correctChoice": "D",
+      "correctText": "STARTUP MOUNT → RESTORE DATABASE → RECOVER DATABASE → ALTER DATABASE OPEN",
+      "explanation": "正解：D\n\nA（誤り）：復旧用データファイルが失われているので、先にRESTOREしてから変更を適用する。\nB（誤り）：データファイルと制御ファイルを対応づけて復元するにはMOUNTが基本であり、復旧後にMOUNTする順序ではない。\nC（誤り）：現行制御ファイルを使用して完全リカバリできた場合、通常はRESETLOGSを要しない。\nD（正しい）：MOUNTして制御ファイルを使用可能にし、RESTORE、RECOVERを順に行って通常OPENする。",
+      "topic": "全データファイル損失とOPEN条件",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch10q016",
+      "chapter": 10,
+      "question": "NOARCHIVELOGモードのデータベースを毎日正常停止し、全体の一貫性バックアップを取得している。水曜にはレベル0、木曜にはレベル1の増分バックアップを取得した。金曜にデータファイルが損失し、金曜の更新に必要なREDOは残っていない。木曜の取得時点へ復旧する方法として適切なものを2つ選べ。",
+      "choices": {
+        "A": "水曜のレベル0を基点にRESTORE DATABASEを実行し、RECOVER DATABASE NOREDOで木曜のレベル1を適用する。",
+        "B": "レベル1増分バックアップの存在だけで、金曜の障害直前の状態まで自動的に完全復旧できる。",
+        "C": "木曜のレベル1を適用するためには、アーカイブ済みREDOが必ず必要である。",
+        "D": "復旧目標は木曜の増分取得時点までであり、金曜の変更を再現することはできない。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "水曜のレベル0を基点にRESTORE DATABASEを実行し、RECOVER DATABASE NOREDOで木曜のレベル1を適用する。、復旧目標は木曜の増分取得時点までであり、金曜の変更を再現することはできない。",
+      "explanation": "正解：A、D\n\nA（正しい）：NOREDOはアーカイブREDOを前提とせず、増分バックアップをデータファイルに適用する。\nB（誤り）：増分バックアップ取得後の金曜の変更を復元するための情報がない。\nC（誤り）：レベル1に含まれる変更済みブロックはNOREDOで適用できるため、アーカイブログは必須ではない。\nD（正しい）：欠落しているREDOを補う情報がないため、取得済み増分が保護する時点までの復元となる。",
+      "topic": "NOARCHIVELOG増分リカバリの復旧限界",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch10q017",
+      "chapter": 10,
+      "question": "ARCHIVELOGモードのデータベースで通常のユーザー表領域APPとUNDO表領域のデータファイルが同時に損失した。すべてのバックアップと必要なREDOは使用可能。障害復旧の判断として正しいものはどれか。",
+      "choices": {
+        "A": "APPをOFFLINE IMMEDIATEにすれば、UNDOデータファイルの損失にかかわらずOPENしたまま両方を復旧できる。",
+        "B": "UNDO表領域の障害を含むので、データベースをMOUNTして必要なデータファイルをRESTORE/RECOVER後、OPENする。",
+        "C": "UNDOデータファイルは起動時に自動再生成されるので、APP表領域のデータファイルだけRESTORE/RECOVERすればよい。",
+        "D": "UNDO表領域をRECOVERするには常にデータベース全体の不完全リカバリが必要である。"
+      },
+      "correctChoice": "B",
+      "correctText": "UNDO表領域の障害を含むので、データベースをMOUNTして必要なデータファイルをRESTORE/RECOVER後、OPENする。",
+      "explanation": "正解：B\n\nA（誤り）：UNDOはデータベースの正常なOPEN運用に必要であり、通常ユーザー表領域と同じオンライン復旧を適用できない。\nB（正しい）：UNDO表領域の障害時はMOUNT状態で必要なファイルの復元と回復を行い、完全復旧できたらOPENする。\nC（誤り）：UNDO表領域はTEMPFILEのように失われても自動再生成される領域ではない。\nD（誤り）：バックアップとREDOが完備していれば完全リカバリが可能であり、不完全リカバリに限られない。",
+      "topic": "UNDO障害との複合復旧",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch14q019",
+      "chapter": 14,
+      "question": "`DB_FLASHBACK_RETENTION_TARGET=2880`（分）でフラッシュバックロギングが有効。保証付きリストアポイントは存在しない。次の問合せ結果が得られた。\n```sql\nSELECT OLDEST_FLASHBACK_TIME FROM V$FLASHBACK_DATABASE_LOG;\n-- 2026-11-14 09:00:00\n```\n現在は同日12:00。運用者が「昨日の12:00まで戻せる」と判断した。評価として適切なのはどれか。",
+      "choices": {
+        "A": "RETENTION_TARGETは48時間なので、OLDEST_FLASHBACK_TIMEより古くても昨日12:00への復旧が保証される。",
+        "B": "OLDEST_FLASHBACK_TIMEはアーカイブログの最古日時のみを表すため、フラッシュバック可否の判断には使わない。",
+        "C": "フラッシュバック可能期間の開始は利用可能なログに依存するため、現状のログだけでは昨日12:00へ戻せない。",
+        "D": "保証付きリストアポイントがなくても、RETENTION_TARGETの指定で過去48時間のすべてのSCNが保持される。"
+      },
+      "correctChoice": "C",
+      "correctText": "フラッシュバック可能期間の開始は利用可能なログに依存するため、現状のログだけでは昨日12:00へ戻せない。",
+      "explanation": "正解：C\n\nA（誤り）：保存期間は目標値であり、FRAの空き状況等により実際の到達可能期間は短くなり得る。\nB（誤り）：V$FLASHBACK_DATABASE_LOGはフラッシュバックログに基づく復帰可能範囲を確認するために利用する。\nC（正しい）：最古フラッシュバック日時が同日09:00なら、それより古い昨日12:00は利用可能なフラッシュバックログの範囲外である。\nD（誤り）：保証がない限り指定した時間幅を維持することは保証されない。",
+      "topic": "フラッシュバックウィンドウの確認",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch14q020",
+      "chapter": 14,
+      "question": "Flashback Databaseのロギングを無効にしたCDBで、保証付きリストアポイント`RP_PATCH`だけを作成し、その後に同じブロックを複数回更新した。ストレージ負荷を抑えながら`RP_PATCH`への復帰を確実にしたい。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "最初の変更前イメージを保持することで、RP_PATCH時点のブロック内容を再構成できる。",
+        "B": "保証付きリストアポイントだけを使う場合でも、通常のフラッシュバックロギングと同頻度で同一ブロックを常に記録する。",
+        "C": "保存されるログはRP_PATCHだけでなく、任意の中間SCNに戻れることも保証する。",
+        "D": "保証のために必要なフラッシュバックログを自動再利用せず保持するので、FRA容量監視が重要となる。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "最初の変更前イメージを保持することで、RP_PATCH時点のブロック内容を再構成できる。、保証のために必要なフラッシュバックログを自動再利用せず保持するので、FRA容量監視が重要となる。",
+      "explanation": "正解：A、D\n\nA（正しい）：通常のフラッシュバックロギングがOFFでも、保証付きリストアポイントに必要な変更前イメージは保存される。\nB（誤り）：保証付きリストアポイントのみで運用する場合、同じブロックの変更前イメージは原則初回変更時に記録する方式であり、通常のロギングと動作が異なる。\nC（誤り）：通常のフラッシュバックロギングを無効にしている場合は、一般に保証付きリストアポイント以外の任意時点へのフラッシュバックを保証しない。\nD（正しい）：保証対象のログはFRA逼迫でも回収候補から除外され、容量不足がデータベース運用に影響し得る。",
+      "topic": "保証付きRPのみのロギング動作",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch14q021",
+      "chapter": 14,
+      "question": "開発環境で次のSQLが正常終了した。数日後、DB_FLASHBACK_RETENTION_TARGETの目標時間を超えたが、運用者はリストアポイントを削除していない。正しい説明を2つ選べ。\n```sql\nCREATE RESTORE POINT RELEASE_A GUARANTEE FLASHBACK DATABASE;\n```",
+      "choices": {
+        "A": "RELEASE_Aは通常のリストアポイントと同様に、CONTROL_FILE_RECORD_KEEP_TIME経過後に自動削除される。",
+        "B": "RELEASE_Aは管理者がDROP RESTORE POINTを実行するまで保持される。",
+        "C": "DB_FLASHBACK_RETENTION_TARGETを短縮すると、保証付きRPに必要なログもただちに回収対象となる。",
+        "D": "必要ログを保持する保証とFRA容量の制約が衝突すると、データベースの稼働に影響が出る場合がある。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "RELEASE_Aは管理者がDROP RESTORE POINTを実行するまで保持される。、必要ログを保持する保証とFRA容量の制約が衝突すると、データベースの稼働に影響が出る場合がある。",
+      "explanation": "正解：B、D\n\nA（誤り）：保証付きRPは自動でエージアウトしない。\nB（正しい）：保証付きRPは明示的にDROPされるまで保存される。\nC（誤り）：保証対象ログはRETENTION_TARGETの設定値だけでは回収可能にならない。\nD（正しい）：回収可能なファイルがなくなると、FRA満杯が書込み処理などへ影響し得る。",
+      "topic": "RPの寿命とFRA容量競合",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch14q022",
+      "chapter": 14,
+      "question": "運用中のデータベースで`ALTER DATABASE FLASHBACK ON`が有効、必要なフラッシュバックログとREDOは保持されている。過去のSCNへ戻すための作業中、制御ファイルをバックアップからリストアした。次の判断として適切なのはどれか。",
+      "choices": {
+        "A": "制御ファイルのリストア後も、フラッシュバックログだけが残っていれば元の制御ファイルを使用したときと同じフラッシュバックが必ず可能である。",
+        "B": "制御ファイルリストア後のフラッシュバックには、通常のFLASHBACK DATABASEだけでは対処できない制約があり、復旧計画を再検討する。",
+        "C": "制御ファイルをリストアした場合は、FLASHBACK DATABASEの前に必ずALTER DATABASE FLASHBACK OFFを実行してから再有効化すれば制約が解除される。",
+        "D": "制御ファイルのリストアは保証付きRPの設定と無関係なので、RPを指定すれば制約は必ず回避できる。"
+      },
+      "correctChoice": "B",
+      "correctText": "制御ファイルリストア後のフラッシュバックには、通常のFLASHBACK DATABASEだけでは対処できない制約があり、復旧計画を再検討する。",
+      "explanation": "正解：B\n\nA（誤り）：データファイルの状態や制御ファイルの継続性が条件になり、ログの残存だけでは実行可能とは限らない。\nB（正しい）：教材に記載される重要な制約の一つであり、バックアップを利用するDBPITR等を検討する必要がある。\nC（誤り）：OFF/ONだけで制御ファイル復元による制約を解消する一般的な保証はない。\nD（誤り）：保証付きRPの存在だけで、制御ファイル復元の制限を無条件に無視できない。",
+      "topic": "制御ファイル復元とFlashback制約",
       "difficulty": "hard"
     }
   ]
