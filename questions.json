@@ -69,6 +69,11 @@
       "chapter": 29,
       "title": "CDB/PDBの管理とリソース制御",
       "description": "コンテナ接続・起動、初期化パラメータ、ローカルUNDO、スナップショット、リソースマネージャ、AWR"
+    },
+    {
+      "chapter": 34,
+      "title": "アプリケーションコンテナ",
+      "description": "アプリルート・アプリシード・アプリPDB、インストール・同期・アップグレード、共通オブジェクト、コンテナマップ、共通ポリシー"
     }
   ],
   "questions": [
@@ -6846,6 +6851,682 @@
       "correctText": "制御ファイルリストア後のフラッシュバックには、通常のFLASHBACK DATABASEだけでは対処できない制約があり、復旧計画を再検討する。",
       "explanation": "正解：B\n\nA（誤り）：データファイルの状態や制御ファイルの継続性が条件になり、ログの残存だけでは実行可能とは限らない。\nB（正しい）：教材に記載される重要な制約の一つであり、バックアップを利用するDBPITR等を検討する必要がある。\nC（誤り）：OFF/ONだけで制御ファイル復元による制約を解消する一般的な保証はない。\nD（誤り）：保証付きRPの存在だけで、制御ファイル復元の制限を無条件に無視できない。",
       "topic": "制御ファイル復元とFlashback制約",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q001",
+      "chapter": 34,
+      "question": "1つのCDB内に2つのアプリケーションコンテナAPPROOT_A、APPROOT_Bを構成する。所属関係として正しいものを2つ選べ。",
+      "choices": {
+        "A": "APPROOT_Aに属するアプリPDBは、同時にAPPROOT_Bの子にもできる。",
+        "B": "APPROOT_Aの下に複数のアプリPDBを作成できる。",
+        "C": "APPROOT_Aのアプリルートには複数のアプリケーションを導入できる。",
+        "D": "CDB内ではアプリケーションコンテナは一つしか作れない。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "APPROOT_Aの下に複数のアプリPDBを作成できる。、APPROOT_Aのアプリルートには複数のアプリケーションを導入できる。",
+      "explanation": "正解：B、C\n\nA（誤り）：アプリPDBが属せるアプリケーションコンテナは一つに限られる。\nB（正しい）：1つのアプリルートの下に複数のアプリPDBを保持できる。\nC（正しい）：アプリルートは単一アプリケーション専用ではない。\nD（誤り）：1つのCDBに複数のアプリケーションコンテナを作成できる。",
+      "topic": "アプリケーションコンテナの所属構造",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch34q002",
+      "chapter": 34,
+      "question": "CDBルートに管理権限で接続しており、新しいアプリケーションコンテナSALESROOTを作成したい。正しいSQLとその結果はどれか。",
+      "choices": {
+        "A": "`CREATE PLUGGABLE DATABASE SALESROOT AS APPLICATION CONTAINER;`で作成し、SALESROOTがアプリルートとなる。",
+        "B": "`CREATE APPLICATION CONTAINER SALESROOT;`で作成し、SALESROOTとは別名のアプリルートが自動生成される。",
+        "C": "`CREATE PLUGGABLE DATABASE SALESROOT AS APPLICATION PDB;`で作成し、後でアプリルートへ変換する。",
+        "D": "`ALTER DATABASE CREATE APPLICATION ROOT SALESROOT;`をCDBルートで実行する。"
+      },
+      "correctChoice": "A",
+      "correctText": "`CREATE PLUGGABLE DATABASE SALESROOT AS APPLICATION CONTAINER;`で作成し、SALESROOTがアプリルートとなる。",
+      "explanation": "正解：A\n\nA（正しい）：アプリコンテナ作成と同時に同名のアプリルートが成立する。実行に必要な他の句は環境に応じて補う。\nB（誤り）：Oracle 19cではCREATE PLUGGABLE DATABASEのAS APPLICATION CONTAINERを使う。\nC（誤り）：アプリルートを作成する句はAS APPLICATION CONTAINERである。\nD（誤り）：そのようなアプリルート作成構文ではない。",
+      "topic": "アプリルートの作成",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q003",
+      "chapter": 34,
+      "question": "新規アプリコンテナとアプリPDBを用意し、APP_A v1を各PDBで利用可能にしたい。正しい作業順序を選べ。",
+      "choices": {
+        "A": "アプリコンテナ作成・OPEN→アプリルートでBEGIN/END INSTALL→アプリPDB作成→各アプリPDBでSYNC。",
+        "B": "CDBルートでAPP_AをINSTALL→アプリコンテナ作成→アプリPDBをOPEN。",
+        "C": "アプリPDBに接続してBEGIN INSTALL→アプリルート作成→END INSTALL→SYNC。",
+        "D": "アプリコンテナ作成→アプリPDB作成→CDBルートでSYNC→アプリルートでINSTALL。"
+      },
+      "correctChoice": "A",
+      "correctText": "アプリコンテナ作成・OPEN→アプリルートでBEGIN/END INSTALL→アプリPDB作成→各アプリPDBでSYNC。",
+      "explanation": "正解：A\n\nA（正しい）：アプリケーション定義をルートに導入し、各アプリPDBで同期させる流れである。\nB（誤り）：アプリケーションは作成したアプリルートにインストールする。\nC（誤り）：INSTALLはアプリルート上で実行する。\nD（誤り）：同期は導入済みアプリケーションをアプリPDBに反映させる操作である。",
+      "topic": "導入手順",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q004",
+      "chapter": 34,
+      "question": "アプリルートAPPROOTに接続してAPP_A v1.0を導入する。アプリケーション共通表のCREATE文を記録させる操作として適切なものを選べ。",
+      "choices": {
+        "A": "`ALTER PLUGGABLE DATABASE APPLICATION APP_A BEGIN INSTALL '1.0';`→表作成→`ALTER PLUGGABLE DATABASE APPLICATION APP_A END INSTALL '1.0';`",
+        "B": "`ALTER PLUGGABLE DATABASE APPLICATION APP_A SYNC;`→表作成→`END INSTALL '1.0';`",
+        "C": "`ALTER PLUGGABLE DATABASE APPLICATION APP_A BEGIN UPGRADE '1.0' TO '1.0';`→表作成→END INSTALL",
+        "D": "`ALTER PLUGGABLE DATABASE APPROOT BEGIN INSTALL '1.0';`→表作成→END INSTALL"
+      },
+      "correctChoice": "A",
+      "correctText": "`ALTER PLUGGABLE DATABASE APPLICATION APP_A BEGIN INSTALL '1.0';`→表作成→`ALTER PLUGGABLE DATABASE APPLICATION APP_A END INSTALL '1.0';`",
+      "explanation": "正解：A\n\nA（正しい）：BEGIN/END INSTALLでアプリのインストール作業を囲む。\nB（誤り）：SYNCはアプリPDBへの反映でありINSTALLの開始を代用しない。\nC（誤り）：新規導入はINSTALLを使う。\nD（誤り）：APPLICATIONにアプリ名を指定する構文が必要。",
+      "topic": "INSTALLコマンドのコンテナ",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q005",
+      "chapter": 34,
+      "question": "アプリルートでAPP_Aのv1→v2アップグレードが正常終了した。アプリPDB_Aはv1のまま、アプリPDB_Bはv2にしたい。正しい対応はどれか。",
+      "choices": {
+        "A": "APPROOTでEND UPGRADEが成功した時点で両アプリPDBがv2へ変更され、個別管理できない。",
+        "B": "APPROOTで`SYNC TO '2'`を実行するとBだけ変更される。",
+        "C": "A、BともALTER SYSTEM SET APPLICATION_VERSIONで変更する。",
+        "D": "アプリPDB_Bで`ALTER PLUGGABLE DATABASE APPLICATION APP_A SYNC TO '2';`を実行し、Aには同期しない。"
+      },
+      "correctChoice": "D",
+      "correctText": "アプリPDB_Bで`ALTER PLUGGABLE DATABASE APPLICATION APP_A SYNC TO '2';`を実行し、Aには同期しない。",
+      "explanation": "正解：D\n\nA（誤り）：アプリPDBへの変更反映は自動ではなく同期が必要。\nB（誤り）：同期は反映対象のアプリPDBに接続して実行する。\nC（誤り）：そのような版管理方式ではない。\nD（正しい）：アプリPDB単位で同期先のバージョンを選べる。",
+      "topic": "アプリ同期の非自動性",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q006",
+      "chapter": 34,
+      "question": "APP_Aのv1とv2がアプリルートに導入され、PDB_Xはv1で同期済みである。PDB_Xに接続して`ALTER PLUGGABLE DATABASE APPLICATION APP_A SYNC;`を実行した場合の基本動作はどれか。",
+      "choices": {
+        "A": "同期元として最も古いv1を自動選択する。",
+        "B": "同期対象はアプリルートに限られるのでPDB_Xでは実行できない。",
+        "C": "アプリルート側をPDB_Xのv1へ戻す。",
+        "D": "APP_Aの最新バージョンへ同期する。"
+      },
+      "correctChoice": "D",
+      "correctText": "APP_Aの最新バージョンへ同期する。",
+      "explanation": "正解：D\n\nA（誤り）：バージョン無指定ではデフォルトで最新へ進める。\nB（誤り）：アプリPDBに対して同期する。\nC（誤り）：アプリルートを巻き戻すコマンドではない。\nD（正しい）：SYNCのバージョン省略時は通常最新バージョンを反映する。",
+      "topic": "SYNCの既定動作",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q007",
+      "chapter": 34,
+      "question": "アプリシードSEED_AにはAPP_A v1が同期済みであり、これを元に新しいアプリPDBを作成する。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "新しいアプリPDBは元となるアプリシードに反映済みのAPP_A v1を引き継ぐ。",
+        "B": "アプリシード由来のPDBでは、APP_Aの同期コマンドを将来も実行できない。",
+        "C": "アプリシードを作成するにはCDBルートで`CREATE DATABASE AS SEED`が必須である。",
+        "D": "アプリシードからPDBを作るときはアプリシードをREAD ONLYでOPENしておく。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "新しいアプリPDBは元となるアプリシードに反映済みのAPP_A v1を引き継ぐ。、アプリシードからPDBを作るときはアプリシードをREAD ONLYでOPENしておく。",
+      "explanation": "正解：A、D\n\nA（正しい）：同期済みアプリシードから作成されるPDBには当該アプリケーションが導入された状態を引き継げる。\nB（誤り）：アプリPDBへの将来のアップグレード同期は可能。\nC（誤り）：アプリルートでCREATE PLUGGABLE DATABASE AS SEEDを実行する。\nD（正しい）：アプリシードを複製元とするときのOPENモード条件。",
+      "topic": "アプリシードと初期同期",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch34q008",
+      "chapter": 34,
+      "question": "アプリルートに接続し、アプリシードの採用を検討している。正しい説明はどれか。",
+      "choices": {
+        "A": "アプリシードは必須であり、使用しない場合でも削除できない。",
+        "B": "1つのアプリケーションコンテナに複数のアプリシードを作成してバージョン別に保持できる。",
+        "C": "アプリシードはすべてのアプリPDBのデータを格納する共有データ領域である。",
+        "D": "アプリシードは任意で最大1つ、名前はアプリルート名に`$SEED`を付けたものになる。"
+      },
+      "correctChoice": "D",
+      "correctText": "アプリシードは任意で最大1つ、名前はアプリルート名に`$SEED`を付けたものになる。",
+      "explanation": "正解：D\n\nA（誤り）：アプリシードは任意で削除可能。\nB（誤り）：アプリシードは最大1つ。\nC（誤り）：PDB作成時の雛形でありアプリPDBの共有データ領域ではない。\nD（正しい）：アプリシードの個数と命名規則に合致する。",
+      "topic": "アプリシードの個数",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q009",
+      "chapter": 34,
+      "question": "アプリルートAPPROOTに接続し、初めてアプリシードを作成する。アプリシードの作成方法として適切なものはどれか。",
+      "choices": {
+        "A": "`CREATE PLUGGABLE DATABASE APPROOT$SEED AS APPLICATION CONTAINER;`",
+        "B": "`CREATE RESTORE POINT APPROOT$SEED;`",
+        "C": "`ALTER PLUGGABLE DATABASE APPROOT SET SEED = ON;`",
+        "D": "`CREATE PLUGGABLE DATABASE AS SEED;`"
+      },
+      "correctChoice": "D",
+      "correctText": "`CREATE PLUGGABLE DATABASE AS SEED;`",
+      "explanation": "正解：D\n\nA（誤り）：AS APPLICATION CONTAINERはアプリルートを作る。\nB（誤り）：リストアポイントはPDB作成元ではない。\nC（誤り）：その設定でアプリシードを生成するわけではない。\nD（正しい）：アプリルートで実行するとアプリシードが作成され、名前は自動的に決まる。",
+      "topic": "アプリシードのCREATE",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q010",
+      "chapter": 34,
+      "question": "APP_A v1.0導入済みのアプリルートでv2.0へのアップグレードを記録したい。適切なコマンド列はどれか。",
+      "choices": {
+        "A": "`BEGIN PATCH '2.0'`→DDL→`END UPGRADE '2.0'`",
+        "B": "`BEGIN UPGRADE '1.0' TO '2.0'`→DDL→`END PATCH '2.0'`",
+        "C": "`BEGIN INSTALL '2.0'`→DDL→`END INSTALL '2.0'`",
+        "D": "`BEGIN UPGRADE '1.0' TO '2.0'`→DDL→`END UPGRADE '2.0'`"
+      },
+      "correctChoice": "D",
+      "correctText": "`BEGIN UPGRADE '1.0' TO '2.0'`→DDL→`END UPGRADE '2.0'`",
+      "explanation": "正解：D\n\nA（誤り）：PATCHとUPGRADEは対になるBEGIN/ENDを用いる。\nB（誤り）：開始は正しいが終了はEND UPGRADEが必要。\nC（誤り）：既存アプリをv1からv2へ更新する操作はUPGRADEである。\nD（正しい）：旧版・新版を指定してアップグレードの操作範囲を記録する。",
+      "topic": "バージョン別のアップグレード",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q011",
+      "chapter": 34,
+      "question": "APP_A v2.0に修正パッチ101を適用して一部PDBにだけ反映したい。正しい手順を2つ選べ。",
+      "choices": {
+        "A": "アプリルートで`BEGIN PATCH 101`→変更→`END PATCH 101`を実行する。",
+        "B": "アプリルートでパッチを閉じれば、すべてのアプリPDBにも自動的に反映される。",
+        "C": "反映したいアプリPDBだけに接続して`SYNC TO PATCH 101`を実行する。",
+        "D": "アプリPDBでBEGIN PATCHを実行してからアプリルートでSYNCする。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "アプリルートで`BEGIN PATCH 101`→変更→`END PATCH 101`を実行する。、反映したいアプリPDBだけに接続して`SYNC TO PATCH 101`を実行する。",
+      "explanation": "正解：A、C\n\nA（正しい）：アプリケーションパッチの記録はアプリルートで行う。\nB（誤り）：各アプリPDBでの同期が必要。\nC（正しい）：指定したパッチへの同期を対象PDB単位で実施できる。\nD（誤り）：PATCHはアプリルート側、SYNCはアプリPDB側の操作。",
+      "topic": "パッチと同期",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch34q012",
+      "chapter": 34,
+      "question": "アプリルートに作成済みのSHARING=DATAの共通表に、既存定義を変更せず行をINSERTした。この表を参照するアプリPDB群について正しい説明はどれか。",
+      "choices": {
+        "A": "各アプリPDBの個別データファイルに同じ行をコピーするため、全PDBでSYNCが必須。",
+        "B": "新規行を含む共通データはアプリルートにあり、共有参照される。",
+        "C": "INSERT後はSHARING属性がMETADATAへ変わる。",
+        "D": "アプリPDBが自分用の行をINSERTでき、他のPDBには見えない。"
+      },
+      "correctChoice": "B",
+      "correctText": "新規行を含む共通データはアプリルートにあり、共有参照される。",
+      "explanation": "正解：B\n\nA（誤り）：DATAはルートにデータを保持して共有する。\nB（正しい）：データリンク共通表はデータ本体をアプリルートで共有する。\nC（誤り）：DMLで共有属性は変化しない。\nD（誤り）：アプリPDB固有データの追加はEXTENDED DATA型の特徴。",
+      "topic": "共通データの変更と反映",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q013",
+      "chapter": 34,
+      "question": "複数テナントで同一の列定義を使い、商品マスタの共通行は全PDBから参照可能にしつつ、PDBごとの独自商品も追加したい。共通表のSHARING属性として最適なものはどれか。",
+      "choices": {
+        "A": "METADATA。表定義と共通行をアプリルートに保存し、各PDBで独自行を追加できる。",
+        "B": "DATA。アプリルート共通行に加え各アプリPDB固有の行を追加できる。",
+        "C": "EXTENDED DATA。ルートの共通行を共有し、アプリPDB固有の行も保持できる。",
+        "D": "NONE。表定義を全PDBで共有し、アプリルートの共通行も自動共有する。"
+      },
+      "correctChoice": "C",
+      "correctText": "EXTENDED DATA。ルートの共通行を共有し、アプリPDB固有の行も保持できる。",
+      "explanation": "正解：C\n\nA（誤り）：METADATAではアプリルートの共通行共有は特徴ではない。\nB（誤り）：DATAではアプリPDB固有データを追加できない。\nC（正しい）：拡張データリンクの用途と一致する。\nD（誤り）：NONEは共通オブジェクトとして共有しない。",
+      "topic": "SHARINGの三分類",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q014",
+      "chapter": 34,
+      "question": "APPROOTのアプリケーション共通表Tは`SHARING=METADATA`で定義され、PDB_AとPDB_Bが同期済み。PDB_AでTに1行INSERTしてCOMMITした。PDB_Bでの観測として正しいものはどれか。",
+      "choices": {
+        "A": "PDB_Bにも同じ行が見える。METADATAはデータの全コンテナ共有を意味する。",
+        "B": "PDB_Bの表定義は共有されるが、PDB_Aが挿入した行は原則見えない。",
+        "C": "PDB_AがINSERTした時点で表のSHARING属性はEXTENDED DATAに変わる。",
+        "D": "PDB_Bは表の列定義自体も共有しない。"
+      },
+      "correctChoice": "B",
+      "correctText": "PDB_Bの表定義は共有されるが、PDB_Aが挿入した行は原則見えない。",
+      "explanation": "正解：B\n\nA（誤り）：METADATAは定義だけ共有し、行データはPDBごとに独立する。\nB（正しい）：メタデータリンクのデータは各PDBに保存される。\nC（誤り）：DMLで属性は変わらない。\nD（誤り）：共通オブジェクトの定義は共有する。",
+      "topic": "SHARING=METADATAの独立性",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q015",
+      "chapter": 34,
+      "question": "アプリルートのDEFAULT_SHARING=DATAで、APP_AのINSTALL中に2つの表を作成した。T1はSHARING句なし、T2は`SHARING=METADATA`を明示。正しい説明を選べ。",
+      "choices": {
+        "A": "T1、T2ともDATAとなる。初期化パラメータがSHARING句より優先。",
+        "B": "T1、T2ともMETADATAとなる。DATAは明示しても選択できない。",
+        "C": "T1はDATA、T2はMETADATAとなる。",
+        "D": "T1はMETADATA、T2はDATAとなる。"
+      },
+      "correctChoice": "C",
+      "correctText": "T1はDATA、T2はMETADATAとなる。",
+      "explanation": "正解：C\n\nA（誤り）：明示SHARING句がDEFAULT_SHARINGに優先する。\nB（誤り）：通常の共通表ではDATAも許可される。\nC（正しい）：省略時はDEFAULT_SHARING、明示時はSHARING句の指定が優先される。\nD（誤り）：優先順位が逆。",
+      "topic": "SHARINGデフォルトの優先順位",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q016",
+      "chapter": 34,
+      "question": "アプリルートのAPP_Aインストール中に共通オブジェクトを作成する。Oracle 19cで適切な説明を2つ選べ。",
+      "choices": {
+        "A": "通常の表ではSHARINGにMETADATA、DATA、EXTENDED DATAを指定できる。",
+        "B": "すべての共通オブジェクト種別でEXTENDED DATAを指定できる。",
+        "C": "シーケンスではSHARING=EXTENDED DATAが標準的に使用できる。",
+        "D": "メタデータリンクのシーケンスは各アプリPDBが独自の連番を持てる。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "通常の表ではSHARINGにMETADATA、DATA、EXTENDED DATAを指定できる。、メタデータリンクのシーケンスは各アプリPDBが独自の連番を持てる。",
+      "explanation": "正解：A、D\n\nA（正しい）：通常の表は3形式に対応している。\nB（誤り）：EXTENDED DATAを使えるオブジェクト種別には制限がある。\nC（誤り）：シーケンスはMETADATAとDATAをサポートするがEXTENDED DATAは不可。\nD（正しい）：METADATA型のシーケンスはPDBごとに値を保持する。",
+      "topic": "SHARING型とオブジェクト種別",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch34q017",
+      "chapter": 34,
+      "question": "アプリルートでAPP_Aのインストール操作を終了した。翌日、共通表の列定義を追加してPDB群へ配布したい。正しい運用はどれか。",
+      "choices": {
+        "A": "共通表の変更をアプリケーションのUPGRADEまたはPATCHのBEGIN/END操作内で実施し、その後に対象PDBをSYNCする。",
+        "B": "ルートに接続してALTER TABLEだけ実行すれば、同期なしで全PDBが必ず新定義になる。",
+        "C": "PDBごとに直接ALTER TABLEを実行し、ルートの共通表を変更しない。",
+        "D": "アプリルートのDEFAULT_SHARINGを変更すれば既存表の列が増える。"
+      },
+      "correctChoice": "A",
+      "correctText": "共通表の変更をアプリケーションのUPGRADEまたはPATCHのBEGIN/END操作内で実施し、その後に対象PDBをSYNCする。",
+      "explanation": "正解：A\n\nA（正しい）：共通オブジェクトの変更はアプリケーション操作の記録と同期で配布する。\nB（誤り）：アプリ共通オブジェクトの変更を通常の独立DDLとして全PDBへ自動配布するわけではない。\nC（誤り）：共通定義はアプリルートの操作として管理する。\nD（誤り）：共有属性のデフォルト設定と列DDLは異なる。",
+      "topic": "アプリ変更のBEGIN/END",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q018",
+      "chapter": 34,
+      "question": "アプリPDB_Aにローカル表CUSTOMERSがあり、アプリルートに同名の共通表を新規導入して同期したい。Oracle 19cの取り扱いとして適切なのはどれか。",
+      "choices": {
+        "A": "共通表の方が優先されるので、ローカル表はデータを維持したまま自動改名される。",
+        "B": "アプリルートでは同名の共通表を作成できても、名前衝突があるPDBではRESTRICTEDで開かれる場合があり衝突解消が必要。",
+        "C": "同名の共通表とローカル表は無条件で両立し、常にローカル表が優先される。",
+        "D": "名前衝突はSHARINGをDATAに変更すれば解決する。"
+      },
+      "correctChoice": "B",
+      "correctText": "アプリルートでは同名の共通表を作成できても、名前衝突があるPDBではRESTRICTEDで開かれる場合があり衝突解消が必要。",
+      "explanation": "正解：B\n\nA（誤り）：オブジェクト名衝突は自動改名で解決されない。\nB（正しい）：共通オブジェクトとローカルオブジェクトの名前の競合は制限モードの要因になる。\nC（誤り）：アプリ共通オブジェクトの名はローカル名と衝突できない。\nD（誤り）：SHARING属性で名前衝突を回避できない。",
+      "topic": "アプリ共通オブジェクトの名前衝突",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q019",
+      "chapter": 34,
+      "question": "アプリPDBが地域別に存在する。`CONTAINERS(APP_OWNER.ORDERS)`に`WHERE REGION_ID=20`を指定し、REGION_IDに対応するPDBだけにアクセスしたい。最も直接的に役立つ機能はどれか。",
+      "choices": {
+        "A": "DEFAULT_SHARINGをDATAにする。",
+        "B": "PDBのSAVE STATEを有効にする。",
+        "C": "コンテナマップを構成して地域値とアクセス先PDBを対応付ける。",
+        "D": "すべてのアプリPDBのサービス名を同一にする。"
+      },
+      "correctChoice": "C",
+      "correctText": "コンテナマップを構成して地域値とアクセス先PDBを対応付ける。",
+      "explanation": "正解：C\n\nA（誤り）：表の共有属性だけで地域値→PDBのマッピングは構成しない。\nB（誤り）：PDB再起動時のOPENモード保持でありルーティング機能ではない。\nC（正しい）：コンテナマップは実データ値に基づいて対象コンテナを絞るために使う。\nD（誤り）：接続サービス名の重複は問合せのコンテナ選択に利用しない。",
+      "topic": "コンテナマップの目的",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q020",
+      "chapter": 34,
+      "question": "コンテナマップの採用を検討している。適切な説明を2つ選べ。",
+      "choices": {
+        "A": "各PDBに異なる行がある共通表には、SHARING=METADATAが適している。",
+        "B": "コンテナマップはすべてのSQLをCDBルートに複製するためのバックアップ機能である。",
+        "C": "WHERE句にCON_IDを指定しなくても、実データを条件にアクセス先PDBを判断できる構成にできる。",
+        "D": "コンテナマップを使うと、すべての共通表がSHARING=DATAに強制変更される。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "各PDBに異なる行がある共通表には、SHARING=METADATAが適している。、WHERE句にCON_IDを指定しなくても、実データを条件にアクセス先PDBを判断できる構成にできる。",
+      "explanation": "正解：A、C\n\nA（正しい）：PDBごとに別々のデータを保持する用途と一致する。\nB（誤り）：CONTAINERS跨りのアクセス先絞り込みに使う。\nC（正しい）：データ値とPDBの対応を保持する。\nD（誤り）：共有属性の変更は行われない。",
+      "topic": "コンテナマップの前提",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch34q021",
+      "chapter": 34,
+      "question": "アプリルートでコンテナマップを構成する。実データをキーに絞り込むための操作の組み合わせとして適切なものはどれか。",
+      "choices": {
+        "A": "PDBごとに`ALTER SYSTEM SET CONTAINER_MAP=ON`を指定するだけ。",
+        "B": "マップ表を作成→アプリルートのCONTAINER_MAPにマップ表を指定→対象表でENABLE CONTAINERS_MAP。",
+        "C": "アプリルートで`ENABLE CONTAINERS_MAP_DEFAULT`のみを実行する。",
+        "D": "すべてのアプリPDBをアンプラグしてマップ表へ登録し直す。"
+      },
+      "correctChoice": "B",
+      "correctText": "マップ表を作成→アプリルートのCONTAINER_MAPにマップ表を指定→対象表でENABLE CONTAINERS_MAP。",
+      "explanation": "正解：B\n\nA（誤り）：対応関係を表すマップ表が必要で、コンテナ設定も異なる。\nB（正しい）：教材記載の構成手順で、マップ表と対象表をひもづける。\nC（誤り）：デフォルト設定だけではマップ表とCONTAINER_MAPがない。\nD（誤り）：プラグ操作は必要ない。",
+      "topic": "コンテナマップ構成の順序",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q022",
+      "chapter": 34,
+      "question": "マップ表をアプリルートのCONTAINER_MAPに設定し、対象共通表Tで`ENABLE CONTAINERS_MAP`済み。追加で`ALTER TABLE T ENABLE CONTAINERS_MAP_DEFAULT`を実行する目的はどれか。",
+      "choices": {
+        "A": "Tへの通常の問合せでも、CONTAINERS句を明記せずコンテナをまたぐ問合せにできる。",
+        "B": "TのSHARING属性をMETADATAからDATAへ変える。",
+        "C": "Tに対するアクセスを常にカレントPDBだけに限定する。",
+        "D": "各アプリPDBの一時表領域に表Tの全行をコピーする。"
+      },
+      "correctChoice": "A",
+      "correctText": "Tへの通常の問合せでも、CONTAINERS句を明記せずコンテナをまたぐ問合せにできる。",
+      "explanation": "正解：A\n\nA（正しい）：デフォルト化はCONTAINERS句の省略を許す。\nB（誤り）：共通属性を変更する操作ではない。\nC（誤り）：逆にコンテナ跨りの既定動作を可能にする。\nD（誤り）：データコピー機能ではない。",
+      "topic": "CONTAINERS_MAP_DEFAULTの効果",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q023",
+      "chapter": 34,
+      "question": "コンテナマップを構成したあと、DBA_TABLESで設定を確認する。正しい対応を2つ選べ。",
+      "choices": {
+        "A": "マップ表の`CONTAINERS_MAP_OBJECT=YES`はマップ表であることを示す。",
+        "B": "対象表の`CONTAINERS_MAP=YES`はコンテナマップの有効化を示す。",
+        "C": "対象表の`CONTAINERS_DEFAULT=YES`はSHARING=DATAを強制する。",
+        "D": "マップ表の`CONTAINERS_MAP_OBJECT=YES`はアプリシードへの昇格を示す。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "マップ表の`CONTAINERS_MAP_OBJECT=YES`はマップ表であることを示す。、対象表の`CONTAINERS_MAP=YES`はコンテナマップの有効化を示す。",
+      "explanation": "正解：A、B\n\nA（正しい）：マップ表として指定された表の識別に使う。\nB（正しい）：対象表にENABLE CONTAINERS_MAPを行ったことを示す。\nC（誤り）：CONTAINERS句の既定適用を示しSHARINGは変更しない。\nD（誤り）：マップ表を識別する列である。",
+      "topic": "コンテナマップの辞書列",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch34q024",
+      "chapter": 34,
+      "question": "アプリルートAPPROOTと、その下のアプリPDB P1・P2を別CDBへ複製したい。操作結果として正しい説明はどれか。",
+      "choices": {
+        "A": "APPROOTをAS APPLICATION CONTAINERで複製すればP1・P2のデータファイルも自動複製される。",
+        "B": "アプリルートを複製できるが、子アプリPDBは別途複製・接続する必要がある。",
+        "C": "APPROOTは複製できず、P1・P2だけが複製できる。",
+        "D": "P1・P2を先にCDBルートに複製すれば自動的にアプリルートが構成される。"
+      },
+      "correctChoice": "B",
+      "correctText": "アプリルートを複製できるが、子アプリPDBは別途複製・接続する必要がある。",
+      "explanation": "正解：B\n\nA（誤り）：アプリルートの複製だけでは子アプリPDBは複製されない。\nB（正しい）：アプリルートと子アプリPDBは複製対象が異なる。\nC（誤り）：アプリルート自身も複製可能。\nD（誤り）：アプリPDBの所属先となるアプリルートが必要。",
+      "topic": "アプリルートとPDBのクローニング",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q025",
+      "chapter": 34,
+      "question": "APP_A v2.0を導入済みのアプリPDBを、別のアプリコンテナへ複製・接続したい。正しい前提を2つ選べ。",
+      "choices": {
+        "A": "複製先アプリルートにも対象アプリケーションの互換となる同一バージョンが導入されている必要がある。",
+        "B": "複製・接続用のCREATE PLUGGABLE DATABASEは複製先のアプリルートで実行する。",
+        "C": "複製元のPDBが存在すれば、複製先アプリルートは一切不要である。",
+        "D": "同一CDB内である限り、アプリPDBを複数のアプリコンテナに同時所属させられる。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "複製先アプリルートにも対象アプリケーションの互換となる同一バージョンが導入されている必要がある。、複製・接続用のCREATE PLUGGABLE DATABASEは複製先のアプリルートで実行する。",
+      "explanation": "正解：A、B\n\nA（正しい）：アプリケーションバージョンの整合性が要求される。\nB（正しい）：対象アプリコンテナのアプリルートで実行する。\nC（誤り）：所属先アプリルートが必要。\nD（誤り）：同時に属せるアプリコンテナは一つ。",
+      "topic": "アプリPDBの別コンテナへの移行",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch34q026",
+      "chapter": 34,
+      "question": "アプリコンテナAPPROOTをアンプラグしたいが、その中にアプリPDBが2つ残っている。正しい対応はどれか。",
+      "choices": {
+        "A": "アプリルートだけをUNPLUGすれば残るアプリPDBも自動的に別のCDBへ移動される。",
+        "B": "アプリルートのSHARINGをMETADATAへ変更してからUNPLUGする。",
+        "C": "所属アプリPDBを削除またはアンプラグしてからアプリコンテナをUNPLUGする。",
+        "D": "アプリルートのアプリケーションをすべてSYNCすれば子PDBを残してUNPLUGできる。"
+      },
+      "correctChoice": "C",
+      "correctText": "所属アプリPDBを削除またはアンプラグしてからアプリコンテナをUNPLUGする。",
+      "explanation": "正解：C\n\nA（誤り）：子PDBは自動的に移動されない。\nB（誤り）：UNPLUGの子PDB条件とは無関係。\nC（正しい）：アプリコンテナ切断前に子アプリPDBの切り離しが必要。\nD（誤り）：SYNCは切断条件を解除しない。",
+      "topic": "アプリコンテナのUNPLUG制約",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q027",
+      "chapter": 34,
+      "question": "アプリルートで共通統合監査ポリシーを設定し、アプリPDB群へ適用したい。ポリシーの扱いとして適切なのはどれか。",
+      "choices": {
+        "A": "共通統合監査ポリシーはアプリPDBへ反映できず、各PDBで別個にCREATEが必須。",
+        "B": "アプリルートでCONTAINER=ALLを指定した共通統合監査ポリシーを作成できる。",
+        "C": "アプリルートでCONTAINER=CURRENTとすると、全アプリPDBに共通ポリシーが適用される。",
+        "D": "統合監査ポリシーはDBMS_FGA.ADD_POLICYでしか作成できない。"
+      },
+      "correctChoice": "B",
+      "correctText": "アプリルートでCONTAINER=ALLを指定した共通統合監査ポリシーを作成できる。",
+      "explanation": "正解：B\n\nA（誤り）：アプリケーション共通の統合監査ポリシーを作成できる。\nB（正しい）：アプリコンテナ内の共通ポリシーの作成要件。\nC（誤り）：CURRENTは現在のコンテナに限られる。\nD（誤り）：FGA用プロシージャと統合監査ポリシー作成は異なる。",
+      "topic": "アプリケーション共通監査の扱い",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q028",
+      "chapter": 34,
+      "question": "アプリルートでAPP_Aの`BEGIN PATCH`/`END PATCH`内に`DBMS_FGA.ADD_POLICY`を記録し、アプリケーション共通FGAポリシーを作成した。正しい次の運用はどれか。",
+      "choices": {
+        "A": "アプリPDBで個別にSYNCして反映する。",
+        "B": "統合監査ポリシーと同様に、必ず即座に全PDBへ同期される。",
+        "C": "FGAはアプリPDBでは一切使用できない。",
+        "D": "CDBルートで`ALTER DATABASE FLASHBACK ON`を実行して同期する。"
+      },
+      "correctChoice": "A",
+      "correctText": "アプリPDBで個別にSYNCして反映する。",
+      "explanation": "正解：A\n\nA（正しい）：アプリ共通FGAポリシーはアプリケーションの操作として定義し、PDBへの手動同期が必要。\nB（誤り）：FGAは手動同期が必要となる。\nC（誤り）：アプリケーション共通FGAは設定可能。\nD（誤り）：Flashback DatabaseはFGA同期と無関係。",
+      "topic": "FGAポリシーの同期",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q029",
+      "chapter": 34,
+      "question": "APP_AのアプリPDB群に同じVPDポリシーを適用する。最も適切な説明はどれか。",
+      "choices": {
+        "A": "VPDポリシーはアプリケーション共通ポリシーとしては作成できない。",
+        "B": "アプリルートでCREATE AUDIT POLICY CONTAINER=ALLを実行すればVPDポリシーが自動生成される。",
+        "C": "アプリルートのアプリケーションBEGIN/END操作内で共通VPDポリシーを定義し、各PDBへ同期する。",
+        "D": "VPDはアプリルートで定義した時点で全PDBへ自動同期され、手動SYNCは使用できない。"
+      },
+      "correctChoice": "C",
+      "correctText": "アプリルートのアプリケーションBEGIN/END操作内で共通VPDポリシーを定義し、各PDBへ同期する。",
+      "explanation": "正解：C\n\nA（誤り）：アプリ共通VPDポリシーを作成できる。\nB（誤り）：統合監査ポリシーはVPDポリシーとは異なる。\nC（正しい）：アプリ共通VPDもBEGIN/END内で定義し手動同期が必要。\nD（誤り）：教材上のVPDの配布には手動同期が必要。",
+      "topic": "VPDポリシーの共通化",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q030",
+      "chapter": 34,
+      "question": "アプリコンテナ内のセキュリティポリシーに関する正しい説明を2つ選べ。",
+      "choices": {
+        "A": "透過的機密データ保護ポリシーはアプリケーション共通ポリシーとして作成できる。",
+        "B": "透過的機密データ保護ポリシーは常にコンテナ固有で、アプリケーションのBEGIN/END操作内へ含められない。",
+        "C": "Oracle Label Securityポリシーはアプリルートに作成し、アプリPDBへ自動伝播させる。",
+        "D": "Oracle Label SecurityポリシーはアプリPDBに作成でき、コンテナ固有となる。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "透過的機密データ保護ポリシーは常にコンテナ固有で、アプリケーションのBEGIN/END操作内へ含められない。、Oracle Label SecurityポリシーはアプリPDBに作成でき、コンテナ固有となる。",
+      "explanation": "正解：B、D\n\nA（誤り）：透過的機密データ保護ポリシーはコンテナ固有である。\nB（正しい）：教材記載のコンテナ固有ポリシーとしての制約。\nC（誤り）：OLSポリシーはアプリルートに作成できない。\nD（正しい）：アプリPDB側で設定するコンテナローカルポリシー。",
+      "topic": "透過的機密データ保護とOLS",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch34q031",
+      "chapter": 34,
+      "question": "アプリルートで共通の統合監査ポリシー、FGAポリシー、VPDポリシーを適切に作成した。教材に示されたアプリPDBへの反映方法の比較として適切なものはどれか。",
+      "choices": {
+        "A": "統合監査、FGA、VPDはいずれも手動SYNC不要。",
+        "B": "統合監査のみ手動SYNC必須、FGAとVPDは自動。",
+        "C": "いずれもアプリケーション共通化できない。",
+        "D": "共通統合監査は自動的に反映されるが、FGAとVPDはアプリPDB側でSYNCが必要。"
+      },
+      "correctChoice": "D",
+      "correctText": "共通統合監査は自動的に反映されるが、FGAとVPDはアプリPDB側でSYNCが必要。",
+      "explanation": "正解：D\n\nA（誤り）：FGA・VPDは手動同期を必要とする。\nB（誤り）：同期要否が逆。\nC（誤り）：三者ともアプリ共通ポリシーを作成できる。\nD（正しい）：教材で示された同期の違い。",
+      "topic": "同期方式の比較",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q032",
+      "chapter": 34,
+      "question": "地域ID 10,20はPDB_EAST、30,40はPDB_WESTに配置されている。コンテナマップ用の表を作るとき、データの対応を表す方法として適切なのはどれか。",
+      "choices": {
+        "A": "REGION_IDをキーとするLISTパーティションに、PDB_EASTとPDB_WESTに対応する値を割り当てる。",
+        "B": "アプリルートでREGION_IDごとにREDOロググループを割り当てる。",
+        "C": "コンテナマップの代わりにPDBをREAD ONLYでOPENする。",
+        "D": "CONTAINERS句を禁止し、全PDBで共通シノニムを作成する。"
+      },
+      "correctChoice": "A",
+      "correctText": "REGION_IDをキーとするLISTパーティションに、PDB_EASTとPDB_WESTに対応する値を割り当てる。",
+      "explanation": "正解：A\n\nA（正しい）：マップ表のLISTパーティションがキー値と対象PDBを対応させる。\nB（誤り）：REDOロググループの割当はコンテナマップと無関係。\nC（誤り）：OPENモードはデータ値とPDBの対応を定義しない。\nD（誤り）：コンテナマップはCONTAINERS跨り問合せを強化する。",
+      "topic": "コンテナマップの論理パーティション",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q033",
+      "chapter": 34,
+      "question": "アプリルートでAPP_A v1→v2へのUPGRADEを記録した。一方、PDB_Aはv1のまま、PDB_Bはv2に同期した。両PDBのデータを共通オブジェクトで扱うときの評価として正しいものはどれか。",
+      "choices": {
+        "A": "ルートがv2になったのでPDB_Aの辞書定義も必ず即時v2となり、v1の利用は不可能。",
+        "B": "PDB_Aはv1を維持でき、PDB_Bはv2を使用できる。",
+        "C": "PDB_Bだけv2に同期するにはアプリルートをもう一つ作成する必要がある。",
+        "D": "PDB_Aがv1を保持するにはAPP_AをアプリコンテナからUNPLUGする必要がある。"
+      },
+      "correctChoice": "B",
+      "correctText": "PDB_Aはv1を維持でき、PDB_Bはv2を使用できる。",
+      "explanation": "正解：B\n\nA（誤り）：PDBごとのアプリバージョンは同期まで個別に保持され得る。\nB（正しい）：アプリPDBごとにバージョンを分けて運用できる。\nC（誤り）：同じアプリルート配下で版を分けられる。\nD（誤り）：同期を保留すればv1を維持できる。",
+      "topic": "バージョン互換の実運用",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q034",
+      "chapter": 34,
+      "question": "アプリケーションAPP_AはAPPROOT_A、APP_BはAPPROOT_Bに導入されている。APPROOT_A配下のPDB_Aを操作する場合、正しい説明はどれか。",
+      "choices": {
+        "A": "PDB_AからAPPROOT_Bのアプリケーションへ直接SYNCすれば、PDB_Aを両アプリコンテナに所属させられる。",
+        "B": "CDBルートのSYNCコマンドが両ルートのアプリケーションを一括統合する。",
+        "C": "PDB_AはAPPROOT_Aに属するため、APPROOT_Aにある導入済みアプリを同期対象として扱う。",
+        "D": "APPROOT_AからAPPROOT_Bへアプリコンテナを移動するにはSHARING句をNONEに変更するだけでよい。"
+      },
+      "correctChoice": "C",
+      "correctText": "PDB_AはAPPROOT_Aに属するため、APPROOT_Aにある導入済みアプリを同期対象として扱う。",
+      "explanation": "正解：C\n\nA（誤り）：アプリPDBの所属は単一アプリコンテナである。\nB（誤り）：アプリケーション同期は対象アプリコンテナのアプリPDB単位で行う。\nC（正しい）：所属アプリルートのアプリケーションを反映する。\nD（誤り）：SHARING属性は所属関係の移動コマンドではない。",
+      "topic": "コンテナの所属と同期対象",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q035",
+      "chapter": 34,
+      "question": "アプリケーションUPGRADE実行時、PDBごとに別バージョンを維持できる理由を説明したものとして正しいのはどれか。",
+      "choices": {
+        "A": "アップグレード処理に関連して旧状態のアプリルートが内部的に保持され、未同期のPDBは旧版を利用できる。",
+        "B": "全アプリPDBが旧バージョンに固定されるため、アップグレード後の同期を禁止する。",
+        "C": "古いアプリケーションの実体は各PDBのアーカイブログから毎回リカバリされる。",
+        "D": "同期していないアプリPDBは必ずCDBから自動的にアンプラグされる。"
+      },
+      "correctChoice": "A",
+      "correctText": "アップグレード処理に関連して旧状態のアプリルートが内部的に保持され、未同期のPDBは旧版を利用できる。",
+      "explanation": "正解：A\n\nA（正しい）：教材のアップグレード内部動作モデルに沿う。\nB（誤り）：個別に同期して新版へ進められる。\nC（誤り）：アプリケーション同期の版管理はアーカイブログ復旧ではない。\nD（誤り）：同期保留でアンプラグされるわけではない。",
+      "topic": "アプリルートのコピーとバージョン",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q036",
+      "chapter": 34,
+      "question": "アプリルートのAPP_AのBEGIN INSTALL/END INSTALLの外で通常のCREATE TABLEを実行した。アプリケーション共通オブジェクトとして扱うための判断として適切なのはどれか。",
+      "choices": {
+        "A": "DEFAULT_SHARINGがMETADATAなら、いつCREATEしても自動的にアプリ共通表になる。",
+        "B": "後からSYNCするだけで、操作範囲外で作ったローカル表が自動的に共通化する。",
+        "C": "CDBルートからCONTAINER=ALLを指定してALTER TABLEすれば共通属性へ変換可能。",
+        "D": "共通表として作成・配布するにはアプリケーションのINSTALL/UPGRADE/PATCH操作のBEGIN/END内で作成・変更する。"
+      },
+      "correctChoice": "D",
+      "correctText": "共通表として作成・配布するにはアプリケーションのINSTALL/UPGRADE/PATCH操作のBEGIN/END内で作成・変更する。",
+      "explanation": "正解：D\n\nA（誤り）：共通オブジェクトの作成はアプリケーション操作の範囲内が前提。\nB（誤り）：SYNCは非共通オブジェクトの共通属性を付加しない。\nC（誤り）：CREATE時の共有属性と異なる。\nD（正しい）：アプリケーション共通オブジェクトの成立条件に合う。",
+      "topic": "アプリ共通オブジェクトとSHARINGの適用",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q037",
+      "chapter": 34,
+      "question": "APPROOTにアプリシードを作らずにアプリPDB P1を作成したい。正しい説明はどれか。",
+      "choices": {
+        "A": "アプリシードがない場合、アプリPDBは一切作成できない。",
+        "B": "シードがなければAPPROOTをCDBルートへ変換する必要がある。",
+        "C": "APPROOTで`CREATE PLUGGABLE DATABASE P1 ...`を実行でき、デフォルトではCDBシードを元にする。",
+        "D": "アプリシードがない場合、作成されるPDBは必ずREAD ONLYで固定される。"
+      },
+      "correctChoice": "C",
+      "correctText": "APPROOTで`CREATE PLUGGABLE DATABASE P1 ...`を実行でき、デフォルトではCDBシードを元にする。",
+      "explanation": "正解：C\n\nA（誤り）：アプリシードは任意である。\nB（誤り）：アプリルートの変換は不要である。\nC（正しい）：アプリシードがない場合もPDB作成可能。作成に必要な追加句は環境に依存する。\nD（誤り）：アプリPDBの利用モードが固定されるわけではない。",
+      "topic": "アプリシードの存在とPDB作成",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q038",
+      "chapter": 34,
+      "question": "アプリケーションコンテナを複数テナントへ提供する設計として正しい説明を2つ選べ。",
+      "choices": {
+        "A": "アプリケーションルートに共通アプリケーションの定義を置き、アプリPDBで同期して利用する。",
+        "B": "アプリPDBごとに必ず独立したCDBインスタンスを新規作成する。",
+        "C": "データの共有範囲は共通オブジェクトのSHARING属性によって分けられる。",
+        "D": "アプリルートにAPP_Aをインストールすると、アプリPDBの同期なしに定義変更が必ず即時反映される。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "アプリケーションルートに共通アプリケーションの定義を置き、アプリPDBで同期して利用する。、データの共有範囲は共通オブジェクトのSHARING属性によって分けられる。",
+      "explanation": "正解：A、C\n\nA（正しい）：アプリケーションの共通管理と同期という基本モデル。\nB（誤り）：同じCDBのインスタンスを利用する。\nC（正しい）：METADATA、DATA、EXTENDED DATA等の差でデータ所在と共有範囲が変わる。\nD（誤り）：一般のアプリ変更はSYNCによる反映が必要。",
+      "topic": "アプリケーションコンテナの運用モデル",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch34q039",
+      "chapter": 34,
+      "question": "SHARING=DATAの共通表PRICE_MASTERをAPPROOTに導入し、PDB_A/Bを同期した。アプリPDB_Aで共通マスタ行を直接UPDATEし、PDB_Aのみ価格を変更したい。適切な判断はどれか。",
+      "choices": {
+        "A": "PDB_Aが直接UPDATEでき、PDB_Bには反映されない。",
+        "B": "PDB_Aが直接UPDATEすると同一の共通行がPDB_Bからも変更される。",
+        "C": "PDB_Aでの直接更新はできない。PDB固有データが必要ならMETADATA/EXTENDED DATAの設計を検討する。",
+        "D": "PDB_Aで更新するには共通表をDROPし、同名でDATA属性のままCREATEし直す。"
+      },
+      "correctChoice": "C",
+      "correctText": "PDB_Aでの直接更新はできない。PDB固有データが必要ならMETADATA/EXTENDED DATAの設計を検討する。",
+      "explanation": "正解：C\n\nA（誤り）：DATAではPDB独自のデータ更新はできない。\nB（誤り）：DATA表の共有データはアプリルートで管理されPDBから変更できない。\nC（正しい）：SHARING=DATAは共通データをルートで保持し、PDBからは変更できない。\nD（誤り）：属性を変えずに作り直してもPDB固有更新を許すものではない。",
+      "topic": "SHARING=DATAと更新可否",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch34q040",
+      "chapter": 34,
+      "question": "第34章の練習問題で扱われている、コンテナ種別の変更について正しいものを選べ。",
+      "choices": {
+        "A": "アプリシードはSQL一文でアプリPDBへ変換できる。",
+        "B": "アプリPDBは通常のPDBへ直接変換できない。",
+        "C": "アプリPDBはアプリルートへ変更することを前提に作成される。",
+        "D": "アプリPDBを通常PDBに変換するには、アプリケーションSYNCだけで十分である。"
+      },
+      "correctChoice": "B",
+      "correctText": "アプリPDBは通常のPDBへ直接変換できない。",
+      "explanation": "正解：B\n\nA（誤り）：アプリシードをアプリPDBへ変換できない。\nB（正しい）：アプリPDBから通常PDBへの直接変換はサポートされない。\nC（誤り）：アプリPDBからアプリルートへの変換はできない。\nD（誤り）：SYNCはアプリケーションの版反映で、コンテナ種別の変換ではない。",
+      "topic": "アプリPDBの名前と変換制限",
       "difficulty": "hard"
     }
   ]
