@@ -81,6 +81,26 @@
       "description": "RMANエラー、LOG/SPOOL、LONGOPS、非同期I/O、バックアップ性能、テープストリーミング"
     },
     {
+      "chapter": 19,
+      "title": "DBCAによるデータベース構成",
+      "description": "DBCA、テンプレート、ASM、文字セット、構成オプション"
+    },
+    {
+      "chapter": 20,
+      "title": "Oracle Databaseへのパッチ適用",
+      "description": "RU/RUR、OPatch、datapatch、OPatchAuto、ローリング適用"
+    },
+    {
+      "chapter": 21,
+      "title": "Oracle RestartとSRVCTL",
+      "description": "SRVCTL、Oracle Restart、依存関係、データベースサービス"
+    },
+    {
+      "chapter": 23,
+      "title": "Oracle Databaseのアップグレード・DBUA",
+      "description": "直接アップグレードとデータ移行、事前検査、DBUA、事後スクリプト、CDB処理"
+    },
+    {
       "chapter": 26,
       "title": "パフォーマンスチューニング・メモリー・AWR/ADDM・アラート",
       "description": "チューニングの優先順位、SGA/PGA管理、待機イベント、AWR、ADDM、メトリック・アラート"
@@ -116,9 +136,19 @@
       "description": "PDB単位のリストア・リカバリ、UNDOモード別Flashback、CDB/PDBリストアポイント"
     },
     {
+      "chapter": 33,
+      "title": "CDB/PDBアップグレードとデータ転送",
+      "description": "手動アップグレード、catctl.pl、PDB別アップグレード、Data Pump、フルトランスポータブル"
+    },
+    {
       "chapter": 34,
       "title": "アプリケーションコンテナ",
       "description": "アプリルート・アプリシード・アプリPDB、インストール・同期・アップグレード、共通オブジェクト、コンテナマップ、共通ポリシー"
+    },
+    {
+      "chapter": 35,
+      "title": "Oracle Database 19cの新機能",
+      "description": "スキーマ限定アカウント、権限分析、Data Pump 19cのオプション"
     }
   ],
   "questions": [
@@ -10821,7 +10851,7 @@
     {
       "id": "ch12q001",
       "chapter": 12,
-      "question": "RMANのSBTバックアップで使用するMMLとメディアマネージャの関係として適切な説明を選べ。",
+      "question": "RMANのSBTバックアップで使用するMMLとメディアマネージャの関係として適切な説明を2つ選べ。",
       "choices": {
         "A": "MMLはRMANとメディアマネージャを接続するライブラリで、媒体の管理はメディアマネージャが担当する。",
         "B": "SBTチャネル割当時、RMANは指定されたMMLのロードを試みる。",
@@ -10857,7 +10887,7 @@
     {
       "id": "ch12q003",
       "chapter": 12,
-      "question": "CONFIGURE CHANNEL DEVICE TYPE SBT PARMS にベンダー設定を登録した。その後 RUN ブロック内でSBTチャネルを手動割当する。正しい説明を選べ。",
+      "question": "CONFIGURE CHANNEL DEVICE TYPE SBT PARMS にベンダー設定を登録した。その後 RUN ブロック内でSBTチャネルを手動割当する。正しい説明を2つ選べ。",
       "choices": {
         "A": "手動ALLOCATE CHANNELではCONFIGURE DEFAULT DEVICE TYPE TO SBTの設定値がMMLパスとして渡される。",
         "B": "手動ALLOCATE CHANNELのPARMSではSBT_LIBRARYの指定を使用できず、環境変数によって割り当てる。",
@@ -10909,7 +10939,7 @@
     {
       "id": "ch12q006",
       "chapter": 12,
-      "question": "SBT_TAPEチャネルで取得するRMANバックアップ形式として正しいものを選べ。",
+      "question": "SBT_TAPEチャネルで取得するRMANバックアップ形式として正しいものを2つ選べ。",
       "choices": {
         "A": "バックアップセットを使用する。",
         "B": "バックアップセットはDISK用であり、SBTではイメージコピーを使用する。",
@@ -11009,7 +11039,7 @@
     {
       "id": "ch16q001",
       "chapter": 16,
-      "question": "RMAN DUPLICATEで通常の独立した複製データベースを作成した。DBIDの扱いとして適切なものを選べ。",
+      "question": "RMAN DUPLICATEで通常の独立した複製データベースを作成した。DBIDの扱いとして適切なものを2つ選べ。",
       "choices": {
         "A": "複製後に新しいDBIDが設定され、ソースと同じリカバリカタログへの登録が可能になる。",
         "B": "独立複製後のDB_NAMEとDBIDは別々の属性として管理される。",
@@ -11109,7 +11139,7 @@
     {
       "id": "ch16q007",
       "chapter": 16,
-      "question": "ソースと異なるホストで同じデータファイル名を使用するDUPLICATEを計画する。NOFILENAMECHECKの意味として適切なものを選べ。",
+      "question": "ソースと異なるホストで同じデータファイル名を使用するDUPLICATEを計画する。NOFILENAMECHECKの意味として適切なものを2つ選べ。",
       "choices": {
         "A": "SET NEWNAMEが指定されていない場合に、Oracle Managed Filesを強制して重複を回避する。",
         "B": "NOFILENAMECHECKはDB_FILE_NAME_CONVERTによるファイル名変換の処理を無効にする。",
@@ -11129,7 +11159,7 @@
     {
       "id": "ch16q008",
       "chapter": 16,
-      "question": "バックアップベース複製で DUPLICATE ... SPFILE を指定する目的を選べ。",
+      "question": "バックアップベース複製で DUPLICATE ... SPFILE を指定する目的を2つ選べ。",
       "choices": {
         "A": "ソースSPFILEの設定を複製先へ引き継ぎ、SETやPARAMETER_VALUE_CONVERTで変更を加えられる。",
         "B": "補助インスタンスのパラメータをソースデータベースへコピーして両者を同一にする。",
@@ -11181,7 +11211,7 @@
     {
       "id": "ch16q011",
       "chapter": 16,
-      "question": "DUPLICATEでUSERS表領域を対象外にし、その他の複製可能な表領域を複製したい。適切な指定を選べ。",
+      "question": "DUPLICATEでUSERS表領域を対象外にし、その他の複製可能な表領域を複製したい。適切な指定を2つ選べ。",
       "choices": {
         "A": "DUPLICATE ... SKIP READONLY",
         "B": "DUPLICATE ... SKIP TABLESPACE USERS",
@@ -11281,7 +11311,7 @@
     {
       "id": "ch16q017",
       "chapter": 16,
-      "question": "アクティブ複製でTARGETへネットサービス名で接続し、USING BACKUPSETを指定する。複製方式として正しい説明を選べ。",
+      "question": "アクティブ複製でTARGETへネットサービス名で接続し、USING BACKUPSETを指定する。複製方式として正しい説明を2つ選べ。",
       "choices": {
         "A": "バックアップセット転送を使ったアクティブ複製を行う。",
         "B": "事前にRMAN BACKUP DATABASEで作成したバックアップセットを補助側へ転送する方式へ切り替わる。",
@@ -11301,7 +11331,7 @@
     {
       "id": "ch16q018",
       "chapter": 16,
-      "question": "アクティブ複製でTARGET接続をネットサービス名で構成した。補助チャネルが3、TARGETチャネルが2で、明示的な転送形式指定がない。想定される転送形式を選べ。",
+      "question": "アクティブ複製でTARGET接続をネットサービス名で構成した。補助チャネルが3、TARGETチャネルが2で、明示的な転送形式指定がない。想定される転送形式を2つ選べ。",
       "choices": {
         "A": "補助チャネル数がTARGETを超えるため、バックアップベース複製に切り替わる。",
         "B": "バックアップセット方式が選択される。",
@@ -11353,7 +11383,7 @@
     {
       "id": "ch16q021",
       "chapter": 16,
-      "question": "アクティブ複製のバックアップセット方式とイメージコピー方式の処理主体として正しい説明を選べ。",
+      "question": "アクティブ複製のバックアップセット方式とイメージコピー方式の処理主体として正しい説明を2つ選べ。",
       "choices": {
         "A": "バックアップセット方式は主にAUXILIARYチャネルが処理し、イメージコピー方式は主にTARGETチャネルが処理する。",
         "B": "バックアップセット方式は補助側がソースへ接続してデータを取得する動きになる。",
@@ -11505,7 +11535,7 @@
     {
       "id": "ch17q007",
       "chapter": 17,
-      "question": "バックアップ処理のボトルネックを切り分けるときのフェーズの説明として適切なものを選べ。",
+      "question": "バックアップ処理のボトルネックを切り分けるときのフェーズの説明として適切なものを2つ選べ。",
       "choices": {
         "A": "書込みフェーズで待機がある場合、入力データファイルのブロック破損を原因として特定できる。",
         "B": "コピー・処理フェーズはI/Oとは独立しているため、バックアップ全体の時間に影響しない。",
@@ -11525,7 +11555,7 @@
     {
       "id": "ch17q008",
       "chapter": 17,
-      "question": "ストレージの読み書きI/Oが帯域上限に達している。RMANのチャネルを4本から8本に増やす案を評価する。適切な説明を選べ。",
+      "question": "ストレージの読み書きI/Oが帯域上限に達している。RMANのチャネルを4本から8本に増やす案を評価する。適切な説明を2つ選べ。",
       "choices": {
         "A": "チャネル増加では帯域上限を超えられず、並列度より入出力の制約を先に評価する。",
         "B": "チャネル増加によってDISK_ASYNCH_IOの設定が自動でTRUEへ更新される。",
@@ -11577,7 +11607,7 @@
     {
       "id": "ch17q011",
       "chapter": 17,
-      "question": "RMANのI/O実績で同期実行か非同期実行かを区別したい。ビューの組合せとして正しいものを選べ。",
+      "question": "RMANのI/O実績で同期実行か非同期実行かを区別したい。ビューの組合せとして正しいものを2つ選べ。",
       "choices": {
         "A": "同期：V$SESSION_LONGOPS、非同期：V$SYSTEM_EVENT",
         "B": "同期：V$BACKUP_SYNC_IO、非同期：V$BACKUP_ASYNC_IO",
@@ -11597,7 +11627,7 @@
     {
       "id": "ch17q012",
       "chapter": 17,
-      "question": "V$BACKUP_ASYNC_IOの2ファイルで、F1はLONG_WAITS=200、IO_COUNT=1000、F2はLONG_WAITS=30、IO_COUNT=1000。優先調査対象を選べ。",
+      "question": "V$BACKUP_ASYNC_IOの2ファイルで、F1はLONG_WAITS=200、IO_COUNT=1000、F2はLONG_WAITS=30、IO_COUNT=1000。優先調査対象を2つ選べ。",
       "choices": {
         "A": "F1。LONG_WAITS/IO_COUNTの比率がF2より大きい。",
         "B": "F1とF2はIO_COUNTが一致するためI/O待機傾向に差はない。",
@@ -11617,7 +11647,7 @@
     {
       "id": "ch17q013",
       "chapter": 17,
-      "question": "OSの非同期I/Oが利用できない環境でRMANのディスクI/Oを改善したい。検討する設定として妥当なものを選べ。",
+      "question": "OSの非同期I/Oが利用できない環境でRMANのディスクI/Oを改善したい。検討する設定として妥当なものを2つ選べ。",
       "choices": {
         "A": "BACKUP_TAPE_IO_SLAVESをTRUEにするとディスクI/Oも非同期化される。",
         "B": "DBWR_IO_SLAVESを0以外に設定し、I/Oスレーブの利用条件を確認する。",
@@ -11749,7 +11779,7 @@
     {
       "id": "ch17q021",
       "chapter": 17,
-      "question": "ストリーミングテープドライブへのI/Oでスレーブを使いたい。設定とメモリーの関係として適切なものを選べ。",
+      "question": "ストリーミングテープドライブへのI/Oでスレーブを使いたい。設定とメモリーの関係として適切なものを2つ選べ。",
       "choices": {
         "A": "BACKUP_TAPE_IO_SLAVES=TRUEを検討し、ラージプールなどのバッファ資源も評価する。",
         "B": "ラージプールはテープI/Oスレーブのバッファに利用され得る。",
@@ -11765,6 +11795,1530 @@
       "topic": "テープI/Oスレーブ",
       "difficulty": "hard",
       "multiple": true
+    },
+    {
+      "id": "ch19q001",
+      "chapter": 19,
+      "question": "Oracle Restart構成でDBCAを用い、データベースのブロックサイズや記憶域を細かく指定して新規作成したい。適切な選択を1つ選べ。",
+      "choices": {
+        "A": "拡張構成を選び、使用するテンプレートの制約を踏まえて構成項目を設定する。",
+        "B": "標準構成を選び、テンプレートのブロックサイズを作成後に変更する。",
+        "C": "標準構成を選び、作成後にCDB構成を非CDBへ変更してサイズを指定する。",
+        "D": "拡張構成を選び、作成したデータベースのDB_BLOCK_SIZEを動的に変更する。"
+      },
+      "correctChoice": "A",
+      "correctText": "拡張構成を選び、使用するテンプレートの制約を踏まえて構成項目を設定する。",
+      "explanation": "正解：A\n\nA（正しい）：拡張構成では多くの項目を個別指定できる。ただし、選択テンプレートによる変更制限は残る。\nB（誤り）：標準構成は簡易設定向けであり、DB_BLOCK_SIZEを作成後に自由変更できない。\nC（誤り）：CDB構成の変更とブロックサイズの指定は別問題で、記述の方法で調整できない。\nD（誤り）：DB_BLOCK_SIZEはデータベース作成後に通常の初期化パラメータ変更で切替えるものではない。",
+      "topic": "標準・拡張構成",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch19q002",
+      "chapter": 19,
+      "question": "DBCAの管理機能を評価している。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "DBCAで作成したテンプレートは、その元になったデータベースと同じホストで使用する設計である。",
+        "B": "DBCAは既存データベースに対する専用サーバー／共有サーバー構成の設定を支援する。",
+        "C": "DBCAで既存CDBへのPDB追加やPDBの削除などの管理操作を行える。",
+        "D": "DBCAでPDBを切断した場合、切断したPDBは元のCDBに接続された状態で残る。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "DBCAは既存データベースに対する専用サーバー／共有サーバー構成の設定を支援する。、DBCAで既存CDBへのPDB追加やPDBの削除などの管理操作を行える。",
+      "explanation": "正解：B、C\n\nA（誤り）：テンプレートは別サーバーへコピーして再利用できる。\nB（正しい）：DBCAには既存データベースの構成変更機能があり、接続モードも扱う。\nC（正しい）：DBCAのPDB管理には作成・削除・切断・構成変更が含まれる。\nD（誤り）：切断されたPDBはCDBの通常の接続済みPDBとは異なる状態になる。",
+      "topic": "DBCA操作範囲",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch19q003",
+      "chapter": 19,
+      "question": "既存DBの物理ファイルを利用して似たDBを迅速に作成したい。DBCAテンプレートの選択として適切なものを1つ選べ。",
+      "choices": {
+        "A": "非シードテンプレートを選択すると、既存DBのRMAN形式のデータファイルがテンプレートに取り込まれる。",
+        "B": "非シードテンプレートを選択すると、既存DBの制御ファイルが新DBの初期データとして復元される。",
+        "C": "シードテンプレートを選択すると、既存DBの物理ファイルを参照せず構造定義から空のファイルを作成する。",
+        "D": "シードテンプレートを選択すると、構造情報と既存DBのデータファイルを使って新DBを作成できる。"
+      },
+      "correctChoice": "D",
+      "correctText": "シードテンプレートを選択すると、構造情報と既存DBのデータファイルを使って新DBを作成できる。",
+      "explanation": "正解：D\n\nA（誤り）：非シードには物理データファイルが含まれない。\nB（誤り）：非シードは定義情報が中心であり既存制御ファイルをそのまま復元する方式ではない。\nC（誤り）：物理ファイルを含むのはシードテンプレートである。\nD（正しい）：シードテンプレートには構造とデータファイルが含まれ、迅速な複製に利用できる。",
+      "topic": "シードテンプレート",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch19q004",
+      "chapter": 19,
+      "question": "DBCAで表領域構成やデータファイル配置を大幅にカスタマイズしたい。適切な説明を2つ選べ。",
+      "choices": {
+        "A": "非シードテンプレートでは構造情報を基にファイルを作成するため、ファイル名やサイズなどの変更余地が大きい。",
+        "B": "シードテンプレートではデータファイルを複製して開始するため、作成前のオプション変更には制約がある。",
+        "C": "非シードテンプレートでは既存DBのデータを同時にコピーするため、データ配置を調整しにくい。",
+        "D": "シードテンプレートでは既存DBのデータファイルを使わないため、全ファイルを定義から生成する。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "非シードテンプレートでは構造情報を基にファイルを作成するため、ファイル名やサイズなどの変更余地が大きい。、シードテンプレートではデータファイルを複製して開始するため、作成前のオプション変更には制約がある。",
+      "explanation": "正解：A、B\n\nA（正しい）：物理ファイルが含まれないため、ファイルの構成変更に柔軟に対応できる。\nB（正しい）：元DBのファイルを用いる方式のため、事前に変更できる構成には制限がある。\nC（誤り）：非シードは物理データファイルを含まない。\nD（誤り）：シードは既存データファイルを使う。",
+      "topic": "テンプレート柔軟性",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch19q005",
+      "chapter": 19,
+      "question": "Oracle Restart環境で、DBCAによりASMディスクグループ+DATAへデータファイルを配置する。適切な説明を1つ選べ。",
+      "choices": {
+        "A": "ASMディスクグループへの格納を指定する場合、データファイルをOSの通常ディレクトリへ自動変換して配置する。",
+        "B": "OMFを選択すると、ASMディスクグループを指定していても制御ファイルはOSのファイルシステムへ配置される。",
+        "C": "ASMディスクグループを格納先に選択し、OMFを用いてOracleにファイル名管理を任せられる。",
+        "D": "+DATA/{DB_UNIQUE_NAME}という表記を指定した場合、DB_UNIQUE_NAMEはホスト名から計算される。"
+      },
+      "correctChoice": "C",
+      "correctText": "ASMディスクグループを格納先に選択し、OMFを用いてOracleにファイル名管理を任せられる。",
+      "explanation": "正解：C\n\nA（誤り）：ASMはOSの通常ファイルシステムではない。\nB（誤り）：OMFはASM上のOracle管理ファイルを扱うために利用できる。\nC（正しい）：ASMとOMFは併用でき、Oracleがファイル名などを管理する。\nD（誤り）：DB_UNIQUE_NAMEはデータベース固有名に対応する。",
+      "topic": "ASMとOMF",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch19q006",
+      "chapter": 19,
+      "question": "DBCAの拡張構成で入力する識別情報について、適切な説明を1つ選べ。",
+      "choices": {
+        "A": "グローバルデータベース名を指定すると、SIDも同じ値に固定され別名には変更できない。",
+        "B": "SIDはCDBを構成するPDBごとに作成するため、CDB全体のSID設定とは別に必要になる。",
+        "C": "グローバルデータベース名を指定した時点で、DBCAがCDB/非CDBの選択も確定する。",
+        "D": "グローバルデータベース名とSIDは別の概念であり、シングルインスタンスでも個別に指定する項目となる。"
+      },
+      "correctChoice": "D",
+      "correctText": "グローバルデータベース名とSIDは別の概念であり、シングルインスタンスでも個別に指定する項目となる。",
+      "explanation": "正解：D\n\nA（誤り）：シングルインスタンスで同名が多くても、SIDは独立した識別値である。\nB（誤り）：SIDはインスタンス識別子でありPDBごとに専用SIDを作る仕組みではない。\nC（誤り）：CDB構成の選択は別の設定項目である。\nD（正しい）：シングルインスタンスでは同名が多いが、概念上は別項目である。",
+      "topic": "識別情報",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch19q007",
+      "chapter": 19,
+      "question": "Oracle Restart環境でDBCAによるデータベース作成時に高速リカバリ領域とアーカイブモードを構成したい。適切な説明を2つ選べ。",
+      "choices": {
+        "A": "高速リカバリ領域を使用すると、DBCAの作成ウィザードでアーカイブモードの指定を変更できなくなる。",
+        "B": "高速リカバリ領域の格納先にはASMディスクグループを選べる。",
+        "C": "アーカイブモードはリスナー構成画面で設定し、高速リカバリ領域は別の画面で指定する。",
+        "D": "DBCAの高速リカバリ関連オプションで格納先・サイズおよびARCHIVELOG運用の設定を扱える。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "高速リカバリ領域の格納先にはASMディスクグループを選べる。、DBCAの高速リカバリ関連オプションで格納先・サイズおよびARCHIVELOG運用の設定を扱える。",
+      "explanation": "正解：B、D\n\nA（誤り）：FRAの指定とARCHIVELOGモードの選択は関連するが別々に扱える。\nB（正しい）：Oracle RestartではASMをFRAの格納先に利用できる。\nC（誤り）：アーカイブモードはネットワーク用リスナー設定とは別である。\nD（正しい）：DBCAは高速リカバリ領域とARCHIVELOG設定をサポートする。",
+      "topic": "高速リカバリ領域",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch19q008",
+      "chapter": 19,
+      "question": "Oracle Restartで新規データベースをDBCAで作成する。リスナーの設定に関する適切な説明を1つ選べ。",
+      "choices": {
+        "A": "Grid InfrastructureのリスナーはDBCAから参照できるが、DB用接続はDBホームのリスナーを新規作成する。",
+        "B": "DBCAが新規リスナーを選択した場合、Oracle Restartのリソース定義への登録とリスナーの起動元ホームは無関係になる。",
+        "C": "Grid Infrastructureが管理するリスナーをDBCAのネットワーク構成で選択できる。",
+        "D": "DBCAでリスナーを指定すると、そのリスナーの静的SID登録がDBCAによって固定される。"
+      },
+      "correctChoice": "C",
+      "correctText": "Grid Infrastructureが管理するリスナーをDBCAのネットワーク構成で選択できる。",
+      "explanation": "正解：C\n\nA（誤り）：GI配下のリスナーが標準的な選択肢となる。\nB（誤り）：リスナーの起動元ホームやリソース登録の管理は別途考慮する。\nC（正しい）：GIのリスナーを選択してDBの接続構成を行える。\nD（誤り）：DBCAがリスナーを指定しても、静的SID登録への固定を前提とするわけではない。",
+      "topic": "リスナーの指定",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch19q009",
+      "chapter": 19,
+      "question": "将来の多言語展開を見込む新システムをDBCAで構築する。設定に関する説明として適切なものを2つ選べ。",
+      "choices": {
+        "A": "データベースキャラクタセットの選択は文字データの格納形式に関わり、作成時に慎重に決める。",
+        "B": "NLS_TERRITORYは主にメッセージの言語を決め、NLS_LANGUAGEは日時表示の地域規則を決める。",
+        "C": "AL32UTF8は多言語文字データを扱うための候補になる。",
+        "D": "データベースキャラクタセットはセッションのNLS_LANGUAGE変更に合わせて変化する。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "データベースキャラクタセットの選択は文字データの格納形式に関わり、作成時に慎重に決める。、AL32UTF8は多言語文字データを扱うための候補になる。",
+      "explanation": "正解：A、C\n\nA（正しい）：文字格納の基本仕様なので選択時の判断が重要。\nB（誤り）：言語と地域の役割が逆。NLS_LANGUAGEは言語、NLS_TERRITORYは地域規則に対応する。\nC（正しい）：UnicodeベースのAL32UTF8は多言語対応向け。\nD（誤り）：セッションのNLS設定はDBの格納文字セットを変更しない。",
+      "topic": "キャラクタセット",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch19q010",
+      "chapter": 19,
+      "question": "アプリケーションのメッセージ言語と、日付等の地域依存の既定表記を別々に制御したい。正しい対応を1つ選べ。",
+      "choices": {
+        "A": "NLS_LANGUAGEが地域依存の既定表記、NLS_TERRITORYがメッセージ言語を制御する。",
+        "B": "NLS_LANGUAGEがメッセージ言語、NLS_TERRITORYが地域依存の既定表記を制御する。",
+        "C": "NLS_CHARACTERSETがメッセージ言語、NLS_LANGUAGEが日付表示の地域設定を制御する。",
+        "D": "NLS_TERRITORYがメッセージ言語、NLS_LANGUAGEが日付書式の地域規則を決める。"
+      },
+      "correctChoice": "B",
+      "correctText": "NLS_LANGUAGEがメッセージ言語、NLS_TERRITORYが地域依存の既定表記を制御する。",
+      "explanation": "正解：B\n\nA（誤り）：NLS_LANGUAGEとNLS_TERRITORYの担当が逆。\nB（正しい）：それぞれの役割が正しい。\nC（誤り）：NLS_CHARACTERSETはDBキャラクタセットに関する名称でメッセージ言語の設定ではない。\nD（誤り）：二つのパラメータの役割が逆である。",
+      "topic": "NLS初期化パラメータ",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch19q011",
+      "chapter": 19,
+      "question": "運用手順を事前にコードレビューしたいので、新規DBはまだ作成せずDBCAで構成案を出力したい。選択肢として適切なものを1つ選べ。",
+      "choices": {
+        "A": "作成画面の作成オプションでスクリプト生成を選び、DBを作成せずに生成結果を確認する。",
+        "B": "データベースを作成する操作を選び、開設後にDBCAのテンプレート管理へ変換する。",
+        "C": "DBCAのテンプレート作成を選ぶと、作成予定DBのSQLスクリプトも同時に自動生成される。",
+        "D": "DBCAの「データベース作成」を選んで実行した場合、DB作成処理の代わりにSQLスクリプトが保存される。"
+      },
+      "correctChoice": "A",
+      "correctText": "作成画面の作成オプションでスクリプト生成を選び、DBを作成せずに生成結果を確認する。",
+      "explanation": "正解：A\n\nA（正しい）：DBCAには作成スクリプトを生成する選択肢がある。\nB（誤り）：DB作成とスクリプトだけの生成は別の選択肢。\nC（誤り）：テンプレート作成とSQLスクリプト生成はそれぞれ選択する操作が異なる。\nD（誤り）：DBの作成を選べば実際にDBを構築する。SQLスクリプト生成とは別の選択肢。",
+      "topic": "DBCA作成オプション",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch19q012",
+      "chapter": 19,
+      "question": "大量の環境を自動構築するため、DBCAを非対話で実行したい。適切な説明を1つ選べ。",
+      "choices": {
+        "A": "`dbca -silent`実行時は、データベーステンプレートの指定が解除されて構造定義が使用できなくなる。",
+        "B": "`dbca -createDatabase`の前にGUIウィザードを起動すると、以降の全項目を非対話で設定できる。",
+        "C": "`dbca -silent`では既存DBのオプション変更を行えず、データベースの構成を変更するにはSQL*Plusを使う。",
+        "D": "`dbca -silent -createDatabase`等で、必要な設定を引数やレスポンスファイルとして渡す。"
+      },
+      "correctChoice": "D",
+      "correctText": "`dbca -silent -createDatabase`等で、必要な設定を引数やレスポンスファイルとして渡す。",
+      "explanation": "正解：D\n\nA（誤り）：サイレントモードでもテンプレートを利用できる。\nB（誤り）：GUI起動は非対話実行の要件ではない。\nC（誤り）：DBCAの非対話機能は構成変更を含む運用に使える。\nD（正しい）：サイレントモードでDBCAの処理をスクリプト化できる。",
+      "topic": "サイレントモード",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch19q013",
+      "chapter": 19,
+      "question": "大量の集計を伴うDWHと、多数の短い更新トランザクションがあるOLTPの新規DBをDBCAで作成する。適切な説明を1つ選べ。",
+      "choices": {
+        "A": "OLTP用途にはデータウェアハウステンプレートを選び、DWHには汎用・トランザクションテンプレートを選ぶ。",
+        "B": "DWHにはデータウェアハウス、OLTPには汎用・トランザクション系のテンプレートが適する。",
+        "C": "DWHとOLTPは同じキャラクタセットが前提なので、テンプレートの用途選択は性能設計に関係しない。",
+        "D": "OLTP用テンプレートを選んだ場合、データファイルの構成を変更するためシードテンプレートへの変換が必要になる。"
+      },
+      "correctChoice": "B",
+      "correctText": "DWHにはデータウェアハウス、OLTPには汎用・トランザクション系のテンプレートが適する。",
+      "explanation": "正解：B\n\nA（誤り）：用途別の対応が逆。\nB（正しい）：問い合わせ中心とトランザクション中心の特性に対応する。\nC（誤り）：データ処理傾向と推奨テンプレートには関連がある。\nD（誤り）：ファイル構成の変更とシードテンプレート変換は同じ条件ではない。",
+      "topic": "既定テンプレート",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch19q014",
+      "chapter": 19,
+      "question": "DBCAでのDB作成における管理・セキュリティ関連の設定として適切なものを2つ選べ。",
+      "choices": {
+        "A": "SYSとSYSTEMは、管理ユーザー資格証明画面で作成後のパスワードを指定できる。",
+        "B": "DBCAでCloud Controlに管理対象として登録すると、EM Expressの構成は作成ウィザードで選択できなくなる。",
+        "C": "EM Expressの管理設定は、DBCAの非シードテンプレートを選んだ場合に有効化できる。",
+        "D": "Oracle Database Vaultなどのオプション設定は、DBCAの構成画面に選択項目がある。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "SYSとSYSTEMは、管理ユーザー資格証明画面で作成後のパスワードを指定できる。、Oracle Database Vaultなどのオプション設定は、DBCAの構成画面に選択項目がある。",
+      "explanation": "正解：A、D\n\nA（正しい）：DBCAで管理用アカウントの資格証明を設定できる。\nB（誤り）：Cloud ControlとEM Expressの管理設定は別の管理オプションで、記述の排他条件はない。\nC（誤り）：EM Expressの設定は非シードテンプレート専用という制限ではない。\nD（正しい）：DBCAはオプション機能の設定も扱う。",
+      "topic": "管理オプション",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch19q015",
+      "chapter": 19,
+      "question": "DBCAで作成したテンプレートを別ホストにコピーしてデータベースを作成したい。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "シードテンプレートをコピーすると、元ホストのOracle Clusterwareのリソース登録情報が自動で複製される。",
+        "B": "非シードテンプレートをコピーすると、元DBのアプリケーション表のデータ行も新DBに復元される。",
+        "C": "シードテンプレートの利用には、テンプレートが参照するデータファイル等の構成要素も考慮する。",
+        "D": "非シードテンプレートでは、構造設定に従って新しいデータファイルを生成する。"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "シードテンプレートの利用には、テンプレートが参照するデータファイル等の構成要素も考慮する。、非シードテンプレートでは、構造設定に従って新しいデータファイルを生成する。",
+      "explanation": "正解：C、D\n\nA（誤り）：テンプレートとOracle Restartの登録情報は別の管理対象。\nB（誤り）：非シードは実データファイルを含まない。\nC（正しい）：シード方式では既存ファイルに依存するため、必要な構成要素を準備する。\nD（正しい）：非シードは構造定義をもとに新しいファイルを作る。",
+      "topic": "シードと非シードの移植",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch19q016",
+      "chapter": 19,
+      "question": "DBCAで作成する新規DBについて、後から変更が難しい設定の検討として適切なものを1つ選べ。",
+      "choices": {
+        "A": "`DB_BLOCK_SIZE`は作成後に容易に切り替えられるため、接続モードを優先して後から選ぶ。",
+        "B": "使用するテンプレートによってブロックサイズの選択に制約があるため、作成前に要件を確認する。",
+        "C": "新規DBのキャラクタセットはNLS_TERRITORYで自動決定されるため、DBCAでの選択は不要である。",
+        "D": "キャラクタセットは作成後のNLS_LANGUAGE変更でデータベース全体に反映できる。"
+      },
+      "correctChoice": "B",
+      "correctText": "使用するテンプレートによってブロックサイズの選択に制約があるため、作成前に要件を確認する。",
+      "explanation": "正解：B\n\nA（誤り）：標準ブロックサイズは既存DBに対して動的に変更する設計ではない。\nB（正しい）：テンプレートの制限も考慮して作成前に決定する。\nC（誤り）：地域設定とデータ格納文字セットは異なる。\nD（誤り）：NLS_LANGUAGEはメッセージ等の言語設定であり格納文字セットを変えない。",
+      "topic": "データファイル作成条件",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch20q001",
+      "chapter": 20,
+      "question": "19cデータベースで古いRUが適用されている。後続のRUを選択する際の説明として適切なものを1つ選べ。",
+      "choices": {
+        "A": "RUは同じリリースの以前のRU修正を含む累積型の更新である。",
+        "B": "RUは直前四半期に見つかった修正を追加する差分パッチで、前回RUの導入状況に依存する。",
+        "C": "RUのセキュリティ修正はRUR経由で適用し、RUは機能修正を中心に構成される。",
+        "D": "RUはベースリリースの更新であるため、対応するRURの適用が前提になる。"
+      },
+      "correctChoice": "A",
+      "correctText": "RUは同じリリースの以前のRU修正を含む累積型の更新である。",
+      "explanation": "正解：A\n\nA（正しい）：同一リリースでは累積修正を取り込む。\nB（誤り）：RUは単純な四半期差分ではない。\nC（誤り）：RUもセキュリティ修正を含む。\nD（誤り）：RURがRUの必須前提となる順序ではない。",
+      "topic": "RU累積性",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch20q002",
+      "chapter": 20,
+      "question": "19cのRUとRUR（教材で扱うパッチ形態）の比較として適切なものを2つ選べ。",
+      "choices": {
+        "A": "RURは直近のRUで追加された新機能を取り込み、基準RUの変更を差し戻すことを目的とする。",
+        "B": "RURは、あるRUを基準にセキュリティおよび回帰修正を追加する形態として説明される。",
+        "C": "RUはセキュリティ修正に加え、機能修正や回帰問題の修正などを含む。",
+        "D": "RUはRURの完全な代替として、SQLパッチのDB側適用を省略できる。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "RURは、あるRUを基準にセキュリティおよび回帰修正を追加する形態として説明される。、RUはセキュリティ修正に加え、機能修正や回帰問題の修正などを含む。",
+      "explanation": "正解：B、C\n\nA（誤り）：RURの主眼は機能追加ではない。\nB（正しい）：RURは基準RUに対する安定化やセキュリティ対応を意図する。\nC（正しい）：RUの修正範囲はセキュリティに限定されない。\nD（誤り）：RUの適用にもSQL変更を伴う場合datapatchが必要。",
+      "topic": "RU/RURの性質",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch20q003",
+      "chapter": 20,
+      "question": "RU適用後、`opatch lsinventory`には更新が表示される一方、DBの`DBA_REGISTRY_SQLPATCH`に新しいSQLパッチ履歴がない。調査として適切なものを1つ選べ。",
+      "choices": {
+        "A": "SQLパッチの履歴はOPatchのインベントリに一括保存されるため、DBA_REGISTRY_SQLPATCHを確認する必要はない。",
+        "B": "SQLパッチ履歴を反映するため、`opatch lsinventory`の再実行によってDBディクショナリも更新する。",
+        "C": "DBA_REGISTRY_SQLPATCHは失敗した適用を記録対象とするため、成功したSQLパッチが表示されないのは正常である。",
+        "D": "パッチにSQL変更が含まれるか確認し、必要なら対象DBでdatapatchの実行結果を調査する。"
+      },
+      "correctChoice": "D",
+      "correctText": "パッチにSQL変更が含まれるか確認し、必要なら対象DBでdatapatchの実行結果を調査する。",
+      "explanation": "正解：D\n\nA（誤り）：Oracleホーム内の適用履歴とDB側のSQLパッチ履歴は別々に照合する。\nB（誤り）：インベントリの参照はDB内部のパッチ適用処理ではない。\nC（誤り）：このビューには成功・失敗の適用履歴が記録される。\nD（正しい）：OPatchがOracleホームを更新し、datapatchが必要なSQL変更をDBへ適用する。",
+      "topic": "OPatchとdatapatch",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch20q004",
+      "chapter": 20,
+      "question": "同一Oracleホームを共有するDB1とDB2へ、SQL変更を伴うRUを適用した。適切な管理作業を2つ選べ。",
+      "choices": {
+        "A": "`opatch apply`の結果はホーム単位なので、DB1とDB2のSQLパッチ適用状況は個別に確認する。",
+        "B": "Oracleホームが共通なら、DB1へのdatapatch実行後にDB2のデータディクショナリも更新される。",
+        "C": "DB1とDB2に対し必要なSQL変更が適用されたかをそれぞれ確認する。",
+        "D": "DB2のSQLパッチ履歴はDB1の`DBA_REGISTRY_SQLPATCH`へ記録されるため、DB2側の確認を省く。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "`opatch apply`の結果はホーム単位なので、DB1とDB2のSQLパッチ適用状況は個別に確認する。、DB1とDB2に対し必要なSQL変更が適用されたかをそれぞれ確認する。",
+      "explanation": "正解：A、C\n\nA（正しい）：ソフトウェアホームと個別DB内のSQL変更は適用単位が異なる。\nB（誤り）：別DBのディクショナリは同じOracleホームを使っていても独立。\nC（正しい）：それぞれのDBでSQLパッチ適用状況を確認する。\nD（誤り）：履歴は各DBで管理する。",
+      "topic": "複数DBとdatapatch",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch20q005",
+      "chapter": 20,
+      "question": "Oracleホームに適用済みのパッチを確認し、別パッチとの競合可能性も調べたい。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "`datapatch -verbose`はOracleホームのバイナリパッチ競合を検出するための主要コマンドである。",
+        "B": "`opatch lsinventory`はインストール済みソフトウェアとパッチ情報の確認に使用する。",
+        "C": "`opatchauto`のRACローリング実行はデータベースのSQLパッチ履歴の表示専用機能である。",
+        "D": "`opatch`にはパッチ適用・ロールバック・競合チェックの機能がある。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "`opatch lsinventory`はインストール済みソフトウェアとパッチ情報の確認に使用する。、`opatch`にはパッチ適用・ロールバック・競合チェックの機能がある。",
+      "explanation": "正解：B、D\n\nA（誤り）：datapatchはDB内部のSQLパッチ適用を行い、ホーム内のバイナリ競合チェックとは異なる。\nB（正しい）：Oracleホームのインベントリ確認に用いる。\nC（誤り）：OPatchAutoはパッチ適用作業を自動化する。\nD（正しい）：OPatchは適用・取消・競合調査をサポートする。",
+      "topic": "パッチ管理コマンド",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch20q006",
+      "chapter": 20,
+      "question": "Oracle RestartのGrid Infrastructureへパッチを適用したい。Oracle 19cの標準的な手順として適切なものを1つ選べ。",
+      "choices": {
+        "A": "Oracle Databaseホームの`datapatch`をrootで実行し、Gridホームのソフトウェアを更新する。",
+        "B": "Gridホームの`opatchauto apply`をrootで実行する手順をREADMEに従って検討する。",
+        "C": "Gridホームの`opatchauto apply`をGrid Infrastructure所有者で実行し、rootによる作業を省く。",
+        "D": "Databaseホームの`opatchauto apply`をrootで実行し、GridホームのRUも同時に適用する。"
+      },
+      "correctChoice": "B",
+      "correctText": "Gridホームの`opatchauto apply`をrootで実行する手順をREADMEに従って検討する。",
+      "explanation": "正解：B\n\nA（誤り）：datapatchはデータベースSQL部分の適用でありGridホームの更新手段ではない。\nB（正しい）：Grid Infrastructureのパッチ適用にOPatchAutoをrootで使用する手順が示される。\nC（誤り）：Oracle RestartのGridホームに対する一般的なOPatchAuto手順ではrootで実行する。\nD（誤り）：通常のOracle Restart GIパッチ手順ではGridホーム側のOPatchAutoを使用する。",
+      "topic": "OPatchAutoと権限",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch20q007",
+      "chapter": 20,
+      "question": "異なる2種類の19cパッチを適用する際、手順に違いがある可能性を考慮した判断として適切なものを1つ選べ。",
+      "choices": {
+        "A": "最初に適用したRUのREADMEを次回パッチにも適用し、個別の停止条件を共通扱いする。",
+        "B": "opatchのバージョンが新しければ、パッチ固有の前提条件チェックを不要と判断する。",
+        "C": "適用対象のパッチに添付されたREADMEで対象プラットフォーム、前提条件、適用手順を確認する。",
+        "D": "datapatchの実行例があるパッチでは、Oracleホームへのソフトウェア適用の作業を除外する。"
+      },
+      "correctChoice": "C",
+      "correctText": "適用対象のパッチに添付されたREADMEで対象プラットフォーム、前提条件、適用手順を確認する。",
+      "explanation": "正解：C\n\nA（誤り）：パッチ固有の前提条件がある。\nB（誤り）：OPatch自体の新旧だけで固有条件を満たすとは限らない。\nC（正しい）：手順と必要なツールはパッチのREADMEで確認するのが適切。\nD（誤り）：SQL側の変更を適用する前にOracleホーム側のパッチ適用が必要となる。",
+      "topic": "README優先",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch20q008",
+      "chapter": 20,
+      "question": "Oracle RestartのGrid InfrastructureとOracle Databaseの両方へ修正を適用する計画である。適切な説明を2つ選べ。",
+      "choices": {
+        "A": "OPatchAutoは関連するホームへのパッチ適用や、必要な起動停止処理を自動化するために使用できる。",
+        "B": "OPatchAutoを使う場合、Grid InfrastructureホームとDatabaseホームのパッチの違いを意識する必要はなくなる。",
+        "C": "OPatchAutoはOracleホーム内のファイルを変更せず、datapatchによるSQL更新をトリガーする。",
+        "D": "OPatchAutoは内部でOPatchを利用してパッチ適用処理を行う。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "OPatchAutoは関連するホームへのパッチ適用や、必要な起動停止処理を自動化するために使用できる。、OPatchAutoは内部でOPatchを利用してパッチ適用処理を行う。",
+      "explanation": "正解：A、D\n\nA（正しい）：複数コンポーネントのパッチ適用と関連作業を自動化する。\nB（誤り）：パッチの対象コンポーネントは引き続き確認が必要。\nC（誤り）：ホーム内のパッチ適用も処理する。\nD（正しい）：OPatchAutoはOPatchを呼び出す構造。",
+      "topic": "opatchautoの適用対象",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch20q009",
+      "chapter": 20,
+      "question": "パッチ適用方式に関する説明として適切なものを1つ選べ。",
+      "choices": {
+        "A": "OPatchはデータベースホームのパッチに加えてGridホームも対象にでき、OPatchAutoは作業の自動化を支援する。",
+        "B": "OPatchはOracle Databaseホームに対する専用ツールであり、Gridホームへの適用には実行できない。",
+        "C": "OPatchAutoではGridホーム側のバイナリを更新したあと、Databaseホーム側の更新はdatapatchへ委譲する。",
+        "D": "OPatchAutoで適用したパッチは`opatch lsinventory`に反映されないため、履歴の確認方法が異なる。"
+      },
+      "correctChoice": "A",
+      "correctText": "OPatchはデータベースホームのパッチに加えてGridホームも対象にでき、OPatchAutoは作業の自動化を支援する。",
+      "explanation": "正解：A\n\nA（正しい）：両ホームのパッチ適用にOPatchを利用できるが、GIではOPatchAutoが一般的。\nB（誤り）：OPatchはGIに対しても利用できる。\nC（誤り）：datapatchが担当するのはDB内部のSQL変更であり、Databaseホームのバイナリ更新を代行しない。\nD（誤り）：ホームのインベントリ情報でパッチを確認できる。",
+      "topic": "OPatchとOPatchAuto使い分け",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch20q010",
+      "chapter": 20,
+      "question": "Oracle Database 19cにRUを適用する際のオプティマイザ修正に関する理解として適切なものを1つ選べ。",
+      "choices": {
+        "A": "RU内のオプティマイザ修正は、オプティマイザ関連のSQL文を再解析すると自動的に全変更が有効化される。",
+        "B": "RUにはオプティマイザ修正が含まれ得るが、既定で無効化される修正もある。",
+        "C": "RURにはオプティマイザ修正が含まれるので、RUのオプティマイザ修正は適用後に削除される。",
+        "D": "RUを適用すると、SQL計画ベースラインはDBごとに自動で破棄されて新しい計画に置き換えられる。"
+      },
+      "correctChoice": "B",
+      "correctText": "RUにはオプティマイザ修正が含まれ得るが、既定で無効化される修正もある。",
+      "explanation": "正解：B\n\nA（誤り）：修正の有効化には個別の制御が関係することがある。\nB（正しい）：オプティマイザ修正には既定でオフのものが含まれる。\nC（誤り）：RURがRUでの修正を削除するためのものではない。\nD（誤り）：RUの適用で承認済みベースラインを自動破棄する仕様ではない。",
+      "topic": "RUのオプティマイザ修正",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch20q011",
+      "chapter": 20,
+      "question": "複数ノードRACと単一ノードOracle Restartのパッチ適用を計画する。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "OPatchAutoで実行する場合、ローリング非対応パッチも各ノードで稼働を維持したまま適用できる。",
+        "B": "Oracle RestartではRACのように複数ノードを順番に処理するローリング適用が標準となる。",
+        "C": "パッチによってローリング適用の可否が異なるため、README等で確認する。",
+        "D": "RACではパッチの対応状況に応じてノード単位のローリング適用を検討できる。"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "パッチによってローリング適用の可否が異なるため、README等で確認する。、RACではパッチの対応状況に応じてノード単位のローリング適用を検討できる。",
+      "explanation": "正解：C、D\n\nA（誤り）：自動化がパッチ固有の適用制限を解除するわけではない。\nB（誤り）：Oracle Restartは単一ノード構成。\nC（正しい）：対応パッチかどうかの判断が必要。\nD（正しい）：ローリング可能なパッチならRACのサービス停止時間を抑えられる。",
+      "topic": "ローリング適用",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch20q012",
+      "chapter": 20,
+      "question": "DBホームへSQL変更を伴うパッチを適用する、READMEに特別な手順はないという前提。適切な順序を1つ選べ。",
+      "choices": {
+        "A": "`datapatch`→DB停止→`opatch apply`→DB起動。",
+        "B": "DB停止→`datapatch`→`opatch apply`→DB起動。",
+        "C": "DB停止→`opatch apply`→DB起動→`datapatch`。",
+        "D": "`opatch apply`→`datapatch`→DB停止→DB起動。"
+      },
+      "correctChoice": "C",
+      "correctText": "DB停止→`opatch apply`→DB起動→`datapatch`。",
+      "explanation": "正解：C\n\nA（誤り）：Oracleホームの更新が先で、datapatchはDB稼働状態でSQL部分を適用する。\nB（誤り）：停止中のDBに先にdatapatchを適用する構成ではない。\nC（正しい）：ソフトウェアに適用してDBを起動した後にSQLパッチ処理を行う。\nD（誤り）：停止要件があるパッチでは停止と起動の順序が異なる。",
+      "topic": "パッチ適用の順序",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch20q013",
+      "chapter": 20,
+      "question": "パッチ適用後の照合について正しい説明を2つ選べ。",
+      "choices": {
+        "A": "`DBA_REGISTRY_SQLPATCH`はSQLパッチの適用・ロールバック試行結果を確認する材料になる。",
+        "B": "`opatch lsinventory`の出力にはOracleホームへ導入したパッチ情報が表示される。",
+        "C": "`DBA_REGISTRY_SQLPATCH`はリスナーの起動停止履歴を保存するため、SQL変更の確認には使用できない。",
+        "D": "`opatch lsinventory`はデータベース内の各PDBに対して実行したSQL適用処理の結果を直接記録する。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "`DBA_REGISTRY_SQLPATCH`はSQLパッチの適用・ロールバック試行結果を確認する材料になる。、`opatch lsinventory`の出力にはOracleホームへ導入したパッチ情報が表示される。",
+      "explanation": "正解：A、B\n\nA（正しい）：Oracle 19cのSQLパッチ履歴ビューである。\nB（正しい）：Oracleホームのインベントリ情報を参照できる。\nC（誤り）：ビューはSQLパッチ履歴。\nD（誤り）：OSソフトウェアのパッチ履歴とDB内のSQL適用は別。",
+      "topic": "SQLパッチ履歴",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch20q014",
+      "chapter": 20,
+      "question": "同じOracle Database 19cに対して異なるOSのパッチ配布物を選択する際、適切な説明を1つ選べ。",
+      "choices": {
+        "A": "同じリリース向けのRUはプラットフォームに関係なくパッチIDが同じため、配布ファイルも共通である。",
+        "B": "RUはデータベースの論理構造を修正するため、Windows向けパッチをLinux上のOracleホームにも適用できる。",
+        "C": "OPatchAutoを使う場合、RUのパッチIDが同じならOS別の配布物を共通に扱える。",
+        "D": "パッチの内容に共通点があっても、適用対象OS・アーキテクチャ向けの配布物を選ぶ。"
+      },
+      "correctChoice": "D",
+      "correctText": "パッチの内容に共通点があっても、適用対象OS・アーキテクチャ向けの配布物を選ぶ。",
+      "explanation": "正解：D\n\nA（誤り）：同じ修正内容でも配布ファイルや実行バイナリはプラットフォーム別である。\nB（誤り）：OS向けバイナリの違いがある。\nC（誤り）：OPatchAutoは適用手順を自動化するが配布物のプラットフォーム一致要件は維持される。\nD（正しい）：バイナリを含むためプラットフォームを一致させる必要がある。",
+      "topic": "パッチの平台依存性",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch20q015",
+      "chapter": 20,
+      "question": "適用予定のRUのREADMEにOPatchの必要バージョンが指定されている。適切な対応を1つ選べ。",
+      "choices": {
+        "A": "現行のOPatchを利用して適用し、datapatch実行後に必要バージョンへ入れ替える。",
+        "B": "OPatchの必要バージョンを確認し、要件を満たすツールへ更新してから適用する。",
+        "C": "OPatchの必要バージョンはREADMEではなく、現在のRU番号から自動的に決定される。",
+        "D": "OPatchのバージョン確認は`DBA_REGISTRY_SQLPATCH`で行い、差がある場合はSQLパッチをロールバックする。"
+      },
+      "correctChoice": "B",
+      "correctText": "OPatchの必要バージョンを確認し、要件を満たすツールへ更新してから適用する。",
+      "explanation": "正解：B\n\nA（誤り）：指定バージョン要件は適用前に満たすべき。\nB（正しい）：パッチの要求するOPatchバージョンへ更新してから適用する。\nC（誤り）：適用パッチのREADMEに明示されたバージョン要件を確認する必要がある。\nD（誤り）：ビューはDB側のSQLパッチ履歴で、OPatchバージョン管理対象ではない。",
+      "topic": "OPatchバージョン",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch20q016",
+      "chapter": 20,
+      "question": "Oracleホームへパッチを適用したが、そのホームではDBをまだ作成していない。次の対応として適切なものを1つ選べ。",
+      "choices": {
+        "A": "DBを作成する前にdatapatchを実行し、今後作成するDBの履歴を初期化する。",
+        "B": "DBが未作成なら`opatch lsinventory`のパッチ履歴もまだ生成されない。",
+        "C": "DB側のSQL変更対象が存在しないため、その時点でdatapatchを実行する対象DBはない。",
+        "D": "DBが未作成でも、`datapatch`が新DB用の`DBA_REGISTRY_SQLPATCH`に事前適用を記録する。"
+      },
+      "correctChoice": "C",
+      "correctText": "DB側のSQL変更対象が存在しないため、その時点でdatapatchを実行する対象DBはない。",
+      "explanation": "正解：C\n\nA（誤り）：datapatchは対象DBのSQL変更適用に使う。\nB（誤り）：ホーム内のパッチインベントリはDBの有無とは独立している。\nC（正しい）：DBが未作成ならDB側で処理する対象が存在しない。\nD（誤り）：対象DBがない状態ではDBのディクショナリにSQLパッチ適用履歴は記録できない。",
+      "topic": "SQL適用とDB作成有無",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch20q017",
+      "chapter": 20,
+      "question": "19cにおけるRU/RURを使った保守方針として適切な説明を1つ選べ。",
+      "choices": {
+        "A": "稼働前にRUで修正を取り込み、稼働後は変更影響を抑える目的で同系統のRURを検討できる。",
+        "B": "稼働前にRURを適用すると、基準となるRUの機能修正が無効化されるため、その後にRUを適用する。",
+        "C": "RU適用後はオプティマイザ統計が消去されるため、RURを利用して統計を復元する。",
+        "D": "RURはデータベースの複製前提なので、スタンバイ構成でない単一DBには使用できない。"
+      },
+      "correctChoice": "A",
+      "correctText": "稼働前にRUで修正を取り込み、稼働後は変更影響を抑える目的で同系統のRURを検討できる。",
+      "explanation": "正解：A\n\nA（正しい）：教材に示された保守戦略の一つ。\nB（誤り）：RURはRUを基準とした補足修正。\nC（誤り）：統計復元を目的とするパッチ方式ではない。\nD（誤り）：RURの利用はData Guard構成限定ではない。",
+      "topic": "RUR適用方針",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch21q001",
+      "chapter": 21,
+      "question": "Oracle Restart構成でASMインスタンスとデータベースサービスを制御する。SRVCTLの選択として正しいものを1つ選べ。",
+      "choices": {
+        "A": "ASMにはDatabaseホームのSRVCTLを、DBサービスにはGridホームのSRVCTLを使用する。",
+        "B": "ASMにはGrid InfrastructureホームのSRVCTLを、DBサービスにはDatabaseホームのSRVCTLを使用する。",
+        "C": "両リソースともGrid InfrastructureホームのSRVCTLを使用し、DBホームのSRVCTLはRAC専用とする。",
+        "D": "両リソースともDatabaseホームのSRVCTLを使用し、GridホームのSRVCTLは監視専用とする。"
+      },
+      "correctChoice": "B",
+      "correctText": "ASMにはGrid InfrastructureホームのSRVCTLを、DBサービスにはDatabaseホームのSRVCTLを使用する。",
+      "explanation": "正解：B\n\nA（誤り）：対象のホームが逆である。\nB（正しい）：Oracle RestartではASMとDBサービスでSRVCTLのホームを使い分ける。\nC（誤り）：DBサービスはDBホームのSRVCTLを用いる。\nD（誤り）：ASMはGridホームのSRVCTLを用いる。",
+      "topic": "SRVCTLホームの使い分け",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch21q002",
+      "chapter": 21,
+      "question": "旧環境にOracle Restartを後から導入した。リスナーがDatabaseホームから起動されていた場合のSRVCTL選択として適切なものを1つ選べ。",
+      "choices": {
+        "A": "旧環境から引き継いだリスナーもGridホームSRVCTLが起動元に関係なく使用される。",
+        "B": "旧環境のリスナーをDatabaseホームで起動していても、DatabaseホームSRVCTLは制御対象にできない。",
+        "C": "リスナーの起動元がDatabaseホームなら、DatabaseホームのSRVCTLが対応する場合がある。",
+        "D": "旧環境のリスナーはSRVCTLではなく、データベースサービス用のDBMS_SERVICEで制御する。"
+      },
+      "correctChoice": "C",
+      "correctText": "リスナーの起動元がDatabaseホームなら、DatabaseホームのSRVCTLが対応する場合がある。",
+      "explanation": "正解：C\n\nA（誤り）：実際のリスナーの起動ホームが重要で、例外がある。\nB（誤り）：古い構成ではDBホームから管理する例外がある。\nC（正しい）：既存リスナーのホーム構成によってDBホームのSRVCTLを選ぶ。\nD（誤り）：DBMS_SERVICEはリスナープロセス管理ツールではない。",
+      "topic": "リスナーの例外",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch21q003",
+      "chapter": 21,
+      "question": "Oracle Restart管理下で、データベースがASMディスクグループを使用する。SRVCTL利用の利点を2つ選べ。",
+      "choices": {
+        "A": "SRVCTLによるデータベース起動では、登録された依存関係に沿った関連リソースの起動を支援する。",
+        "B": "SQL*PlusのSTARTUPではOracle Restartに登録された環境変数の設定が優先的に組み込まれる。",
+        "C": "SRVCTLでDBを起動すると、ASMへの依存関係より先にDBの起動を開始する順序で管理される。",
+        "D": "Oracle Restartに定義されたリソース構成・環境設定を踏まえて制御できる。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "SRVCTLによるデータベース起動では、登録された依存関係に沿った関連リソースの起動を支援する。、Oracle Restartに定義されたリソース構成・環境設定を踏まえて制御できる。",
+      "explanation": "正解：A、D\n\nA（正しい）：必要なASM関連リソースなどを考慮した管理が可能。\nB（誤り）：Oracle Restart登録設定の反映を意図した運用はSRVCTLが適切。\nC（誤り）：依存関係に従いASMなど必要なリソースを考慮する。\nD（正しい）：リソース管理設定を使った起動停止ができる。",
+      "topic": "依存関係",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch21q004",
+      "chapter": 21,
+      "question": "DBAがSQL*Plusで新規データベースを作成した。Oracle Restart管理へ組み込みたい場合に適切な操作を1つ選べ。",
+      "choices": {
+        "A": "`srvctl add database`でDBリソースとして登録することを検討する。",
+        "B": "`srvctl status database`を実行すると、未登録DBがOracle Restartへ登録される。",
+        "C": "`srvctl config database`を実行すると、未登録DBの制御ファイルを読み取り登録が完了する。",
+        "D": "`srvctl start database`は未登録DBを自動で検出してOracle Restartへ登録する。"
+      },
+      "correctChoice": "A",
+      "correctText": "`srvctl add database`でDBリソースとして登録することを検討する。",
+      "explanation": "正解：A\n\nA（正しい）：手動作成したDBは自動登録されないためaddで登録する。\nB（誤り）：statusは稼働状態表示で登録処理ではない。\nC（誤り）：configは設定表示で登録処理ではない。\nD（誤り）：startは既存登録リソースを起動する。",
+      "topic": "登録と稼働状態",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch21q005",
+      "chapter": 21,
+      "question": "Oracle Restartに登録されたDBの現在の起動状態と、登録されている構成設定を分けて調べたい。正しいコマンドの組を1つ選べ。",
+      "choices": {
+        "A": "稼働状態は`srvctl config database`、設定値は`srvctl status database`で調べる。",
+        "B": "稼働状態は`srvctl getenv database`、設定値は`srvctl status database`で調べる。",
+        "C": "稼働状態は`srvctl modify database`、設定値は`srvctl config database`で調べる。",
+        "D": "稼働状態は`srvctl status database`、設定値は`srvctl config database`で調べる。"
+      },
+      "correctChoice": "D",
+      "correctText": "稼働状態は`srvctl status database`、設定値は`srvctl config database`で調べる。",
+      "explanation": "正解：D\n\nA（誤り）：statusとconfigの担当が逆。\nB（誤り）：getenvは環境変数の表示で、起動状態ではない。\nC（誤り）：modifyは設定変更で状態照会ではない。\nD（正しい）：statusは動作状態、configは登録構成を示す。",
+      "topic": "statusとconfig",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch21q006",
+      "chapter": 21,
+      "question": "登録済みDBリソースの設定値を更新すると同時に、Oracle Restartで使用する環境変数の値も登録したい。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "`srvctl getenv database`で環境変数を新しい値に更新できる。",
+        "B": "`srvctl modify database`で管理対象DBの登録構成を変更できる。",
+        "C": "`srvctl setenv database`で環境変数の値を登録できる。",
+        "D": "`srvctl config database`でリソースの環境変数を直接更新する。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "`srvctl modify database`で管理対象DBの登録構成を変更できる。、`srvctl setenv database`で環境変数の値を登録できる。",
+      "explanation": "正解：B、C\n\nA（誤り）：getenvは環境変数を参照する。\nB（正しい）：modifyは既存リソースの設定変更に用いる。\nC（正しい）：setenvは環境変数設定用。\nD（誤り）：configは構成情報の表示であり、環境変数更新のコマンドではない。",
+      "topic": "modifyとsetenv",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch21q007",
+      "chapter": 21,
+      "question": "Oracle Restartのリソース管理からデータベースを登録・登録解除する場合のコマンドとして適切な組を1つ選べ。",
+      "choices": {
+        "A": "登録：`srvctl start database`、登録解除：`srvctl stop database`。",
+        "B": "登録：`srvctl add database`、登録解除：`srvctl remove database`。",
+        "C": "登録：`srvctl modify database`、登録解除：`srvctl config database`。",
+        "D": "登録：`srvctl enable database`、登録解除：`srvctl status database`。"
+      },
+      "correctChoice": "B",
+      "correctText": "登録：`srvctl add database`、登録解除：`srvctl remove database`。",
+      "explanation": "正解：B\n\nA（誤り）：start/stopは稼働状態の制御。\nB（正しい）：add/removeは管理対象への登録と登録解除。\nC（誤り）：modify/configは変更・表示であり登録解除ではない。\nD（誤り）：enableは管理設定、statusは状態表示で、登録の組ではない。",
+      "topic": "addとremove",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch21q008",
+      "chapter": 21,
+      "question": "Oracle Restart構成でアプリケーション用のデータベースサービスを新規作成し、Restart管理下に置きたい。適切な方針を1つ選べ。",
+      "choices": {
+        "A": "`DBMS_SERVICE.CREATE_SERVICE`でサービスを作成するとOracle Restartのリソース登録も行われる。",
+        "B": "`SERVICE_NAMES`にサービス名を追加すると、Restartに管理情報が自動登録される。",
+        "C": "`srvctl add service`でOracle Restartに管理されるサービスとして構成する。",
+        "D": "`srvctl modify service`を実行すると未登録のサービスがOracle Restartへ新規登録される。"
+      },
+      "correctChoice": "C",
+      "correctText": "`srvctl add service`でOracle Restartに管理されるサービスとして構成する。",
+      "explanation": "正解：C\n\nA（誤り）：DBMS_SERVICEによるDB内の作成とRestartのリソース登録は同一ではない。\nB（誤り）：SERVICE_NAMESの変更をRestartの登録操作の代わりに使うことは推奨されない。\nC（正しい）：Restart管理のDBサービスはSRVCTLでの登録が適切。\nD（誤り）：既存リソースの構成変更と未登録サービスの追加は別操作。",
+      "topic": "サービス登録",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch21q009",
+      "chapter": 21,
+      "question": "Oracle RestartでDBMS_SERVICEではなくSRVCTLによるサービス管理が推奨される理由として適切なものを1つ選べ。",
+      "choices": {
+        "A": "SRVCTLはOracle Restartのリソース定義や依存関係と整合した形でサービスを管理できる。",
+        "B": "SRVCTLで管理するサービスを作成すると、データベースのサービス定義がリスナーの静的登録へ置き換えられる。",
+        "C": "SRVCTLはサービス作成後にデータベースの接続モードを共有サーバーに変更する。",
+        "D": "SRVCTLはサービスを作成するとデータベースの接続モードを専用サーバーへ再構成する。"
+      },
+      "correctChoice": "A",
+      "correctText": "SRVCTLはOracle Restartのリソース定義や依存関係と整合した形でサービスを管理できる。",
+      "explanation": "正解：A\n\nA（正しい）：Grid Infrastructureが管理するサービスとリソース情報を統合して扱う。\nB（誤り）：Oracle Restartでのサービス定義と依存関係の管理が目的であり、記述の変換ではない。\nC（誤り）：サービス管理と接続モードは別の問題。\nD（誤り）：サービス作成と専用／共有サーバーの接続モード設定は別である。",
+      "topic": "サービス管理の理由",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch21q010",
+      "chapter": 21,
+      "question": "データベースを単一ホストで運用しており、クラスタリソースの自動再起動を構成したい。適切な説明を2つ選べ。",
+      "choices": {
+        "A": "Oracle Restartに複数DBを登録すると、Grid InfrastructureがRAC向けの複数ノード構成へ自動移行する。",
+        "B": "Oracle Restartは複数ノード間でのインスタンスフェイルオーバーを提供するRAC構成そのものを指す。",
+        "C": "Oracle RestartのスタックにはOracle Clusterware関連のデーモンが含まれる。",
+        "D": "Oracle Restartは単一サーバー環境向けのGrid Infrastructure機能として利用できる。"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "Oracle RestartのスタックにはOracle Clusterware関連のデーモンが含まれる。、Oracle Restartは単一サーバー環境向けのGrid Infrastructure機能として利用できる。",
+      "explanation": "正解：C、D\n\nA（誤り）：単一ノード向けRestartに複数DBを登録してもRAC構成へ自動移行しない。\nB（誤り）：RACはクラスタ構成でありRestartと同義ではない。\nC（正しい）：Oracle RestartはClusterwareのコンポーネントによる管理を利用する。\nD（正しい）：Oracle Restartは単一サーバーでのリソース管理に使う。",
+      "topic": "Oracle Restart/RAC",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch21q011",
+      "chapter": 21,
+      "question": "SRVCTLを用いたデータベースおよびリスナーの起動停止について適切な説明を1つ選べ。",
+      "choices": {
+        "A": "データベース起動は`srvctl modify database -database DB名`、リスナー停止は`srvctl getenv listener`で実行できる。",
+        "B": "データベース起動は`srvctl status database -database DB名`、リスナー停止は`srvctl config listener`で実行できる。",
+        "C": "データベース起動は`srvctl add database -database DB名`、リスナー停止は`srvctl remove listener`で実行できる。",
+        "D": "データベース起動は`srvctl start database -database DB名`、リスナー停止は`srvctl stop listener`で実行できる。"
+      },
+      "correctChoice": "D",
+      "correctText": "データベース起動は`srvctl start database -database DB名`、リスナー停止は`srvctl stop listener`で実行できる。",
+      "explanation": "正解：D\n\nA（誤り）：modify/getenvは構成変更・環境変数参照。\nB（誤り）：status/configは照会コマンド。\nC（誤り）：add/removeは登録管理コマンド。\nD（正しい）：startとstopはそれぞれ起動・停止動作。",
+      "topic": "起動停止コマンド",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch21q012",
+      "chapter": 21,
+      "question": "SRVCTLが制御するコンポーネントとOracleホームの組合せとして適切なものを2つ選べ（リスナーはGridホームから起動しているとする）。",
+      "choices": {
+        "A": "ASMディスクグループ：Grid Infrastructureホーム。",
+        "B": "データベース：Databaseホーム。",
+        "C": "データベースサービス：Grid Infrastructureホーム。",
+        "D": "リスナー：Databaseホーム。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "ASMディスクグループ：Grid Infrastructureホーム。、データベース：Databaseホーム。",
+      "explanation": "正解：A、B\n\nA（正しい）：ASM関連リソースはGridホームのSRVCTLで管理。\nB（正しい）：データベースはDatabaseホームのSRVCTLで管理。\nC（誤り）：DBサービスはDatabaseホームのSRVCTLで管理。\nD（誤り）：Gridホーム起動リスナーはGridホームSRVCTLで管理。",
+      "topic": "リソース種別",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch21q013",
+      "chapter": 21,
+      "question": "Oracle Restartに登録したDBリソースの環境変数を調べ、必要なら値を更新したい。正しいコマンドの組を1つ選べ。",
+      "choices": {
+        "A": "照会：`srvctl config database`、更新：`srvctl modify database`。",
+        "B": "照会：`srvctl status database`、更新：`srvctl setenv database`。",
+        "C": "照会：`srvctl setenv database`、更新：`srvctl getenv database`。",
+        "D": "照会：`srvctl getenv database`、更新：`srvctl setenv database`。"
+      },
+      "correctChoice": "D",
+      "correctText": "照会：`srvctl getenv database`、更新：`srvctl setenv database`。",
+      "explanation": "正解：D\n\nA（誤り）：構成一般の照会と変更であり環境変数の専用コマンドとは異なる。\nB（誤り）：statusは稼働状態。\nC（誤り）：setenvとgetenvの役割が逆。\nD（正しい）：getenvが表示、setenvが設定を行う。",
+      "topic": "環境変数の照会",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch21q014",
+      "chapter": 21,
+      "question": "Oracle Restartの管理対象DBをSQL*Plusから起動する方法との比較として適切な説明を1つ選べ。",
+      "choices": {
+        "A": "SQL*Plusで起動したDBはOracle Restartの管理情報から自動削除されるため、以降はSRVCTLで起動できない。",
+        "B": "SRVCTLでは登録済みリソースの依存関係や設定情報を用いた起動管理ができる。",
+        "C": "SQL*Plusで起動するとSRVCTLで登録したサービス起動順序が、同じ依存関係に基づいて適用される。",
+        "D": "SRVCTLで起動したDBはSQL*Plusからの状態照会に応答しなくなる。"
+      },
+      "correctChoice": "B",
+      "correctText": "SRVCTLでは登録済みリソースの依存関係や設定情報を用いた起動管理ができる。",
+      "explanation": "正解：B\n\nA（誤り）：SQL*Plus起動でRestartへの登録が削除されるわけではない。\nB（正しい）：SRVCTLを使うメリットがリソース管理情報との統合。\nC（誤り）：Oracle Restartに登録された依存関係を利用した起動にはSRVCTLを用いる。\nD（誤り）：DB起動後もSQL*Plusで接続・照会できる。",
+      "topic": "SRVCTLとSQL Plus",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch21q015",
+      "chapter": 21,
+      "question": "Oracle Restartで`APP_SVC`というDBサービスが登録されている。サービスが実行中かどうかと、その登録設定をそれぞれ調べたい。正しい組を1つ選べ。",
+      "choices": {
+        "A": "実行状態：`srvctl status service`、登録設定：`srvctl config service`。",
+        "B": "実行状態：`srvctl config service`、登録設定：`srvctl status service`。",
+        "C": "実行状態：`srvctl getenv service`、登録設定：`srvctl start service`。",
+        "D": "実行状態：`srvctl modify service`、登録設定：`srvctl add service`。"
+      },
+      "correctChoice": "A",
+      "correctText": "実行状態：`srvctl status service`、登録設定：`srvctl config service`。",
+      "explanation": "正解：A\n\nA（正しい）：状態照会と設定照会をそれぞれ分けて使う。\nB（誤り）：status/configの役割が逆。\nC（誤り）：getenvは環境変数の表示、startは起動操作。\nD（誤り）：modify/addは構成変更・登録。",
+      "topic": "サービス状態照会",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch23q001",
+      "chapter": 23,
+      "question": "OSをLinuxからWindowsに変更し、Oracle Databaseも19cへ移行する計画である。適切な方針を1つ選べ。",
+      "choices": {
+        "A": "旧DBのデータファイルをそのまま新OSに移し、DBUAを実行して直接アップグレードする。",
+        "B": "新OS上に19cデータベースを作成し、Data Pump等による論理データ移行を検討する。",
+        "C": "旧DBのSPFILEをWindows用Oracleホームへ移し、catctl.plの実行でOS差を吸収する。",
+        "D": "新OSにDBUAをインストールして旧DBの制御ファイルを転送し、同じDBIDで直接起動する。"
+      },
+      "correctChoice": "B",
+      "correctText": "新OS上に19cデータベースを作成し、Data Pump等による論理データ移行を検討する。",
+      "explanation": "正解：B\n\nA（誤り）：直接アップグレードにはプラットフォーム上の制約があり、OS変更との同時実行を前提にできない。\nB（正しい）：データ転送方式なら新OS上に構築したデータベースにデータを移行できる。\nC（誤り）：パラメータファイルとアップグレードスクリプトは異なるOSの物理ファイル互換性を保証しない。\nD（誤り）：DBUAの有無ではプラットフォーム制約は解消しない。",
+      "topic": "直接アップグレードとデータ移行",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch23q002",
+      "chapter": 23,
+      "question": "直接アップグレードの説明として正しいものを2つ選べ。",
+      "choices": {
+        "A": "既存DBを新リリース向けに変換し、元のデータを引き継ぐ。",
+        "B": "新DBを先に作成してData Pumpでスキーマを移行する方式も直接アップグレードに分類される。",
+        "C": "異なるOracleホームを用いたout-of-place方式でのアップグレードを検討できる。",
+        "D": "旧データベースのOSファイルを別種のプラットフォームに変換することが直接アップグレードの目的である。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "既存DBを新リリース向けに変換し、元のデータを引き継ぐ。、異なるOracleホームを用いたout-of-place方式でのアップグレードを検討できる。",
+      "explanation": "正解：A、C\n\nA（正しい）：既存データベースをアップグレード用スクリプト等で変換する。\nB（誤り）：新規DBを構築してデータを移すのは移行方式として区別する。\nC（正しい）：新Oracleホームで既存DBのアップグレードを実施できる。\nD（誤り）：プラットフォーム変換を主な目的とした方式ではない。",
+      "topic": "直接アップグレードの処理対象",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch23q003",
+      "chapter": 23,
+      "question": "DBUAによるアップグレード前の検査で、対応の優先度が高い状況を1つ選べ。",
+      "choices": {
+        "A": "旧DBに無効なPL/SQLオブジェクトが存在しており、数が把握できる。",
+        "B": "旧DBにDBAが利用するローカルロールが追加されている。",
+        "C": "旧DBでSYSとSYSTEMが異なるパスワードを使用している。",
+        "D": "リカバリを必要とするデータファイルが存在している。"
+      },
+      "correctChoice": "D",
+      "correctText": "リカバリを必要とするデータファイルが存在している。",
+      "explanation": "正解：D\n\nA（誤り）：無効オブジェクトは事前記録や再コンパイルを検討するが、その存在だけで一律に移行不能とは限らない。\nB（誤り）：ロールの存在はアップグレードを阻害する条件とはいえない。\nC（誤り）：異なるパスワードを利用すること自体は障害ではない。\nD（正しい）：未回復のデータファイルがある状態はアップグレード前に解消すべき障害である。",
+      "topic": "DBUAの事前チェック",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch23q004",
+      "chapter": 23,
+      "question": "新19cホームのタイムゾーンファイルが、旧DBで使用しているバージョンを扱えない状況である。適切な対処を1つ選べ。",
+      "choices": {
+        "A": "新ホームに使用中のバージョンをサポートするタイムゾーンファイルを準備する。",
+        "B": "旧DBのNLS_TERRITORYを新ホームと同じ値に設定してから再実行する。",
+        "C": "旧DBのデータベースキャラクタセットをAL32UTF8に変更してから再実行する。",
+        "D": "タイムゾーンファイルの相違を新ホームのOPatchインベントリから削除する。"
+      },
+      "correctChoice": "A",
+      "correctText": "新ホームに使用中のバージョンをサポートするタイムゾーンファイルを準備する。",
+      "explanation": "正解：A\n\nA（正しい）：旧DBが使用するタイムゾーンデータの扱いを新ホーム側で確保する。\nB（誤り）：NLS_TERRITORYは日付等の地域別書式でありタイムゾーンファイルの互換性を補わない。\nC（誤り）：キャラクタセットとタイムゾーンファイルは異なる。\nD（誤り）：インベントリの削除ではデータファイル互換性を解消できない。",
+      "topic": "アップグレード前タイムゾーン",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch23q005",
+      "chapter": 23,
+      "question": "Oracle Database 19cのアップグレードについて正しい説明を2つ選べ。",
+      "choices": {
+        "A": "AutoUpgradeは旧DBの論理バックアップをSQL*Loaderで再投入するための専用ユーティリティである。",
+        "B": "DBUAはアップグレード前のチェックを支援し、必要な修正点を示す。",
+        "C": "AutoUpgradeはアップグレードの分析や実行を自動化できる。",
+        "D": "DBUAはデータベースファイルを移行せず、Data Pumpのインポートジョブを実行する方式である。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "DBUAはアップグレード前のチェックを支援し、必要な修正点を示す。、AutoUpgradeはアップグレードの分析や実行を自動化できる。",
+      "explanation": "正解：B、C\n\nA（誤り）：AutoUpgradeは直接アップグレードを自動化するために利用できる。\nB（正しい）：DBUAは事前検査を実施する。\nC（正しい）：AutoUpgradeは分析・修正・アップグレードを支援する。\nD（誤り）：DBUAは直接アップグレードを扱うツールであり論理移行専用ではない。",
+      "topic": "前処理とアップグレード手段",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch23q006",
+      "chapter": 23,
+      "question": "アップグレード実施前の確認について適切な説明を2つ選べ。",
+      "choices": {
+        "A": "変更前から存在している無効オブジェクトを把握し、実施後の増減を比較する。",
+        "B": "無効なオブジェクトを検出すると、すべてのアップグレードスクリプトが実行不能になる。",
+        "C": "リフレッシュ中のマテリアライズドビューを検出した場合、utlrp.sqlでリフレッシュ状態を修復する。",
+        "D": "リフレッシュ中のマテリアライズドビューがある場合、リフレッシュ完了を確認する。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "変更前から存在している無効オブジェクトを把握し、実施後の増減を比較する。、リフレッシュ中のマテリアライズドビューがある場合、リフレッシュ完了を確認する。",
+      "explanation": "正解：A、D\n\nA（正しい）：事前ベースラインと実施後の差分を確認する意義がある。\nB（誤り）：無効オブジェクトの存在が無条件にアップグレード不可というわけではない。\nC（誤り）：utlrp.sqlは無効オブジェクトの再コンパイル用でありMVリフレッシュを完了させるものではない。\nD（正しい）：リフレッシュ処理完了を確認してから移行する。",
+      "topic": "アップグレードとオブジェクト",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch23q007",
+      "chapter": 23,
+      "question": "アップグレード完了後、無効なPL/SQLオブジェクトが多く残っている。対処として適切なものを1つ選べ。",
+      "choices": {
+        "A": "`utluptabdata.sql`を実行し、無効なPL/SQLオブジェクトのコンパイル結果を確定する。",
+        "B": "`postupgrade_fixups.sql`を実行し、無効オブジェクトの再コンパイルを完全に代行させる。",
+        "C": "`utlrp.sql`を実行し、無効オブジェクトの再コンパイルを行う。",
+        "D": "`catcon.pl`を実行してから新しいインスタンスを作成し、無効オブジェクトを再生成する。"
+      },
+      "correctChoice": "C",
+      "correctText": "`utlrp.sql`を実行し、無効オブジェクトの再コンパイルを行う。",
+      "explanation": "正解：C\n\nA（誤り）：utluptabdata.sqlはOracle管理型に依存する表のアップグレード等に関連する。\nB（誤り）：postupgrade_fixups.sqlは修正事項の処理に関わるが、再コンパイル専用の代表スクリプトはutlrp.sql。\nC（正しい）：utlrp.sqlは無効オブジェクトの再コンパイルに使う。\nD（誤り）：catcon.plはコンテナ横断でスクリプトを実行する仕組みであり、新インスタンス作成は不要。",
+      "topic": "アップグレード後スクリプト",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch23q008",
+      "chapter": 23,
+      "question": "CDBに複数のPDBがある。アップグレード後に`utlrp.sql`を多数のコンテナで実行したい。適切な方法を1つ選べ。",
+      "choices": {
+        "A": "`catctl.pl -L`でutlrp.sqlのディクショナリ登録範囲を各スキーマへ拡張する。",
+        "B": "`catcon.pl`から`utlrp.sql`を呼び出し、対象コンテナにスクリプトを実行する。",
+        "C": "`DBMS_STATS.GATHER_DATABASE_STATS`のCASCADE指定でutlrp.sqlを各PDBへ配布する。",
+        "D": "`preupgrade.jar`をUPGRADEモードで再実行し、utlrp.sqlの実行先を自動生成する。"
+      },
+      "correctChoice": "B",
+      "correctText": "`catcon.pl`から`utlrp.sql`を呼び出し、対象コンテナにスクリプトを実行する。",
+      "explanation": "正解：B\n\nA（誤り）：catctl.plはアップグレードの並列制御に用いる。\nB（正しい）：catcon.plはSQLスクリプトを複数コンテナに実行するためのユーティリティ。\nC（誤り）：DBMS_STATSはオプティマイザ統計収集であり再コンパイルスクリプト配布ではない。\nD（誤り）：事前検査ツールの処理と再コンパイルは別。",
+      "topic": "catcon.plの役割",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch23q009",
+      "chapter": 23,
+      "question": "DBUAでCDBをアップグレードする場合の説明として正しいものを2つ選べ。",
+      "choices": {
+        "A": "DBUAは非CDB専用なので、CDBではcatcon.plによる手動アップグレードを使用する。",
+        "B": "DBUAでCDBをアップグレードする場合、既定の処理範囲にはCDB内のPDBが含まれる。",
+        "C": "DBUAは複数のデータベースに接続して、同じ1回のアップグレードジョブで同時変換する。",
+        "D": "DBUAはGUI利用のほか、サイレントモードでの実行も検討できる。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "DBUAでCDBをアップグレードする場合、既定の処理範囲にはCDB内のPDBが含まれる。、DBUAはGUI利用のほか、サイレントモードでの実行も検討できる。",
+      "explanation": "正解：B、D\n\nA（誤り）：DBUAはCDBを対象にできる。\nB（正しい）：DBUAはCDB全体のアップグレードを支援する。\nC（誤り）：一回のDBUA実行で複数独立DBを同時に更新する方式ではない。\nD（正しい）：非対話の実行方法も提供される。",
+      "topic": "DBUAとCDB",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch23q010",
+      "chapter": 23,
+      "question": "同じOS上でDBの直接アップグレードを計画している。適切な説明を1つ選べ。",
+      "choices": {
+        "A": "データベースファイルを新Oracleホームへコピーすれば旧DBのバックアップは不要となる。",
+        "B": "Data Pumpのエクスポートを実行すれば、新ホームによる直接アップグレードの前処理は不要となる。",
+        "C": "ソフトウェアを新Oracleホームへインストールし、アップグレード前に復旧可能なバックアップを用意する。",
+        "D": "旧ホームのOPatchインベントリを新ホームへ移行すればデータファイルを変換せずに利用できる。"
+      },
+      "correctChoice": "C",
+      "correctText": "ソフトウェアを新Oracleホームへインストールし、アップグレード前に復旧可能なバックアップを用意する。",
+      "explanation": "正解：C\n\nA（誤り）：新ホームの導入はデータの保護手段とは異なる。\nB（誤り）：論理バックアップは直接アップグレードの前提確認を代替しない。\nC（正しい）：失敗時の復旧に備えることが重要。\nD（誤り）：バイナリパッチ履歴とデータディクショナリの変換は別。",
+      "topic": "バックアップと直接アップグレード",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch23q011",
+      "chapter": 23,
+      "question": "アップグレード後に`utlrp.sql`と`utluptabdata.sql`の用途を確認したい。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "`utlrp.sql`は無効なオブジェクトの再コンパイルに使用できる。",
+        "B": "`utluptabdata.sql`は古いOracleホームのバイナリライブラリを更新する。",
+        "C": "`utlrp.sql`はOracle管理型の格納形式を書き換えるためのファイル変換スクリプトである。",
+        "D": "`utluptabdata.sql`はOracle管理オブジェクト型への依存がある表のアップグレードに関連する。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "`utlrp.sql`は無効なオブジェクトの再コンパイルに使用できる。、`utluptabdata.sql`はOracle管理オブジェクト型への依存がある表のアップグレードに関連する。",
+      "explanation": "正解：A、D\n\nA（正しい）：再コンパイル用スクリプトである。\nB（誤り）：Oracleホームのバイナリ更新はパッチツールやインストーラ側の操作。\nC（誤り）：再コンパイルとデータ型の格納形式変換は異なる。\nD（正しい）：特殊な型への依存に関連するアップグレード処理に使われる。",
+      "topic": "Oracle管理タイプ",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch23q012",
+      "chapter": 23,
+      "question": "アップグレード後の性能確認と管理として適切なものを2つ選べ。",
+      "choices": {
+        "A": "ディクショナリ統計や固定オブジェクト統計の収集を検討する。",
+        "B": "アップグレード前の表領域使用率メトリックのしきい値設定が継続しているか確認する。",
+        "C": "データベースキャラクタセットがアップグレードで変わるため、文字列列の統計をすべて初期化する。",
+        "D": "固定オブジェクト統計はデータファイルを新Oracleホームに再配置することで再作成される。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "ディクショナリ統計や固定オブジェクト統計の収集を検討する。、アップグレード前の表領域使用率メトリックのしきい値設定が継続しているか確認する。",
+      "explanation": "正解：A、B\n\nA（正しい）：アップグレード後の実行計画の精度に統計情報が関係する。\nB（正しい）：しきい値の再設定が必要な場合がある。\nC（誤り）：直接アップグレードがキャラクタセットを変更する処理とは限らない。\nD（誤り）：固定オブジェクト統計はデータファイル配置とは別途収集する。",
+      "topic": "アップグレード後統計",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch33q001",
+      "chapter": 33,
+      "question": "18c CDBを19cへ手動で直接アップグレードする。旧ホームで事前修正を実行した後の処理として適切なものを1つ選べ。",
+      "choices": {
+        "A": "旧ホームで`STARTUP UPGRADE`し、新ホームで`catctl.pl`を実行する。",
+        "B": "新ホームを使用してCDBを`STARTUP UPGRADE`し、PDBを`OPEN UPGRADE`してアップグレード処理を実行する。",
+        "C": "新ホームでCDBを通常OPENし、PDBをMOUNTした状態のままcatupgrd.sqlを実行する。",
+        "D": "旧ホームでPDBをOPEN UPGRADEし、CDBルートをREAD ONLYでOPENしてからアップグレードする。"
+      },
+      "correctChoice": "B",
+      "correctText": "新ホームを使用してCDBを`STARTUP UPGRADE`し、PDBを`OPEN UPGRADE`してアップグレード処理を実行する。",
+      "explanation": "正解：B\n\nA（誤り）：アップグレード時は新リリースのバイナリを使用する。\nB（正しい）：CDBとPDBをアップグレードモードにして対象スクリプトを実行する。\nC（誤り）：アップグレードに先立つOPENモードが異なる。\nD（誤り）：ルートはアップグレード処理が可能な状態である必要がある。",
+      "topic": "CDB手動アップグレードの順序",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch33q002",
+      "chapter": 33,
+      "question": "`ALTER PLUGGABLE DATABASE SALES OPEN UPGRADE`を実行した。`SHOW PDBS`のOPEN MODE欄として適切なものを1つ選べ。",
+      "choices": {
+        "A": "READ WRITE",
+        "B": "UPGRADE",
+        "C": "MIGRATE",
+        "D": "READ ONLY"
+      },
+      "correctChoice": "C",
+      "correctText": "MIGRATE",
+      "explanation": "正解：C\n\nA（誤り）：通常OPEN時の表示。\nB（誤り）：SQL構文上のOPEN UPGRADEと表示値は同一ではない。\nC（正しい）：アップグレードモードのOPENはMIGRATEと表示される。\nD（誤り）：読取専用OPENではない。",
+      "topic": "PDBのMIGRATE表示",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch33q003",
+      "chapter": 33,
+      "question": "`catctl.pl`でアップグレード対象のPDBを指定し、別のPDBを除外する必要がある。適切な対応を2つ選べ。",
+      "choices": {
+        "A": "`-c`は対象となるPDBの指定に使用できる。",
+        "B": "`-L`はPDBの除外指定を行い、`-C`は対象の優先順位を指定する。",
+        "C": "`-c`は優先順位リストのファイル名を指定し、`-L`が対象PDBを指定する。",
+        "D": "`-C`はPDBのアップグレード対象からの除外に使用できる。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "`-c`は対象となるPDBの指定に使用できる。、`-C`はPDBのアップグレード対象からの除外に使用できる。",
+      "explanation": "正解：A、D\n\nA（正しい）：対象PDB指定に対応する。\nB（誤り）：-Lは優先順位リストを扱う。\nC（誤り）：-cと-Lの役割を取り違えている。\nD（正しい）：除外指定に対応する。",
+      "topic": "catctl.plオプション",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch33q004",
+      "chapter": 33,
+      "question": "`catctl.pl -L`で優先順位リストを指定した。正しい説明を2つ選べ。",
+      "choices": {
+        "A": "優先順位リストのPDBは、リスト外のPDBより先に処理される。",
+        "B": "優先順位リストにCDB$ROOTを記載しなければCDBルートはアップグレード対象から外れる。",
+        "C": "CDBルートおよびPDB$SEEDは優先順位リストより先に扱われる。",
+        "D": "リストにないPDBは自動的にOPEN READ ONLYで維持され、後続のアップグレード処理から除外される。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "優先順位リストのPDBは、リスト外のPDBより先に処理される。、CDBルートおよびPDB$SEEDは優先順位リストより先に扱われる。",
+      "explanation": "正解：A、C\n\nA（正しい）：リスト内のPDBを優先処理する。\nB（誤り）：ルートの処理は通常のPDB優先リストへの記載が前提ではない。\nC（正しい）：CDB$ROOTとPDB$SEEDを先に処理する。\nD（誤り）：優先リストの有無と対象除外は別の設定。",
+      "topic": "優先順位リスト",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch33q005",
+      "chapter": 33,
+      "question": "CDBの手動アップグレードで`dbupgrade`を使用する場合の説明として適切なものを1つ選べ。",
+      "choices": {
+        "A": "`dbupgrade`は`catcon.pl`を呼び出し、PDB内のオブジェクトを再コンパイルする専用コマンドである。",
+        "B": "`dbupgrade`はData Pumpのフルトランスポータブルインポートを自動化する。",
+        "C": "`dbupgrade`はPDBの接続先リスナー情報を更新する専用プログラムである。",
+        "D": "`dbupgrade`は内部で`catctl.pl`を呼び出すラッパーとして使用できる。"
+      },
+      "correctChoice": "D",
+      "correctText": "`dbupgrade`は内部で`catctl.pl`を呼び出すラッパーとして使用できる。",
+      "explanation": "正解：D\n\nA（誤り）：catcon.plの役割と異なる。\nB（誤り）：Data Pumpは論理的データ転送用。\nC（誤り）：リスナー更新専用ではない。\nD（正しい）：dbupgradeは並列アップグレードユーティリティを呼び出す。",
+      "topic": "dbupgradeとcatctl",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch33q006",
+      "chapter": 33,
+      "question": "18c CDB内のPDBを19c CDBへ移してアップグレードしたい。適切な説明を2つ選べ。",
+      "choices": {
+        "A": "旧CDBからPDBをアンプラグし、19c CDBへプラグしてアップグレードモードで開く方法を検討できる。",
+        "B": "新CDBにプラグ後、対象PDBにアップグレード処理を実行する必要がある。",
+        "C": "旧CDBのPDBをアンプラグした時点で、対象PDBのデータディクショナリは19cに更新される。",
+        "D": "新CDBにプラグする際には、先に`catctl.pl`を旧18c CDBで実行する。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "旧CDBからPDBをアンプラグし、19c CDBへプラグしてアップグレードモードで開く方法を検討できる。、新CDBにプラグ後、対象PDBにアップグレード処理を実行する必要がある。",
+      "explanation": "正解：A、B\n\nA（正しい）：プラグインとアップグレードの組合せが可能。\nB（正しい）：移動後に対象PDBのアップグレードを行う。\nC（誤り）：アンプラグはディクショナリのアップグレードを実行する操作ではない。\nD（誤り）：旧リリースのCDBで新リリースのアップグレードを済ませるという手順ではない。",
+      "topic": "PDB単体のアップグレード",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch33q007",
+      "chapter": 33,
+      "question": "PDB内のデータをData Pumpでエクスポートする。対象コンテナの指定として適切なものを1つ選べ。",
+      "choices": {
+        "A": "`expdp`をPDBのサービス名に接続し、対象PDB内のオブジェクトを操作する。",
+        "B": "`expdp`をCDB$ROOTのサービスに接続し、PDB名をDIRECTORYオブジェクトとして指定する。",
+        "C": "`expdp`をCDB$ROOTに接続し、FULL=Yで全PDBを含めてエクスポートする。",
+        "D": "`expdp`をPDB$SEEDへ接続し、対象PDBをREMAP_SCHEMAに指定する。"
+      },
+      "correctChoice": "A",
+      "correctText": "`expdp`をPDBのサービス名に接続し、対象PDB内のオブジェクトを操作する。",
+      "explanation": "正解：A\n\nA（正しい）：PDBのData Pump操作では対象PDBサービスに接続する。\nB（誤り）：接続先コンテナはサービスで指定する。DIRECTORYはファイルアクセス用。\nC（誤り）：ルートのFULL=Yは全CDBのデータ移行を意味しない。\nD（誤り）：PDB$SEEDは一般のユーザーデータエクスポート先ではない。",
+      "topic": "Data Pumpの接続先",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch33q008",
+      "chapter": 33,
+      "question": "既存PDBをData PumpのFULL=Yエクスポートから再構築する。適切な説明を2つ選べ。",
+      "choices": {
+        "A": "FULL=Yを指定すると、ダンプ内の制御ファイルからPDBを自動作成する。",
+        "B": "インポート先のPDBを準備し、対象PDBへ接続してインポートする。",
+        "C": "FULL=YはPDB内のスキーマ定義やユーザーデータなどの移行に使用できる。",
+        "D": "FULL=YでCDB$ROOTへ接続すれば、PDB$SEEDも含めた全PDBのファイルが移送される。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "インポート先のPDBを準備し、対象PDBへ接続してインポートする。、FULL=YはPDB内のスキーマ定義やユーザーデータなどの移行に使用できる。",
+      "explanation": "正解：B、C\n\nA（誤り）：FULL Data PumpはCDBの制御ファイル復元やPDBの自動作成とは異なる。\nB（正しい）：PDBコンテナはあらかじめ用意する。\nC（正しい）：対象コンテナ内の広範なオブジェクトを移行できる。\nD（誤り）：CDBルートのエクスポートは全PDBへ拡張されない。",
+      "topic": "Data Pump FULL=Y",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch33q009",
+      "chapter": 33,
+      "question": "フルトランスポータブル・エクスポート/インポートについて適切なものを2つ選べ。",
+      "choices": {
+        "A": "`TRANSPORTABLE=ALWAYS`を使うと、ユーザー表領域の行データがダンプへ全件アンロードされる。",
+        "B": "ユーザー表領域のデータファイルを運ぶ方式と、他の必要なメタデータ等の転送を組み合わせる。",
+        "C": "`TRANSPORTABLE=ALWAYS`はPDBをアンプラグするためのSQL句である。",
+        "D": "大規模なユーザー表領域で、従来の行データ移送に比べて時間短縮を期待できる場合がある。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "ユーザー表領域のデータファイルを運ぶ方式と、他の必要なメタデータ等の転送を組み合わせる。、大規模なユーザー表領域で、従来の行データ移送に比べて時間短縮を期待できる場合がある。",
+      "explanation": "正解：B、D\n\nA（誤り）：物理移送によるデータ転送を狙う方式。\nB（正しい）：物理データファイルのコピーとData Pumpの転送を併用する。\nC（誤り）：Data PumpのパラメータでありPDBのUNPLUG構文ではない。\nD（正しい）：データのアンロード・再ロードを削減できる。",
+      "topic": "フルトランスポータブル",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch33q010",
+      "chapter": 33,
+      "question": "共通ユーザーC##APPが所有する表を、別CDBのPDBへData Pumpで取り込む。対象PDBにはC##APPが存在しない。適切な方法を1つ選べ。",
+      "choices": {
+        "A": "FULL=Yを指定すれば、PDBへのインポート時にC##APPがCDBルートへ共通ユーザーとして自動作成される。",
+        "B": "`REMAP_TABLESPACE`を指定すると、C##APPが所有するオブジェクトの所有者もAPP_LOCALへ変更される。",
+        "C": "`REMAP_SCHEMA=C##APP:APP_LOCAL`などを用い、適切なローカルスキーマへの移行を検討する。",
+        "D": "PDB内で`CREATE USER C##APP`を実行すると、共通ユーザーと同じ存在範囲のユーザーが作成される。"
+      },
+      "correctChoice": "C",
+      "correctText": "`REMAP_SCHEMA=C##APP:APP_LOCAL`などを用い、適切なローカルスキーマへの移行を検討する。",
+      "explanation": "正解：C\n\nA（誤り）：共通ユーザーの作成はCDBルート側の管理事項。\nB（誤り）：REMAP_TABLESPACEは表領域のマッピングであり所有者変更ではない。\nC（正しい）：所有者を変えるにはREMAP_SCHEMAが適切。\nD（誤り）：共通ユーザーはCDBルートで作成する。",
+      "topic": "共通ユーザーと移行",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch33q011",
+      "chapter": 33,
+      "question": "非CDBのデータを新CDBのPDBにData Pumpで移行する。適切な説明を2つ選べ。",
+      "choices": {
+        "A": "移行後のユーザーはCDB内の共通ユーザーに変換される。",
+        "B": "非CDBの制御ファイルをData Pumpで取り込み、新CDBの制御ファイルに統合する。",
+        "C": "非CDBのユーザー所有オブジェクトを新しいPDBへ転送できる。",
+        "D": "移行先PDBを事前に作成しておき、PDBに接続してインポートする。"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "非CDBのユーザー所有オブジェクトを新しいPDBへ転送できる。、移行先PDBを事前に作成しておき、PDBに接続してインポートする。",
+      "explanation": "正解：C、D\n\nA（誤り）：一般的な移行先ユーザーはPDBのローカルユーザーとなる。\nB（誤り）：Data Pumpは制御ファイルを統合する機能ではない。\nC（正しい）：異なるリリース間での論理移行に利用できる。\nD（正しい）：ターゲットPDBの準備が必要。",
+      "topic": "非CDBからPDBへのData Pump",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch33q012",
+      "chapter": 33,
+      "question": "PDB間のデータ移行でトランスポータブル表領域を利用する計画である。適切な説明を2つ選べ。",
+      "choices": {
+        "A": "同一CDB内の別PDBへの表領域転送に利用する構成がある。",
+        "B": "トランスポータブル表領域では、移送元のすべてのユーザーデータをPDBのXMLメタデータへ格納する。",
+        "C": "トランスポータブル表領域はアプリコンテナのアプリ同期を実行するためのRMANオプションである。",
+        "D": "非CDBからPDBへの表領域転送にも使用できる。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "同一CDB内の別PDBへの表領域転送に利用する構成がある。、非CDBからPDBへの表領域転送にも使用できる。",
+      "explanation": "正解：A、D\n\nA（正しい）：コンテナ間のデータ移送に対応する。\nB（誤り）：物理的なデータファイルの転送を含む。\nC（誤り）：アプリケーション同期とは別の機能。\nD（正しい）：非CDBとPDBの間でも利用可能。",
+      "topic": "トランスポータブル表領域",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch33q013",
+      "chapter": 33,
+      "question": "アップグレード前情報ツールと修正スクリプトに関する説明として適切なものを2つ選べ。",
+      "choices": {
+        "A": "`preupgrade.jar`等の診断結果は、アップグレード前の修正事項を把握するために利用できる。",
+        "B": "`postupgrade_fixups.sql`はアップグレード後の修正作業に関係する。",
+        "C": "`preupgrade_fixups.sql`は、新リリースに移行した後に実行するためのSQLスクリプトである。",
+        "D": "アップグレード前情報ツールはデータファイルの構造を自動的に19c形式へ変更する。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "`preupgrade.jar`等の診断結果は、アップグレード前の修正事項を把握するために利用できる。、`postupgrade_fixups.sql`はアップグレード後の修正作業に関係する。",
+      "explanation": "正解：A、B\n\nA（正しい）：事前チェックによりアップグレード阻害要因などを発見する。\nB（正しい）：アップグレード後の修正事項向けのもの。\nC（誤り）：preupgrade_fixupsは事前の修正に関係する。\nD（誤り）：構造変換はアップグレード本体で行う。",
+      "topic": "preupgradeツール",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch33q014",
+      "chapter": 33,
+      "question": "CDBを手動アップグレードした直後の運用手順として適切なものを1つ選べ。",
+      "choices": {
+        "A": "アップグレード後修正を実行するには旧Oracleホームを使用してPDBをUPGRADEモードへ戻す。",
+        "B": "アップグレード処理が終了したら、通常のOPEN状態へ戻してアップグレード後修正を実施する。",
+        "C": "アップグレード後はすべてのPDBをPDB$SEEDからクローンし直してから利用する。",
+        "D": "アップグレード後修正は旧DBのpreupgrade_fixups.sqlを再実行して行う。"
+      },
+      "correctChoice": "B",
+      "correctText": "アップグレード処理が終了したら、通常のOPEN状態へ戻してアップグレード後修正を実施する。",
+      "explanation": "正解：B\n\nA（誤り）：旧ホームへ戻すことは推奨されず、不整合の原因になり得る。\nB（正しい）：通常起動後に修正処理を行う。\nC（誤り）：既存のPDBをすべて作り直す操作ではない。\nD（誤り）：事前と事後の修正用スクリプトは用途が異なる。",
+      "topic": "アップグレード後の状態",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch35q001",
+      "chapter": 35,
+      "question": "アプリケーション用表を所有するが本人認証での接続は不要なスキーマを作成する。適切なSQLを1つ選べ。",
+      "choices": {
+        "A": "`CREATE USER APP_OWNER IDENTIFIED EXTERNALLY;`",
+        "B": "`CREATE USER APP_OWNER NO AUTHENTICATION;`",
+        "C": "`CREATE USER APP_OWNER IDENTIFIED GLOBALLY;`",
+        "D": "`CREATE USER APP_OWNER IDENTIFIED BY VALUES password_hash;`"
+      },
+      "correctChoice": "B",
+      "correctText": "`CREATE USER APP_OWNER NO AUTHENTICATION;`",
+      "explanation": "正解：B\n\nA（誤り）：外部認証用アカウントであり認証方式を持たないスキーマとは異なる。\nB（正しい）：NO AUTHENTICATIONで直接認証用の資格証明を持たないスキーマを作成する。\nC（誤り）：グローバル認証を利用する方式。\nD（誤り）：パスワード認証用のハッシュ指定でありスキーマ限定ではない。",
+      "topic": "スキーマ限定アカウントの作成",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch35q002",
+      "chapter": 35,
+      "question": "`CREATE USER APP_OWNER NO AUTHENTICATION`で作成したユーザーについて適切な説明を2つ選べ。",
+      "choices": {
+        "A": "適切な権限を付与してオブジェクトを所有させることができる。",
+        "B": "直接ログインできるよう、CREATE SESSION権限とパスワードなし認証を組み合わせられる。",
+        "C": "管理権限を付与する運用もOracle 19cではサポートされる。",
+        "D": "通常のパスワード認証で接続すると、パスワード未設定の状態としてパスワード変更を要求される。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "適切な権限を付与してオブジェクトを所有させることができる。、管理権限を付与する運用もOracle 19cではサポートされる。",
+      "explanation": "正解：A、C\n\nA（正しい）：スキーマはオブジェクト所有者として機能できる。\nB（誤り）：認証方式が無い状態では通常の直接ログインはできない。\nC（正しい）：スキーマ限定アカウントには管理権限を付与できる。\nD（誤り）：パスワード未設定は通常のパスワード認証とは異なる。",
+      "topic": "スキーマ限定と管理権限",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch35q003",
+      "chapter": 35,
+      "question": "スキーマ限定アカウントAPP_OWNERに対して、アプリケーションの代理接続が必要になった。適切な説明を1つ選べ。",
+      "choices": {
+        "A": "APP_OWNERにCREATE SESSIONを付与すると、プロキシユーザーの設定なしに認証が成立する。",
+        "B": "APP_OWNERにSYSDBAを付与すると、スキーマ限定アカウントへの認証が自動有効化される。",
+        "C": "APP_OWNERが所有する表へアクセスするには、必ずAPP_OWNER自身の認証が必要になる。",
+        "D": "APP_OWNERに直接パスワード認証を設定する方法とは別に、プロキシユーザーによる接続を構成できる。"
+      },
+      "correctChoice": "D",
+      "correctText": "APP_OWNERに直接パスワード認証を設定する方法とは別に、プロキシユーザーによる接続を構成できる。",
+      "explanation": "正解：D\n\nA（誤り）：権限と認証方式は区別される。\nB（誤り）：管理権限が直接の認証機構を提供するわけではない。\nC（誤り）：権限やプロキシ接続によるアクセス手段がある。\nD（正しい）：本人認証を追加せずに代理接続する方式がある。",
+      "topic": "プロキシ認証",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch35q004",
+      "chapter": 35,
+      "question": "DBAがUSER_Aがスキーマ限定アカウントかを調べる。適切な確認方法を1つ選べ。",
+      "choices": {
+        "A": "`DBA_USERS.AUTHENTICATION_TYPE`が`NONE`か確認する。",
+        "B": "`DBA_USERS.ACCOUNT_STATUS`が`OPEN`か確認する。",
+        "C": "`DBA_USERS.DEFAULT_TABLESPACE`が`USERS`か確認する。",
+        "D": "`DBA_USERS.PASSWORD_VERSIONS`が`12C`か確認する。"
+      },
+      "correctChoice": "A",
+      "correctText": "`DBA_USERS.AUTHENTICATION_TYPE`が`NONE`か確認する。",
+      "explanation": "正解：A\n\nA（正しい）：認証方式が無い状態はAUTHENTICATION_TYPEで判断できる。\nB（誤り）：アカウント状態だけでは認証方式を特定できない。\nC（誤り）：表領域の設定は本人認証方式を示さない。\nD（誤り）：パスワードバージョンの存在はスキーマ限定と同義ではない。",
+      "topic": "スキーマ限定の確認",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch35q005",
+      "chapter": 35,
+      "question": "スキーマ限定アカウントに関する説明として適切なものを2つ選べ。",
+      "choices": {
+        "A": "`NO AUTHENTICATION`は接続用ロールを自動付与して権限管理を不要にする。",
+        "B": "オブジェクト所有用アカウントからパスワード管理を削減する目的で利用できる。",
+        "C": "`ALTER USER ... NO AUTHENTICATION`で認証方式を変更する運用を検討できる。",
+        "D": "スキーマ限定ユーザーが保有する表は、別ユーザーからのアクセス権限を設定できない。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "オブジェクト所有用アカウントからパスワード管理を削減する目的で利用できる。、`ALTER USER ... NO AUTHENTICATION`で認証方式を変更する運用を検討できる。",
+      "explanation": "正解：B、C\n\nA（誤り）：認証方式と権限付与は異なる管理対象。\nB（正しい）：パスワードを持たないスキーマとして利用できる。\nC（正しい）：ALTER USERで認証方式を変更できる。\nD（誤り）：所有するオブジェクトにも通常の権限管理を利用できる。",
+      "topic": "スキーマ限定の運用",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch35q006",
+      "chapter": 35,
+      "question": "Oracle 19cの権限分析機能について適切な説明を1つ選べ。",
+      "choices": {
+        "A": "過去に付与されたすべての権限を自動的にREVOKEして最小権限にする。",
+        "B": "権限分析はUnified Auditの監査証跡を削除する機能として利用する。",
+        "C": "未使用の権限を識別し、最小権限化を検討する材料になる。",
+        "D": "権限分析はDBA_USERSから認証タイプの不一致を検出する機能である。"
+      },
+      "correctChoice": "C",
+      "correctText": "未使用の権限を識別し、最小権限化を検討する材料になる。",
+      "explanation": "正解：C\n\nA（誤り）：権限取り消しは運用判断を伴う。\nB（誤り）：監査証跡削除とは異なる。\nC（正しい）：権限の利用実績に基づき、不要権限を特定する。\nD（誤り）：スキーマ認証方式を調べるものではない。",
+      "topic": "権限分析",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch35q007",
+      "chapter": 35,
+      "question": "19cでの権限分析のライセンスについて適切な説明を1つ選べ。",
+      "choices": {
+        "A": "Oracle Database Vaultオプションを導入したSE2で利用することを前提とする。",
+        "B": "Oracle Enterprise Editionに加えてDiagnostics Packを導入する必要がある。",
+        "C": "Oracle Database Vaultオプションの構成を有効化したCDBルートに限って利用できる。",
+        "D": "Oracle Enterprise Editionで、Database Vaultオプションとは別に利用できる。"
+      },
+      "correctChoice": "D",
+      "correctText": "Oracle Enterprise Editionで、Database Vaultオプションとは別に利用できる。",
+      "explanation": "正解：D\n\nA（誤り）：Database Vaultオプションが必須という旧条件ではない。\nB（誤り）：Diagnostics Packは主に性能診断関連。\nC（誤り）：利用場所をCDBルートに限定する機能ではない。\nD（正しい）：19cではEnterprise Editionで使用可能。",
+      "topic": "権限分析のエディション",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch35q008",
+      "chapter": 35,
+      "question": "19cのData Pumpでセキュアロールの有効化に関係するパラメータを1つ選べ。",
+      "choices": {
+        "A": "`ENABLE_SECURE_ROLES`",
+        "B": "`EXCLUDE=ROLE_GRANT`",
+        "C": "`INCLUDE=ROLE`",
+        "D": "`REMAP_SCHEMA`"
+      },
+      "correctChoice": "A",
+      "correctText": "`ENABLE_SECURE_ROLES`",
+      "explanation": "正解：A\n\nA（正しい）：Data Pumpジョブでセキュアロールの扱いを指定する。\nB（誤り）：権限メタデータの除外フィルターとは異なる。\nC（誤り）：含めるメタデータ種別の指定と異なる。\nD（誤り）：スキーマ所有者の変更に使う。",
+      "topic": "Data Pump secure roles",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch35q009",
+      "chapter": 35,
+      "question": "Data Pumpを使ったトランスポータブル表領域の事前検証を行いたい。適切な説明を2つ選べ。",
+      "choices": {
+        "A": "`TTS_CLOSURE_CHECK`を指定すると、表領域の物理ブロックは自動的に転送先へコピーされる。",
+        "B": "`TTS_CLOSURE_CHECK`はトランスポータブル表領域のセットの整合性確認に関連する。",
+        "C": "`TTS_CLOSURE_CHECK`は外部表のデフォルトディレクトリを検査するパラメータである。",
+        "D": "テストモードにより表領域をREAD ONLYへ切り替えずに整合性を検査できる構成がある。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "`TTS_CLOSURE_CHECK`はトランスポータブル表領域のセットの整合性確認に関連する。、テストモードにより表領域をREAD ONLYへ切り替えずに整合性を検査できる構成がある。",
+      "explanation": "正解：B、D\n\nA（誤り）：チェックは実ファイルの転送処理を代行しない。\nB（正しい）：トランスポート対象の依存関係を検査する仕組みに関係する。\nC（誤り）：ディレクトリの権限検査用ではない。\nD（正しい）：テストモードによって事前確認できる。",
+      "topic": "Data Pump転送チェック",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch35q010",
+      "chapter": 35,
+      "question": "19cのフルトランスポータブル・インポートで、移行前にREAD ONLYだった表領域を移行先でも保持したい。適切な設定を1つ選べ。",
+      "choices": {
+        "A": "`REMAP_TABLESPACE`を指定し、表領域名を変更する。",
+        "B": "`KEEP_READ_ONLY`を指定し、読取専用状態の保持を制御する。",
+        "C": "`TRANSFORM=SEGMENT_ATTRIBUTES:N`を指定し、読取専用状態を保持する。",
+        "D": "`ACCESS_METHOD=DIRECT_PATH`を指定し、読取専用状態を保持する。"
+      },
+      "correctChoice": "B",
+      "correctText": "`KEEP_READ_ONLY`を指定し、読取専用状態の保持を制御する。",
+      "explanation": "正解：B\n\nA（誤り）：REMAP_TABLESPACEは移送先表領域名の対応を指定する。\nB（正しい）：KEEP_READ_ONLYはフルトランスポータブルの読取専用表領域状態保持に関連する。\nC（誤り）：セグメント属性の変換と表領域のREAD ONLY状態は異なる。\nD（誤り）：アクセス方式指定は表領域状態保持の指定ではない。",
+      "topic": "Data Pump KEEP_READ_ONLY",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch35q011",
+      "chapter": 35,
+      "question": "TDEで列暗号化されていた表をインポートするとき、列暗号化句を省いた表定義に変換する設定を1つ選べ。",
+      "choices": {
+        "A": "`TRANSFORM=OID:N`",
+        "B": "`TRANSFORM=SEGMENT_ATTRIBUTES:N`",
+        "C": "`TRANSFORM=OMIT_ENCRYPTION_CLAUSE:Y`",
+        "D": "`REMAP_DATAFILE`"
+      },
+      "correctChoice": "C",
+      "correctText": "`TRANSFORM=OMIT_ENCRYPTION_CLAUSE:Y`",
+      "explanation": "正解：C\n\nA（誤り）：OID関連の変換であり暗号化句省略ではない。\nB（誤り）：セグメント属性に関する変換。\nC（正しい）：列暗号化句を省くための変換指定。\nD（誤り）：データファイル名対応の指定。",
+      "topic": "Data Pump暗号化句の変換",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch35q012",
+      "chapter": 35,
+      "question": "同時実行するData Pumpジョブについて、ジョブ単位の並列度上限を制御する方法を1つ選べ。",
+      "choices": {
+        "A": "`PARALLEL`を設定した全ジョブの並列度を、`CPU_COUNT`の値に自動同期させる。",
+        "B": "`DB_FILE_MULTIBLOCK_READ_COUNT`をData Pumpジョブ単位に設定する。",
+        "C": "`PARALLEL_SERVERS_TARGET`をジョブごとに設定する。",
+        "D": "`MAX_DATAPUMP_PARALLEL_PER_JOB`初期化パラメータを設定する。"
+      },
+      "correctChoice": "D",
+      "correctText": "`MAX_DATAPUMP_PARALLEL_PER_JOB`初期化パラメータを設定する。",
+      "explanation": "正解：D\n\nA（誤り）：並列度の上限は別のパラメータで制御する。\nB（誤り）：DBアクセスに関する別のパラメータ。\nC（誤り）：並列実行全般の管理パラメータでありData Pumpジョブ固有の上限ではない。\nD（正しい）：Data Pumpジョブの最大並列数を制限する。",
+      "topic": "Data Pumpジョブ並列度",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch35q013",
+      "chapter": 35,
+      "question": "複数のダンプファイルがオブジェクトストレージ上に格納されている。Data PumpでURI内のファイル名をパターン指定したい。適切な記述を1つ選べ。",
+      "choices": {
+        "A": "URIのファイル名部分に`%U`や`%L`を使用したダンプファイル名の展開を検討する。",
+        "B": "URIのディレクトリ部分に`%T`を指定してすべてのダンプファイルを自動検索する。",
+        "C": "`REMAP_SCHEMA`に`%U`を指定し、ダンプファイルごとのスキーマ名を自動マッピングする。",
+        "D": "`TRANSPORTABLE=ALWAYS`に`%L`を付けて、URI内の連番ファイルを指定する。"
+      },
+      "correctChoice": "A",
+      "correctText": "URIのファイル名部分に`%U`や`%L`を使用したダンプファイル名の展開を検討する。",
+      "explanation": "正解：A\n\nA（正しい）：ダンプファイルURIのファイル名の置換変数を使える。\nB（誤り）：ファイル名置換用の具体的な指定ではない。\nC（誤り）：REMAP_SCHEMAは所有者変換に用いる。\nD（誤り）：TRANSPORTABLEは移送方式の設定。",
+      "topic": "URIファイルと置換変数",
+      "difficulty": "hard"
     }
   ]
 }
