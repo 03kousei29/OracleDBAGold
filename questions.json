@@ -56,6 +56,11 @@
       "description": "一時ファイル、制御ファイル、SPFILE、REDOログ、TSPITR、表リカバリ"
     },
     {
+      "chapter": 12,
+      "title": "テープ装置へのバックアップとMML",
+      "description": "メディアマネージャ、SBT_LIBRARY、チャネル、圧縮、テープバックアップ形式"
+    },
+    {
       "chapter": 13,
       "title": "フラッシュバックテクノロジー",
       "description": "フラッシュバック問合せ・履歴・データアーカイブ・表・トランザクション・ドロップ"
@@ -64,6 +69,16 @@
       "chapter": 14,
       "title": "フラッシュバックデータベース",
       "description": "Flashback Database・フラッシュバックログ・保証付きリストアポイント・運用条件"
+    },
+    {
+      "chapter": 16,
+      "title": "RMANを用いたデータベース複製",
+      "description": "補助インスタンス、TARGET/AUXILIARY、DUPLICATE、アクティブ複製、バックアップセット・イメージコピー"
+    },
+    {
+      "chapter": 17,
+      "title": "RMANジョブの監視とチューニング",
+      "description": "RMANエラー、LOG/SPOOL、LONGOPS、非同期I/O、バックアップ性能、テープストリーミング"
     },
     {
       "chapter": 26,
@@ -10800,6 +10815,954 @@
       "correctText": "RMANによるRP_CへのPDBフラッシュバックをCDBルートから行える、RMANでSCN Sへ戻す場合は補助インスタンスを使うことがある",
       "explanation": "正解：B、D\n\nA（誤り）：共有UNDOのRMAN接続はCDBルートを使用する。\nB（正しい）：共有UNDOでルートからクリーンポイントへ復旧できる。\nC（誤り）：SQLによる共有UNDOフラッシュバックはクリーンポイントに限られる。\nD（正しい）：非クリーンポイントへのRMANフラッシュバックは補助PITR相当になる。",
       "topic": "共有UNDOでの復旧方法の選択",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch12q001",
+      "chapter": 12,
+      "question": "RMANのSBTバックアップで使用するMMLとメディアマネージャの関係として適切な説明を選べ。",
+      "choices": {
+        "A": "MMLはRMANとメディアマネージャを接続するライブラリで、媒体の管理はメディアマネージャが担当する。",
+        "B": "SBTチャネル割当時、RMANは指定されたMMLのロードを試みる。",
+        "C": "MMLが提供するSBTインタフェースには媒体情報も含まれるため、テープのプール割当はRMANのCONFIGUREコマンドが決定する。",
+        "D": "RMANのSBT_LIBRARYを設定すると、メディアマネージャをインストールせずにテープ装置への書込みが可能になる。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "MMLはRMANとメディアマネージャを接続するライブラリで、媒体の管理はメディアマネージャが担当する。、SBTチャネル割当時、RMANは指定されたMMLのロードを試みる。",
+      "explanation": "正解：A、B\n\nA（正しい）：正しい。MMLはRMANと媒体管理ソフトウェアのインタフェースを提供する。\nB（正しい）：正しい。SBTチャネルを使用すると、指定または既定のライブラリをロードする。\nC（誤り）：媒体プールの管理はメディアマネージャ側の構成に依存し、RMANのSBTインタフェースは要求を中継する。\nD（誤り）：SBT_LIBRARYは導入済みライブラリのロード指定であり、媒体管理ソフトの導入を代替しない。",
+      "topic": "MMLとメディアマネージャ",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch12q002",
+      "chapter": 12,
+      "question": "Linux環境でベンダーのMMLを導入した。SBT_CHANNELのライブラリを明示指定する方法として適切なものを選べ。",
+      "choices": {
+        "A": "CONFIGURE CHANNEL DEVICE TYPE SBT PARMS 'SBT_LIBRARY=/opt/vendor/libobk.so';",
+        "B": "CONFIGURE DEVICE TYPE DISK PARALLELISM 2 PARMS 'SBT_LIBRARY=/opt/vendor/libobk.so';",
+        "C": "CONFIGURE DEFAULT DEVICE TYPE TO SBT PARMS 'SBT_LIBRARY=/opt/vendor/libobk.so';",
+        "D": "CONFIGURE CHANNEL DEVICE TYPE SBT FORMAT 'SBT_LIBRARY=/opt/vendor/libobk.so';"
+      },
+      "correctChoice": "A",
+      "correctText": "CONFIGURE CHANNEL DEVICE TYPE SBT PARMS 'SBT_LIBRARY=/opt/vendor/libobk.so';",
+      "explanation": "正解：A\n\nA（正しい）：SBTチャネルのPARMSにSBT_LIBRARYを指定する。\nB（誤り）：デバイスタイプDISKの設定にSBTライブラリを割り当てる構成ではない。\nC（誤り）：DEFAULT DEVICE TYPEは優先デバイスの指定であり、ライブラリパスはCHANNELのPARMSで設定する。\nD（誤り）：FORMATはバックアップピース名の形式を指定し、SBT_LIBRARYの読み込み設定ではない。",
+      "topic": "MMLライブラリ配置",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch12q003",
+      "chapter": 12,
+      "question": "CONFIGURE CHANNEL DEVICE TYPE SBT PARMS にベンダー設定を登録した。その後 RUN ブロック内でSBTチャネルを手動割当する。正しい説明を選べ。",
+      "choices": {
+        "A": "手動ALLOCATE CHANNELではCONFIGURE DEFAULT DEVICE TYPE TO SBTの設定値がMMLパスとして渡される。",
+        "B": "手動ALLOCATE CHANNELのPARMSではSBT_LIBRARYの指定を使用できず、環境変数によって割り当てる。",
+        "C": "手動ALLOCATE CHANNELでは、ベンダーに必要なPARMSをそのALLOCATEにも設定する。",
+        "D": "CONFIGURE CHANNELのPARMSはRMANが自動割当するSBTチャネルに適用される。"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "手動ALLOCATE CHANNELでは、ベンダーに必要なPARMSをそのALLOCATEにも設定する。、CONFIGURE CHANNELのPARMSはRMANが自動割当するSBTチャネルに適用される。",
+      "explanation": "正解：C、D\n\nA（誤り）：既定デバイス指定はMML設定を受け渡す機構ではない。\nB（誤り）：ALLOCATE CHANNELでもPARMSを指定できる。\nC（正しい）：CONFIGURE CHANNELの設定は自動割当向け。手動割当はALLOCATE側に必要なパラメータを渡す。\nD（正しい）：正しい。自動割当チャネルはCONFIGURE CHANNELの設定を参照する。",
+      "topic": "自動チャネルと手動チャネル",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch12q004",
+      "chapter": 12,
+      "question": "SBT用の自動チャネルが正しく構成済みである。BACKUP DATABASEの宛先を既定でテープにしたい。適切な設定を選べ。",
+      "choices": {
+        "A": "CONFIGURE CHANNEL DEVICE TYPE SBT CLEAR;",
+        "B": "CONFIGURE DEFAULT DEVICE TYPE TO SBT;",
+        "C": "CONFIGURE DEVICE TYPE SBT BACKUP TYPE TO COPY;",
+        "D": "CONFIGURE CONTROLFILE AUTOBACKUP FORMAT FOR DEVICE TYPE DISK TO ...;"
+      },
+      "correctChoice": "B",
+      "correctText": "CONFIGURE DEFAULT DEVICE TYPE TO SBT;",
+      "explanation": "正解：B\n\nA（誤り）：CLEARはそのチャネル設定を解除し、宛先の既定値をSBTへ切り替える操作ではない。\nB（正しい）：既定のデバイスタイプをSBTにする。\nC（誤り）：SBTにイメージコピー形式を割り当てる用途ではない。\nD（誤り）：制御ファイルの自動バックアップ書式はバックアップデバイスの既定選択とは別である。",
+      "topic": "SBTのデフォルト設定",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch12q005",
+      "chapter": 12,
+      "question": "既定デバイスはDISKのまま、今回のデータベースバックアップをSBTに送る。適切なRMANコマンドを選べ。",
+      "choices": {
+        "A": "BACKUP AS COPY DEVICE TYPE SBT DATABASE;",
+        "B": "BACKUP DATABASE FORMAT SBT;",
+        "C": "BACKUP DEVICE TYPE SBT DATABASE;",
+        "D": "BACKUP DEVICE TYPE DISK DATABASE;"
+      },
+      "correctChoice": "C",
+      "correctText": "BACKUP DEVICE TYPE SBT DATABASE;",
+      "explanation": "正解：C\n\nA（誤り）：SBTにはイメージコピー形式ではなくバックアップセットを用いる。\nB（誤り）：FORMATはファイル命名に用いる句であり、デバイスタイプの切替ではない。\nC（正しい）：コマンド単位でSBTデバイスを指定する。\nD（誤り）：DISKデバイスへの出力指定である。",
+      "topic": "明示デバイス指定",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch12q006",
+      "chapter": 12,
+      "question": "SBT_TAPEチャネルで取得するRMANバックアップ形式として正しいものを選べ。",
+      "choices": {
+        "A": "バックアップセットを使用する。",
+        "B": "バックアップセットはDISK用であり、SBTではイメージコピーを使用する。",
+        "C": "同じRMAN環境でもDISKデバイスではバックアップセットとイメージコピーの両方を選択できる。",
+        "D": "イメージコピーとバックアップセットを同一のSBTチャネルで混在させる。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "バックアップセットを使用する。、同じRMAN環境でもDISKデバイスではバックアップセットとイメージコピーの両方を選択できる。",
+      "explanation": "正解：A、C\n\nA（正しい）：SBTのバックアップはバックアップセットとして扱う。\nB（誤り）：対応形式が逆である。\nC（正しい）：正しい。DISKはバックアップセットとイメージコピーの双方をサポートする。\nD（誤り）：SBTでイメージコピーを作成できない。",
+      "topic": "テープと形式",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch12q007",
+      "chapter": 12,
+      "question": "SBTチャネル割当時に ORA-27211: Failed to load Media Management Library が出た。最初の確認点として妥当なものを選べ。",
+      "choices": {
+        "A": "SBTチャネル割当失敗後はPARMSのENV項目を増やせば、ライブラリのファイル不在でも先に進める。",
+        "B": "SBT_LIBRARYをLOADした結果のエラーなので、まずバックアップ先のテーププールが満杯かを検査する。",
+        "C": "指定のライブラリが見つからなければ、FORMATにライブラリパスを渡して再試行する。",
+        "D": "SBT_LIBRARYの指定先とライブラリの配置・アクセス権を確認する。"
+      },
+      "correctChoice": "D",
+      "correctText": "SBT_LIBRARYの指定先とライブラリの配置・アクセス権を確認する。",
+      "explanation": "正解：D\n\nA（誤り）：ENV項目の追加では存在しないライブラリを読み込めない。\nB（誤り）：ライブラリを読み込めないORA-27211の段階では、媒体容量の評価よりロード可能性を調べる。\nC（誤り）：FORMATはバックアップピース名用でありMMLライブラリ指定先ではない。\nD（正しい）：指定パス、配置、OS側のアクセス可否はMMLロード失敗の主要確認箇所。",
+      "topic": "MMLエラー判定",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch12q008",
+      "chapter": 12,
+      "question": "MMLに渡すベンダー固有の環境変数をチャネル設定で指定する位置として適切なものを選べ。",
+      "choices": {
+        "A": "CONFIGURE CHANNEL DEVICE TYPE SBT PARMS 'ENV=(MEDIA_POOL=pool1)';",
+        "B": "CONFIGURE DEFAULT DEVICE TYPE TO SBT ENV=(MEDIA_POOL=pool1);",
+        "C": "CONFIGURE DEVICE TYPE SBT PARALLELISM 2 ENV=(MEDIA_POOL=pool1);",
+        "D": "CONFIGURE CHANNEL DEVICE TYPE SBT MAXPIECESIZE ENV=(MEDIA_POOL=pool1);"
+      },
+      "correctChoice": "A",
+      "correctText": "CONFIGURE CHANNEL DEVICE TYPE SBT PARMS 'ENV=(MEDIA_POOL=pool1)';",
+      "explanation": "正解：A\n\nA（正しい）：メディアマネージャへ渡す環境値はチャネルのPARMSで設定する。\nB（誤り）：DEFAULT DEVICE TYPEはENV文字列の指定箇所ではない。\nC（誤り）：DEVICE TYPEのPARALLELISM指定とベンダー環境変数の受け渡しは別の句である。\nD（誤り）：MAXPIECESIZEはバックアップピースサイズに関する句でありENVをここに置かない。",
+      "topic": "MMLのベンダー設定",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch12q009",
+      "chapter": 12,
+      "question": "テープ装置側が2台のドライブへの並行書込みに対応する。RMANの自動SBTチャネル数を2にしたい。適切な方法を選べ。",
+      "choices": {
+        "A": "CONFIGURE CHANNEL DEVICE TYPE SBT MAXOPENFILES 2;",
+        "B": "CONFIGURE DEVICE TYPE SBT PARALLELISM 2;",
+        "C": "CONFIGURE CHANNEL DEVICE TYPE SBT RATE 2M;",
+        "D": "CONFIGURE DEFAULT DEVICE TYPE TO SBT;"
+      },
+      "correctChoice": "B",
+      "correctText": "CONFIGURE DEVICE TYPE SBT PARALLELISM 2;",
+      "explanation": "正解：B\n\nA（誤り）：MAXOPENFILESはチャネルの同時読取対象数でありチャネル数ではない。\nB（正しい）：DEVICE TYPEのPARALLELISMで自動チャネルの並列度を指定する。\nC（誤り）：RATEはチャネルの転送上限である。\nD（誤り）：既定のデバイス選択では並列度は増えない。",
+      "topic": "SBT並列化",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch12q010",
+      "chapter": 12,
+      "question": "テープ装置のハードウェア圧縮を有効化する場合の運用方針として適切なものを選べ。",
+      "choices": {
+        "A": "テープ装置の圧縮はSBT_LIBRARYで指定するので、RMAN側の圧縮モードもSBT_LIBRARYの値から決まる。",
+        "B": "テープ側で圧縮している場合にもRMANのBASIC圧縮を追加し、テープ容量削減の効果が積算されると判断する。",
+        "C": "メディアマネージャ側の圧縮とRMANのバイナリ圧縮を重複させる利点を検討し、通常は一方に寄せる。",
+        "D": "テープ側圧縮を使う場合、RMANのバックアップ形式をAS COPYへ切り替えることで圧縮率を維持する。"
+      },
+      "correctChoice": "C",
+      "correctText": "メディアマネージャ側の圧縮とRMANのバイナリ圧縮を重複させる利点を検討し、通常は一方に寄せる。",
+      "explanation": "正解：C\n\nA（誤り）：MMLパス設定とRMANバイナリ圧縮設定は異なる。\nB（誤り）：二重圧縮は一般に効果が薄く、CPU等の負荷が増すことがある。\nC（正しい）：圧縮済みデータを再圧縮しても効果が薄く、CPU負荷が増すため二重圧縮を避ける。\nD（誤り）：テープではRMANバックアップセットを使用し、AS COPY形式に切り替える処理ではない。",
+      "topic": "テープ圧縮の役割分担",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch12q011",
+      "chapter": 12,
+      "question": "永続的なSBTチャネル構成を変更せず、特定ジョブでMMLを変更したい。適切な方法を選べ。",
+      "choices": {
+        "A": "BACKUP DEVICE TYPE SBTのFORMAT句で動的にMMLのライブラリパスを変更する。",
+        "B": "CONFIGURE CHANNEL DEVICE TYPE SBT PARMSをジョブ前に変更し、RUN終了時に自動復帰させる。",
+        "C": "CONFIGURE DEFAULT DEVICE TYPE TO SBTの引数でMMLのファイルパスを渡す。",
+        "D": "RUNブロックでALLOCATE CHANNEL DEVICE TYPE SBT PARMSを指定する。"
+      },
+      "correctChoice": "D",
+      "correctText": "RUNブロックでALLOCATE CHANNEL DEVICE TYPE SBT PARMSを指定する。",
+      "explanation": "正解：D\n\nA（誤り）：FORMATはMMLの読み込み先を選択する構文ではない。\nB（誤り）：CONFIGUREは永続的なRMAN構成であり、RUN終了で自動復帰しない。\nC（誤り）：既定デバイス設定はライブラリパス指定ではない。\nD（正しい）：RUN内の手動チャネル割当でジョブ専用のMML設定を使える。",
+      "topic": "チャネル一時設定",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch16q001",
+      "chapter": 16,
+      "question": "RMAN DUPLICATEで通常の独立した複製データベースを作成した。DBIDの扱いとして適切なものを選べ。",
+      "choices": {
+        "A": "複製後に新しいDBIDが設定され、ソースと同じリカバリカタログへの登録が可能になる。",
+        "B": "独立複製後のDB_NAMEとDBIDは別々の属性として管理される。",
+        "C": "複製先のDB_NAMEをソースと同じにするとDBIDも一致するため、同一カタログに2つは登録できない。",
+        "D": "複製先のDBIDはDUPLICATEのSPFILE句を指定した場合に更新され、PFILEからの複製では保持される。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "複製後に新しいDBIDが設定され、ソースと同じリカバリカタログへの登録が可能になる。、独立複製後のDB_NAMEとDBIDは別々の属性として管理される。",
+      "explanation": "正解：A、B\n\nA（正しい）：独立した複製ではDBIDが新しくなる。\nB（正しい）：正しい。データベース名とDBIDは別の識別子である。\nC（誤り）：DB_NAMEとDBIDは独立した識別子で、同名でも新DBIDを持つ複製が可能。\nD（誤り）：SPFILE句の有無で独立複製のDBID生成が決まるわけではない。",
+      "topic": "DBID",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch16q002",
+      "chapter": 16,
+      "question": "ソースDBから補助ホストへネットワーク経由で直接データを転送して複製したい。事前バックアップはない。適切な方式を選べ。",
+      "choices": {
+        "A": "DUPLICATE ... FROM ACTIVE DATABASEを使用する。",
+        "B": "DUPLICATE ... BACKUP LOCATIONを指定し、補助側にアクティブなデータファイルをネットワーク転送する。",
+        "C": "DUPLICATE ... SPFILEを指定すれば、事前バックアップを用いずにデータファイルもネットワーク転送される。",
+        "D": "DUPLICATE ... NOFILENAMECHECKを指定すると、バックアップ不要のネットワーク転送方式になる。"
+      },
+      "correctChoice": "A",
+      "correctText": "DUPLICATE ... FROM ACTIVE DATABASEを使用する。",
+      "explanation": "正解：A\n\nA（正しい）：アクティブ複製はTARGETのデータをネットワークで転送する方式。\nB（誤り）：BACKUP LOCATIONは既存バックアップから複製する方法に使う。\nC（誤り）：SPFILE句はパラメータファイルの複製に関係するもので転送方式の指定ではない。\nD（誤り）：NOFILENAMECHECKはファイル名衝突確認の抑制。",
+      "topic": "複製方式の選択",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch16q003",
+      "chapter": 16,
+      "question": "新規の複製先に補助インスタンスを準備している。DUPLICATE実行前の標準的な起動状態を選べ。",
+      "choices": {
+        "A": "複製先の既存制御ファイルを使用してMOUNT状態にする。",
+        "B": "PFILEまたはSPFILEを用いてNOMOUNT状態にする。",
+        "C": "複製先のデータファイルを先に登録してREAD ONLYでOPENする。",
+        "D": "複製先のREDOログを先に作成してOPEN RESETLOGSする。"
+      },
+      "correctChoice": "B",
+      "correctText": "PFILEまたはSPFILEを用いてNOMOUNT状態にする。",
+      "explanation": "正解：B\n\nA（誤り）：新規複製先にはまだ復元した制御ファイルがない。\nB（正しい）：補助インスタンスは通常NOMOUNTでRMANの複製操作を受ける。\nC（誤り）：データファイルは複製処理によって配置される。\nD（誤り）：OPEN RESETLOGSは複製の終盤に実施される。",
+      "topic": "補助インスタンス起動",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch16q004",
+      "chapter": 16,
+      "question": "RMANでソースのデータベースD1を複製し、補助インスタンスD2を使う。接続先の組合せとして適切なものを選べ。",
+      "choices": {
+        "A": "TARGET=D1、CATALOG=D2（補助インスタンスをカタログ接続で指定）",
+        "B": "TARGET=D2、AUXILIARY=D1",
+        "C": "TARGET=D1、AUXILIARY=D2",
+        "D": "TARGET=D2、CATALOG=D1（ソースをカタログ接続で指定）"
+      },
+      "correctChoice": "C",
+      "correctText": "TARGET=D1、AUXILIARY=D2",
+      "explanation": "正解：C\n\nA（誤り）：CATALOG接続はリカバリカタログへの接続であり補助インスタンス接続ではない。\nB（誤り）：TARGETとAUXILIARYが逆。\nC（正しい）：複製元がTARGET、複製先の補助インスタンスがAUXILIARY。\nD（誤り）：ソースをCATALOG、複製先をTARGETとする構成ではない。",
+      "topic": "補助接続の接続先",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch16q005",
+      "chapter": 16,
+      "question": "補助インスタンスがNOMOUNTで待機している。RMANクライアントから補助へリモート接続する準備として適切なものを選べ。",
+      "choices": {
+        "A": "補助インスタンスにREDOログを追加してからローカルリスナーが動的に登録されるようにする。",
+        "B": "インスタンスの動的サービス登録を前提に、パスワードファイルを使わずOS認証でリモート接続する。",
+        "C": "リカバリカタログのREGISTER DATABASEを先に実行して補助インスタンスの接続サービスを作る。",
+        "D": "リスナーの静的SID登録とパスワードファイルによる認証を構成する。"
+      },
+      "correctChoice": "D",
+      "correctText": "リスナーの静的SID登録とパスワードファイルによる認証を構成する。",
+      "explanation": "正解：D\n\nA（誤り）：REDOログ追加で接続サービスが構成されるわけではない。\nB（誤り）：NOMOUNTのサービス登録とリモート認証に関する前提が不適切。\nC（誤り）：REGISTER DATABASEは接続サービス作成用ではない。\nD（正しい）：NOMOUNT時の接続では静的登録とリモート管理認証の構成が代表的な方法。",
+      "topic": "NOMOUNTと静的登録",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch16q006",
+      "chapter": 16,
+      "question": "バックアップベースのDUPLICATEで補助ホストがソースと異なる。補助ホスト側の必要条件として適切なものを選べ。",
+      "choices": {
+        "A": "複製に使用するバックアップと必要なアーカイブログへ、補助インスタンスからアクセスできるようにする。",
+        "B": "補助側がTARGET接続でバックアップメタデータを取得できれば、バックアップ実体はソースホストに残したままでアクセス経路は不要となる。",
+        "C": "バックアップベース複製ではソースの現行オンラインREDOと制御ファイルへのアクセスで、欠落しているデータファイルバックアップを代替できる。",
+        "D": "補助ホストからバックアップにアクセスできなくても、カタログへ接続すれば実ファイルの読取りはRMANが中継する。"
+      },
+      "correctChoice": "A",
+      "correctText": "複製に使用するバックアップと必要なアーカイブログへ、補助インスタンスからアクセスできるようにする。",
+      "explanation": "正解：A\n\nA（正しい）：バックアップベース方式では補助側が使用バックアップへアクセスできることが必要。\nB（誤り）：メタデータの取得とバックアップ実体へのアクセスは別の要件。\nC（誤り）：オンラインREDOと制御ファイルだけでは復元に用いるデータファイルのバックアップを代替できない。\nD（誤り）：リカバリカタログはメタデータ管理でありバックアップ実体を代わりに転送しない。",
+      "topic": "バックアップアクセス",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch16q007",
+      "chapter": 16,
+      "question": "ソースと異なるホストで同じデータファイル名を使用するDUPLICATEを計画する。NOFILENAMECHECKの意味として適切なものを選べ。",
+      "choices": {
+        "A": "SET NEWNAMEが指定されていない場合に、Oracle Managed Filesを強制して重複を回避する。",
+        "B": "NOFILENAMECHECKはDB_FILE_NAME_CONVERTによるファイル名変換の処理を無効にする。",
+        "C": "同名ファイルが存在するかのチェックを抑制するため、異なるホストでの利用も含め上書きリスクを別途評価する。",
+        "D": "NOFILENAMECHECKを指定しても複製先のファイル名は自動変換されない。"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "同名ファイルが存在するかのチェックを抑制するため、異なるホストでの利用も含め上書きリスクを別途評価する。、NOFILENAMECHECKを指定しても複製先のファイル名は自動変換されない。",
+      "explanation": "正解：C、D\n\nA（誤り）：OMFを有効にする句ではない。\nB（誤り）：ファイル名変換とは異なる機能。\nC（正しい）：NOFILENAMECHECKはファイル名安全性チェックの抑制。自動変換は実施しない。\nD（正しい）：正しい。名前の置換はDB_FILE_NAME_CONVERT等の別設定による。",
+      "topic": "NOFILENAMECHECK",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch16q008",
+      "chapter": 16,
+      "question": "バックアップベース複製で DUPLICATE ... SPFILE を指定する目的を選べ。",
+      "choices": {
+        "A": "ソースSPFILEの設定を複製先へ引き継ぎ、SETやPARAMETER_VALUE_CONVERTで変更を加えられる。",
+        "B": "補助インスタンスのパラメータをソースデータベースへコピーして両者を同一にする。",
+        "C": "SPFILE句内のSETによって複製先の指定パラメータ値を上書きできる。",
+        "D": "制御ファイルを複製先のSPFILEに格納し、CONTROL_FILESの指定を省略する。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "ソースSPFILEの設定を複製先へ引き継ぎ、SETやPARAMETER_VALUE_CONVERTで変更を加えられる。、SPFILE句内のSETによって複製先の指定パラメータ値を上書きできる。",
+      "explanation": "正解：A、C\n\nA（正しい）：SPFILE句はソースのサーバーパラメータファイル複製に使用する。\nB（誤り）：ソースへの上書きは行わない。\nC（正しい）：正しい。SPFILEコピー後にSETで必要なパラメータを変更できる。\nD（誤り）：SPFILEに制御ファイルの実体は格納されない。",
+      "topic": "SPFILE句",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch16q009",
+      "chapter": 16,
+      "question": "複製先で初期化パラメータ値に含まれるパス断片 /old/ を /new/ へ置換したい。対象の句を選べ。",
+      "choices": {
+        "A": "SPFILE SET DB_FILE_NAME_CONVERT '/old/','/new/'",
+        "B": "SPFILE PARAMETER_VALUE_CONVERT '/old/','/new/'",
+        "C": "SPFILE SET LOG_FILE_NAME_CONVERT '/old/','/new/'",
+        "D": "SPFILE SET CONTROL_FILES '/old/','/new/'"
+      },
+      "correctChoice": "B",
+      "correctText": "SPFILE PARAMETER_VALUE_CONVERT '/old/','/new/'",
+      "explanation": "正解：B\n\nA（誤り）：DB_FILE_NAME_CONVERTはデータファイル名に特化した変換パラメータ。\nB（正しい）：PARAMETER_VALUE_CONVERTはSPFILEパラメータ値の文字列置換を行う。\nC（誤り）：LOG_FILE_NAME_CONVERTはREDOログファイル名の変換用。\nD（誤り）：CONTROL_FILESに変換元と変換先のペアを置く構文ではない。",
+      "topic": "パラメータ変換",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch16q010",
+      "chapter": 16,
+      "question": "複製先でオンラインREDOログのファイルパスを変換したい。対応する初期化パラメータを選べ。",
+      "choices": {
+        "A": "CONTROL_FILES",
+        "B": "DB_FILE_NAME_CONVERT",
+        "C": "LOG_FILE_NAME_CONVERT",
+        "D": "DB_CREATE_FILE_DEST"
+      },
+      "correctChoice": "C",
+      "correctText": "LOG_FILE_NAME_CONVERT",
+      "explanation": "正解：C\n\nA（誤り）：CONTROL_FILESは制御ファイルの名前を指定する。\nB（誤り）：DB_FILE_NAME_CONVERTはデータファイル名向け。\nC（正しい）：LOG_FILE_NAME_CONVERTはREDOログ名の変換に使う。\nD（誤り）：DB_CREATE_FILE_DESTはOMFの作成先を指定する。",
+      "topic": "ファイル名変換",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch16q011",
+      "chapter": 16,
+      "question": "DUPLICATEでUSERS表領域を対象外にし、その他の複製可能な表領域を複製したい。適切な指定を選べ。",
+      "choices": {
+        "A": "DUPLICATE ... SKIP READONLY",
+        "B": "DUPLICATE ... SKIP TABLESPACE USERS",
+        "C": "DUPLICATE ... SKIP TABLESPACE SYSTEM",
+        "D": "SKIP READONLYを利用すると読取専用の表領域を複製対象から除外できる。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "DUPLICATE ... SKIP TABLESPACE USERS、SKIP READONLYを利用すると読取専用の表領域を複製対象から除外できる。",
+      "explanation": "正解：B、D\n\nA（誤り）：SKIP READONLYは読取専用表領域を対象外にする。\nB（正しい）：SKIP TABLESPACEは指定表領域を除外する。\nC（誤り）：SYSTEMは必須のシステム表領域であり除外対象として扱えない。\nD（正しい）：正しい。SKIP READONLYは読取専用表領域の除外に使える。",
+      "topic": "特定表領域の複製",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch16q012",
+      "chapter": 16,
+      "question": "一部表領域を複製対象から除外する方針を採る。複製データベースの成立に必要な表領域として適切な組合せを選べ。",
+      "choices": {
+        "A": "SYSTEM・USERS・UNDO",
+        "B": "SYSTEM・TEMP・USERS",
+        "C": "SYSAUX・USERS・EXAMPLE",
+        "D": "SYSTEM・SYSAUX・UNDO"
+      },
+      "correctChoice": "D",
+      "correctText": "SYSTEM・SYSAUX・UNDO",
+      "explanation": "正解：D\n\nA（誤り）：SYSAUXが抜けておりUSERSを必須としている。\nB（誤り）：USERSは一般ユーザー表領域であり必須対象というわけではない。\nC（誤り）：ユーザー表領域を必須としSYSTEMが抜けている。\nD（正しい）：SYSTEM、SYSAUX、UNDOは複製の基本的な必須領域。",
+      "topic": "必須表領域",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch16q013",
+      "chapter": 16,
+      "question": "ソースのDBインスタンスへ接続できないが、バックアップファイルが補助ホストから参照できる。適切な複製方法を選べ。",
+      "choices": {
+        "A": "DUPLICATE ... BACKUP LOCATIONでバックアップ所在を指定する。",
+        "B": "DUPLICATE ... FROM ACTIVE DATABASEにBACKUP LOCATIONを加えてソース接続を省略する。",
+        "C": "ソースのSYSパスワードを指定してAUXILIARY接続を省略する。",
+        "D": "DUPLICATE ... USING BACKUPSETでソース接続なしのアクティブ複製として実行する。"
+      },
+      "correctChoice": "A",
+      "correctText": "DUPLICATE ... BACKUP LOCATIONでバックアップ所在を指定する。",
+      "explanation": "正解：A\n\nA（正しい）：BACKUP LOCATIONを用いる方法はTARGET接続なし複製で使用できる。\nB（誤り）：FROM ACTIVE DATABASEではソースへ接続する。\nC（誤り）：複製を実行するためのAUXILIARY接続は必要。\nD（誤り）：USING BACKUPSETはアクティブ複製の転送方式指定である。",
+      "topic": "TARGET接続なし複製",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch16q014",
+      "chapter": 16,
+      "question": "TARGETへ接続せずリカバリカタログにバックアップ情報が存在する場合、正しい説明を選べ。",
+      "choices": {
+        "A": "カタログに登録されているDBIDを複製データベースのDBIDとして引き継ぐ。",
+        "B": "リカバリカタログからメタデータを取得する複製方式を利用できる。",
+        "C": "CATALOGへの接続によって補助ホスト上のバックアップファイルの実体が自動生成される。",
+        "D": "カタログを使用する場合はFROM ACTIVE DATABASEを追加してTARGETへ接続せず複製する。"
+      },
+      "correctChoice": "B",
+      "correctText": "リカバリカタログからメタデータを取得する複製方式を利用できる。",
+      "explanation": "正解：B\n\nA（誤り）：独立した複製でDBIDは新規生成される。\nB（正しい）：ソースへ接続しない複製ではカタログの情報を利用する方式がある。\nC（誤り）：カタログはメタデータ管理で、実体ファイルを自動生成しない。\nD（誤り）：アクティブ複製にはソースTARGETとの接続が必要。",
+      "topic": "カタログを用いるTARGETなし複製",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch16q015",
+      "chapter": 16,
+      "question": "ソースのバックアップを使わずアクティブ複製する場合、ソース状態の説明として適切なものを選べ。",
+      "choices": {
+        "A": "ソースがSHUTDOWN状態なら、AUXILIARYからデータファイルへ直接ネットワーク転送する。",
+        "B": "ソースがNOMOUNTであれば制御ファイルにアクセスできるため、アクティブ複製が開始できる。",
+        "C": "ソースはOPENまたはMOUNT状態で複製できるが、OPEN時のログモード等の追加条件も考慮する。",
+        "D": "ソースのOPEN状態では複製できず、RMANアクティブ複製ではMOUNT状態に切り替える。"
+      },
+      "correctChoice": "C",
+      "correctText": "ソースはOPENまたはMOUNT状態で複製できるが、OPEN時のログモード等の追加条件も考慮する。",
+      "explanation": "正解：C\n\nA（誤り）：SHUTDOWN中にソースからアクティブ転送できない。\nB（誤り）：NOMOUNTはデータベース制御ファイル未マウントで通常のアクティブ複製に用いない。\nC（正しい）：アクティブ複製はOPEN/MOUNT状態のソースから可能。追加条件は構成依存。\nD（誤り）：OPEN状態でも要件を満たせば複製できる。",
+      "topic": "アクティブ複製のソース状態",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch16q016",
+      "chapter": 16,
+      "question": "アクティブ複製でソースTARGETへの接続について適切な説明を選べ。",
+      "choices": {
+        "A": "ソースへはNOMOUNT接続にして、補助側がデータファイルのバックアップから複製する。",
+        "B": "ソースへはOS認証のローカル接続を使い、AUXILIARYにはRMANの接続識別子を使用しない。",
+        "C": "ソースへはリカバリカタログのユーザーで接続し、管理権限のパスワードは補助側で用いる。",
+        "D": "ソースへはネットサービス名を用いた管理権限のパスワード認証接続を用意する。"
+      },
+      "correctChoice": "D",
+      "correctText": "ソースへはネットサービス名を用いた管理権限のパスワード認証接続を用意する。",
+      "explanation": "正解：D\n\nA（誤り）：アクティブ複製はソースNOMOUNTでバックアップを使う方式ではない。\nB（誤り）：ソース側のネットワーク接続要件を満たさない。\nC（誤り）：カタログ接続はソースの管理権限認証を代替しない。\nD（正しい）：アクティブ複製はソースへのネットサービス名を用いるTARGET接続が必要。",
+      "topic": "アクティブ複製の認証",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch16q017",
+      "chapter": 16,
+      "question": "アクティブ複製でTARGETへネットサービス名で接続し、USING BACKUPSETを指定する。複製方式として正しい説明を選べ。",
+      "choices": {
+        "A": "バックアップセット転送を使ったアクティブ複製を行う。",
+        "B": "事前にRMAN BACKUP DATABASEで作成したバックアップセットを補助側へ転送する方式へ切り替わる。",
+        "C": "バックアップセットは生成されず、ソースのイメージコピーをリカバリカタログ経由でコピーする。",
+        "D": "SECTION SIZE句もバックアップセット方式を選択する条件となる。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "バックアップセット転送を使ったアクティブ複製を行う。、SECTION SIZE句もバックアップセット方式を選択する条件となる。",
+      "explanation": "正解：A、D\n\nA（正しい）：USING BACKUPSETはアクティブ複製の転送形式を指定する。\nB（誤り）：アクティブ複製で事前取得バックアップセットを必要とするわけではない。\nC（誤り）：リカバリカタログは転送元のデータ本体ではない。\nD（正しい）：正しい。アクティブ複製のSECTION SIZEはバックアップセット方式を選択する。",
+      "topic": "アクティブ複製とバックアップセット",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch16q018",
+      "chapter": 16,
+      "question": "アクティブ複製でTARGET接続をネットサービス名で構成した。補助チャネルが3、TARGETチャネルが2で、明示的な転送形式指定がない。想定される転送形式を選べ。",
+      "choices": {
+        "A": "補助チャネル数がTARGETを超えるため、バックアップベース複製に切り替わる。",
+        "B": "バックアップセット方式が選択される。",
+        "C": "USING BACKUPSETを明示すると、チャネル数条件に依存せずバックアップセット転送を選択できる。",
+        "D": "補助とTARGETのチャネル数が異なるため複製開始時に接続エラーになる。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "バックアップセット方式が選択される。、USING BACKUPSETを明示すると、チャネル数条件に依存せずバックアップセット転送を選択できる。",
+      "explanation": "正解：B、C\n\nA（誤り）：チャネル数でアクティブ複製がバックアップベースに切り替わることはない。\nB（正しい）：補助チャネル数がTARGET以上の場合、条件を満たすとバックアップセット方式となる。\nC（正しい）：正しい。形式指定によってバックアップセットを選択する条件がある。\nD（誤り）：チャネル数が一致することは必須条件ではない。",
+      "topic": "アクティブ複製のチャネル数",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch16q019",
+      "chapter": 16,
+      "question": "ネットサービス名でTARGETに接続し、補助チャネル1、TARGETチャネル2を割り当てた。USING BACKUPSET・SECTION SIZEなどは指定しない。選択される複製方式を選べ。",
+      "choices": {
+        "A": "イメージコピー方式が選択される。",
+        "B": "バックアップセット方式がチャネル数に関係なく選択される。",
+        "C": "バックアップセット方式へ変更するためTARGETチャネルの削除が必要になる。",
+        "D": "バックアップベースの複製に切り替わる。"
+      },
+      "correctChoice": "A",
+      "correctText": "イメージコピー方式が選択される。",
+      "explanation": "正解：A\n\nA（正しい）：補助チャネル数が少なく形式を明示しないためイメージコピー方式となる。\nB（誤り）：バックアップセット選択条件を満たしていない。\nC（誤り）：形式選択条件であってチャネル削除を要求するものではない。\nD（誤り）：形式の選択はアクティブ・バックアップベースの切替ではない。",
+      "topic": "アクティブ複製のイメージコピー",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch16q020",
+      "chapter": 16,
+      "question": "アクティブ複製でSECTION SIZE句を使う目的として適切なものを選べ。",
+      "choices": {
+        "A": "バックアップセットの最大ピース数を固定し、イメージコピー方式へ切り替える。",
+        "B": "大きなデータファイルを複数セクションに分割したバックアップセット転送に利用する。",
+        "C": "ソースと複製先で同名データファイルを使用できるようにする。",
+        "D": "ディスク上のバッファサイズを指定してAUXILIARYチャネルのメモリーを制御する。"
+      },
+      "correctChoice": "B",
+      "correctText": "大きなデータファイルを複数セクションに分割したバックアップセット転送に利用する。",
+      "explanation": "正解：B\n\nA（誤り）：MAXPIECESIZE等の作用と混同している。\nB（正しい）：SECTION SIZEはマルチセクション転送に利用できる。\nC（誤り）：ファイル名チェックはNOFILENAMECHECK等に関する。\nD（誤り）：バッファサイズ指定用の句ではない。",
+      "topic": "SECTION SIZE",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch16q021",
+      "chapter": 16,
+      "question": "アクティブ複製のバックアップセット方式とイメージコピー方式の処理主体として正しい説明を選べ。",
+      "choices": {
+        "A": "バックアップセット方式は主にAUXILIARYチャネルが処理し、イメージコピー方式は主にTARGETチャネルが処理する。",
+        "B": "バックアップセット方式は補助側がソースへ接続してデータを取得する動きになる。",
+        "C": "両方式とも処理主体はTARGETチャネルであり、AUXILIARYチャネルは制御ファイルの復元に使用する。",
+        "D": "両方式とも処理主体はAUXILIARYチャネルであり、TARGETチャネルは接続管理に使用する。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "バックアップセット方式は主にAUXILIARYチャネルが処理し、イメージコピー方式は主にTARGETチャネルが処理する。、バックアップセット方式は補助側がソースへ接続してデータを取得する動きになる。",
+      "explanation": "正解：A、B\n\nA（正しい）：バックアップセット方式はPULL的なAUXILIARY主体、イメージコピー方式はPUSH的なTARGET主体。\nB（正しい）：正しい。バックアップセット方式では補助側の処理が主体になる。\nC（誤り）：バックアップセット方式の主体はAUXILIARY側。\nD（誤り）：イメージコピー方式の主体はTARGET側。",
+      "topic": "PULLとPUSH",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch16q022",
+      "chapter": 16,
+      "question": "ソースと補助データベースを同一ホスト上に配置する複製を計画中。安全な設計として適切な説明を選べ。",
+      "choices": {
+        "A": "DB_FILE_NAME_CONVERTを指定すると制御ファイルとREDOファイルのパスも一括変換される。",
+        "B": "NOFILENAMECHECKを使えば、同一パスにあるソースファイルは複製先として上書きされても検出されないため安全である。",
+        "C": "補助側のデータファイル名・制御ファイル名がソースと衝突しないように変更方法を定める。",
+        "D": "DUPLICATE ... SPFILE句を指定すると、ソースと異なるパスが自動生成されるため上書きの問題は生じない。"
+      },
+      "correctChoice": "C",
+      "correctText": "補助側のデータファイル名・制御ファイル名がソースと衝突しないように変更方法を定める。",
+      "explanation": "正解：C\n\nA（誤り）：データファイル名変換は制御ファイルやREDOを一括制御しない。\nB（誤り）：NOFILENAMECHECKは上書きの安全性を保証しない。\nC（正しい）：同じホストでのパス衝突はソース破損につながるため分離が必要。\nD（誤り）：SPFILE句はパラメータの複製であって衝突回避を自動保証しない。",
+      "topic": "複製先へのパス割当",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch16q023",
+      "chapter": 16,
+      "question": "通常の独立したDUPLICATEデータベースを複製後に運用する。ソースのその後のアーカイブログについて正しい説明を選べ。",
+      "choices": {
+        "A": "複製データベースを一度MOUNTすれば、複製後のソースのアーカイブログが通常の回復対象に追加される。",
+        "B": "複製後もソースと同じDBIDを保持するため、ソースの後続アーカイブログを継続適用して同期できる。",
+        "C": "複製時にNOFILENAMECHECKを指定した場合はソースの後続アーカイブログを適用できる。",
+        "D": "複製後はDBIDとREDO系列が独立するため、ソースの後続アーカイブログを通常のメディアリカバリとして適用する運用にはならない。"
+      },
+      "correctChoice": "D",
+      "correctText": "複製後はDBIDとREDO系列が独立するため、ソースの後続アーカイブログを通常のメディアリカバリとして適用する運用にはならない。",
+      "explanation": "正解：D\n\nA（誤り）：MOUNT状態の変更だけでは独立DBへソースREDOを適用できない。\nB（誤り）：スタンバイデータベースのREDO適用と混同している。\nC（誤り）：名前チェック抑制は複製後のREDO継続適用を可能にしない。\nD（正しい）：独立複製はRESETLOGS等によって独立したデータベースとして運用する。",
+      "topic": "複製後のリカバリ適用",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch17q001",
+      "chapter": 17,
+      "question": "RMANがエラーで終了し RMAN-00569 の区切りに続き複数のORA/RMANコードが表示された。原因調査の優先順として適切なものを選べ。",
+      "choices": {
+        "A": "スタック下部の具体的な原因コードと前後の文脈を確認する。",
+        "B": "スタック先頭のRMAN-00569が原因であると判断し、制御ファイルを復元する。",
+        "C": "表示された先頭のRMAN-00571を原因コードとしてメディアマネージャの環境を修正する。",
+        "D": "最後に表示された行を無視して、先頭のRMAN-03009の処理種別から失敗原因を確定する。"
+      },
+      "correctChoice": "A",
+      "correctText": "スタック下部の具体的な原因コードと前後の文脈を確認する。",
+      "explanation": "正解：A\n\nA（正しい）：下部に詳細な原因エラーがあることが多く、関連メッセージも併せて確認する。\nB（誤り）：RMAN-00569はスタックの区切りを表す。\nC（誤り）：RMAN-00571は装飾線であり原因を示さない。\nD（誤り）：RMAN-03009は失敗したコマンドを示し、下位エラーの確認が必要。",
+      "topic": "RMANエラースタック",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch17q002",
+      "chapter": 17,
+      "question": "SBTチャネル使用時にORA-19511が出力され、その後Additional informationにコードが表示された。解釈として適切なものを選べ。",
+      "choices": {
+        "A": "OracleのSQL解析エラーとして扱い、SQL文の構文とバインド変数を検査する。",
+        "B": "メディアマネージャから通知されたエラーの可能性が高く、ベンダー固有の詳細コードを確認する。",
+        "C": "RMANリポジトリ内のバックアップ保持期限切れとして扱い、DELETE EXPIREDを実行する。",
+        "D": "DBWRの書込み失敗として扱い、V$DATAFILE_HEADERのSCNを比較する。"
+      },
+      "correctChoice": "B",
+      "correctText": "メディアマネージャから通知されたエラーの可能性が高く、ベンダー固有の詳細コードを確認する。",
+      "explanation": "正解：B\n\nA（誤り）：SQL解析エラーと区別される。\nB（正しい）：ORA-19511はメディアマネージャからのエラーを示す。\nC（誤り）：RMANのバックアップ失効判定とORA-19511は別。\nD（誤り）：DBWRによるデータファイル更新障害そのものではない。",
+      "topic": "メディアマネージャエラー",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch17q003",
+      "chapter": 17,
+      "question": "RMANの実行記録をファイルに残す方法として正しいものを2つ選べ。",
+      "choices": {
+        "A": "rman TARGET / LOG /tmp/rman.log で起動する。",
+        "B": "RMANプロンプトでSPOOL LOG /tmp/rman.logを使用する。",
+        "C": "RMANプロンプトでCONFIGURE CHANNEL DEVICE TYPE DISK LOG /tmp/rman.logを実行する。",
+        "D": "RMANプロンプトでBACKUP DATABASE LOG /tmp/rman.logを指定する。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "rman TARGET / LOG /tmp/rman.log で起動する。、RMANプロンプトでSPOOL LOG /tmp/rman.logを使用する。",
+      "explanation": "正解：A、B\n\nA（正しい）：起動時LOGオプションでRMAN出力をファイルへ記録できる。\nB（正しい）：SPOOL LOGはRMANプロンプトで出力記録を制御する。\nC（誤り）：CONFIGURE CHANNELはチャネル設定でありLOG句を持たない。\nD（誤り）：BACKUPコマンドのLOG句で出力記録を指定する構文ではない。",
+      "topic": "RMANログ出力",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch17q004",
+      "chapter": 17,
+      "question": "RMANのチャネルを介した処理を監視するとき、接続セッションに関する説明として適切なものを選べ。",
+      "choices": {
+        "A": "RMANチャネルごとに接続識別子は存在するが、処理経過はRMANクライアントのLOGファイルで追跡できない。",
+        "B": "RMANチャネルのセッションはAUXILIARYに対する接続で構成されるため、TARGET側V$SESSIONでは監視できない。",
+        "C": "チャネルはターゲットDBのサーバーセッションを利用するためセッション監視ビューを参照できる。",
+        "D": "RMANのCONFIGURE CHANNELは制御ファイルへ設定を保存するので、実際のバックアップチャネルはDB接続を生成しない。"
+      },
+      "correctChoice": "C",
+      "correctText": "チャネルはターゲットDBのサーバーセッションを利用するためセッション監視ビューを参照できる。",
+      "explanation": "正解：C\n\nA（誤り）：TARGET上のV$SESSIONやV$SESSION_LONGOPSなども利用できる。\nB（誤り）：通常のバックアップチャネルはTARGET側のサーバーセッションに対応する。\nC（正しい）：各チャネルはターゲットデータベース上のサーバーセッションとして動作する。\nD（誤り）：設定の保持と実行中のチャネルがサーバーセッションを利用することは別。",
+      "topic": "RMANセッション",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch17q005",
+      "chapter": 17,
+      "question": "バックアップ開始後、進捗情報をセッション単位で確認したい。対象のビューを選べ。",
+      "choices": {
+        "A": "V$BACKUP_ASYNC_IO",
+        "B": "V$SESSION_EVENT",
+        "C": "V$BACKUP_SYNC_IO",
+        "D": "V$SESSION_LONGOPS"
+      },
+      "correctChoice": "D",
+      "correctText": "V$SESSION_LONGOPS",
+      "explanation": "正解：D\n\nA（誤り）：V$BACKUP_ASYNC_IOは非同期I/O統計を表示する。\nB（誤り）：V$SESSION_EVENTはセッションの待機イベント集計で、長い処理の進捗量を示す専用ビューではない。\nC（誤り）：V$BACKUP_SYNC_IOは同期I/O統計でありジョブ進捗の標準的なセッション表示はLONGOPSである。\nD（正しい）：長時間実行中の操作の進捗を把握できる。",
+      "topic": "LONGOPS",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch17q006",
+      "chapter": 17,
+      "question": "バックアップ実行後、短時間で終了したチャネル処理がV$SESSION_LONGOPSに現れなかった。評価として適切なものを選べ。",
+      "choices": {
+        "A": "対象操作の継続時間等の条件によって表示されない場合があり、表示の有無で実行失敗とは判断できない。",
+        "B": "LONGOPSに表示されない操作は同期I/Oで処理されたため、同期I/Oビューに通常存在する。",
+        "C": "LONGOPSに表示されない操作はRMANの自動チャネルではなく手動チャネルで実行された。",
+        "D": "LONGOPSはバックアップ完了後のピース情報を保持しないため、失敗かどうかの判断には使えない。"
+      },
+      "correctChoice": "A",
+      "correctText": "対象操作の継続時間等の条件によって表示されない場合があり、表示の有無で実行失敗とは判断できない。",
+      "explanation": "正解：A\n\nA（正しい）：V$SESSION_LONGOPSは主として一定時間以上の長時間操作に関する情報を表示する。\nB（誤り）：同期・非同期I/Oの選択で掲載可否が決まるわけではない。\nC（誤り）：手動割当の有無と表示条件は直接結び付かない。\nD（誤り）：短時間操作の非掲載は失敗を意味しないという点が論点。",
+      "topic": "LONGOPSの閾値",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch17q007",
+      "chapter": 17,
+      "question": "バックアップ処理のボトルネックを切り分けるときのフェーズの説明として適切なものを選べ。",
+      "choices": {
+        "A": "書込みフェーズで待機がある場合、入力データファイルのブロック破損を原因として特定できる。",
+        "B": "コピー・処理フェーズはI/Oとは独立しているため、バックアップ全体の時間に影響しない。",
+        "C": "入力読取り・処理/コピー・出力書込みのいずれが詰まっているかを調べる。",
+        "D": "圧縮などの処理にCPU負荷が集中すると読取り・書込みが速くても全体時間を延ばすことがある。"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "入力読取り・処理/コピー・出力書込みのいずれが詰まっているかを調べる。、圧縮などの処理にCPU負荷が集中すると読取り・書込みが速くても全体時間を延ばすことがある。",
+      "explanation": "正解：C、D\n\nA（誤り）：出力側待機から入力データの破損を確定できない。\nB（誤り）：圧縮や処理は転送全体の速度にも影響する。\nC（正しい）：バックアップ全体の速度は読取り、処理、書込みの各段階の制約を受ける。\nD（正しい）：正しい。コピー・処理段階の負荷もバックアップの律速要因となり得る。",
+      "topic": "I/Oフェーズ",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch17q008",
+      "chapter": 17,
+      "question": "ストレージの読み書きI/Oが帯域上限に達している。RMANのチャネルを4本から8本に増やす案を評価する。適切な説明を選べ。",
+      "choices": {
+        "A": "チャネル増加では帯域上限を超えられず、並列度より入出力の制約を先に評価する。",
+        "B": "チャネル増加によってDISK_ASYNCH_IOの設定が自動でTRUEへ更新される。",
+        "C": "チャネル並列度を増やす前にストレージのI/O能力と利用率を確認するとよい。",
+        "D": "チャネル増加によってバックアップセットの圧縮率も比例して高くなる。"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "チャネル増加では帯域上限を超えられず、並列度より入出力の制約を先に評価する。、チャネル並列度を増やす前にストレージのI/O能力と利用率を確認するとよい。",
+      "explanation": "正解：A、C\n\nA（正しい）：物理I/O帯域が飽和した状態では並列度増加の効果が限定される。\nB（誤り）：DISK_ASYNCH_IOは初期化パラメータでありチャネル増加の副作用ではない。\nC（正しい）：正しい。並列度の効果は媒体のI/O能力に依存する。\nD（誤り）：並列度と圧縮率は別の特性。",
+      "topic": "パラレルと帯域",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch17q009",
+      "chapter": 17,
+      "question": "RMANチャネルに RATE 40M が設定されている。バックアップ速度が40MB/s付近で頭打ちになった。初期対応として適切なものを選べ。",
+      "choices": {
+        "A": "RATEはチャネルに割り当てるメモリーの容量なのでLARGE_POOL_SIZEを40MBに変更する。",
+        "B": "RATEは転送速度の上限なので設定の解除または増加を検討する。",
+        "C": "RATEは並列チャネル数の係数であるためPARALLELISMを40へ変更する。",
+        "D": "RATEはバックアップピースの最大サイズなのでMAXPIECESIZEを40MB以上に設定する。"
+      },
+      "correctChoice": "B",
+      "correctText": "RATEは転送速度の上限なので設定の解除または増加を検討する。",
+      "explanation": "正解：B\n\nA（誤り）：メモリーサイズの指定ではない。\nB（正しい）：RATEはチャネル単位でのI/Oレート上限を制御する。\nC（誤り）：PARALLELISMの係数ではない。\nD（誤り）：ピースの最大サイズはMAXPIECESIZEで制御する。",
+      "topic": "RATEの意味",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch17q010",
+      "chapter": 17,
+      "question": "OSが非同期ディスクI/Oを提供する。Oracle側の利用を制御する初期化パラメータを選べ。",
+      "choices": {
+        "A": "BACKUP_TAPE_IO_SLAVES",
+        "B": "DBWR_IO_SLAVES",
+        "C": "DISK_ASYNCH_IO",
+        "D": "BACKUP_DISK_IO_SLAVES"
+      },
+      "correctChoice": "C",
+      "correctText": "DISK_ASYNCH_IO",
+      "explanation": "正解：C\n\nA（誤り）：テープ向けスレーブ設定である。\nB（誤り）：DBWR_IO_SLAVESはI/Oスレーブを用いた模擬非同期処理に関する設定。\nC（正しい）：DISK_ASYNCH_IOはOSの非同期ディスクI/O利用を制御する。\nD（誤り）：ディスクバックアップI/Oスレーブ数に関する設定。",
+      "topic": "非同期I/O初期値",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch17q011",
+      "chapter": 17,
+      "question": "RMANのI/O実績で同期実行か非同期実行かを区別したい。ビューの組合せとして正しいものを選べ。",
+      "choices": {
+        "A": "同期：V$SESSION_LONGOPS、非同期：V$SYSTEM_EVENT",
+        "B": "同期：V$BACKUP_SYNC_IO、非同期：V$BACKUP_ASYNC_IO",
+        "C": "同期：V$BACKUP_PIECE、非同期：V$BACKUP_SET",
+        "D": "I/Oスレーブによる非同期処理はV$BACKUP_ASYNC_IOに計上されることがある。"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "同期：V$BACKUP_SYNC_IO、非同期：V$BACKUP_ASYNC_IO、I/Oスレーブによる非同期処理はV$BACKUP_ASYNC_IOに計上されることがある。",
+      "explanation": "正解：B、D\n\nA（誤り）：進捗・待機イベント集計のビューでI/O形態の区分とは異なる。\nB（正しい）：各ビュー名のとおり同期・非同期のI/O実績を示す。\nC（誤り）：バックアップのメタデータとI/O実績を混同している。\nD（正しい）：正しい。OSの非同期I/O以外にもI/Oスレーブによる非同期動作がある。",
+      "topic": "同期/非同期ビュー",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch17q012",
+      "chapter": 17,
+      "question": "V$BACKUP_ASYNC_IOの2ファイルで、F1はLONG_WAITS=200、IO_COUNT=1000、F2はLONG_WAITS=30、IO_COUNT=1000。優先調査対象を選べ。",
+      "choices": {
+        "A": "F1。LONG_WAITS/IO_COUNTの比率がF2より大きい。",
+        "B": "F1とF2はIO_COUNTが一致するためI/O待機傾向に差はない。",
+        "C": "F2。LONG_WAITS/IO_COUNTが小さいほど長時間待機によるボトルネックとなる。",
+        "D": "IO_COUNTが同じならLONG_WAITSの多いファイルを優先して調査する考え方は合理的である。"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "F1。LONG_WAITS/IO_COUNTの比率がF2より大きい。、IO_COUNTが同じならLONG_WAITSの多いファイルを優先して調査する考え方は合理的である。",
+      "explanation": "正解：A、D\n\nA（正しい）：F1=0.20、F2=0.03でF1の比率が大きい。\nB（誤り）：同じIO_COUNTでも待機件数の比が異なる。\nC（誤り）：比率の意味を逆にしている。\nD（正しい）：正しい。同じ分母ならLONG_WAITSが多い方が比率も高い。",
+      "topic": "長い待機割合",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch17q013",
+      "chapter": 17,
+      "question": "OSの非同期I/Oが利用できない環境でRMANのディスクI/Oを改善したい。検討する設定として妥当なものを選べ。",
+      "choices": {
+        "A": "BACKUP_TAPE_IO_SLAVESをTRUEにするとディスクI/Oも非同期化される。",
+        "B": "DBWR_IO_SLAVESを0以外に設定し、I/Oスレーブの利用条件を確認する。",
+        "C": "ラージプールの容量もI/Oスレーブのバッファ取得に影響する。",
+        "D": "RATEを小さくすることでディスク非同期I/Oが自動で有効になる。"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "DBWR_IO_SLAVESを0以外に設定し、I/Oスレーブの利用条件を確認する。、ラージプールの容量もI/Oスレーブのバッファ取得に影響する。",
+      "explanation": "正解：B、C\n\nA（誤り）：テープ用の設定でディスクを非同期化するわけではない。\nB（正しい）：OSが非同期I/O非対応の場合、DBWR_IO_SLAVESを利用する構成が考えられる。\nC（正しい）：正しい。スレーブ用I/Oバッファに必要な共有メモリーを考慮する。\nD（誤り）：RATEは速度制限で非同期化の設定ではない。",
+      "topic": "OS非同期I/O不可",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch17q014",
+      "chapter": 17,
+      "question": "I/Oスレーブを使用するRMANのバッファ確保に関して適切な説明を選べ。",
+      "choices": {
+        "A": "LARGE_POOL_SIZEを設定するとI/Oスレーブの有効化に必要なDBWR_IO_SLAVESは無効化される。",
+        "B": "I/Oスレーブ用バッファはDB_CACHE_SIZEから直接割り当てられるためラージプールは関係しない。",
+        "C": "I/Oスレーブ用バッファはPGAに確保されるためSGA側のプール設定は効かない。",
+        "D": "LARGE_POOL_SIZEを明示設定している場合、RMANのI/Oスレーブ用バッファ取得先としてラージプールが使われる。"
+      },
+      "correctChoice": "D",
+      "correctText": "LARGE_POOL_SIZEを明示設定している場合、RMANのI/Oスレーブ用バッファ取得先としてラージプールが使われる。",
+      "explanation": "正解：D\n\nA（誤り）：LARGE_POOL_SIZEとDBWR_IO_SLAVESは併用して使える。\nB（誤り）：データベースバッファキャッシュはスレーブ用I/Oバッファ割当の指定先ではない。\nC（誤り）：構成によりラージプール等のSGAを使用する。\nD（正しい）：ラージプールを構成するとスレーブ用共有バッファの取得先となる。",
+      "topic": "ラージプール",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch17q015",
+      "chapter": 17,
+      "question": "OS非同期I/Oは使用できないが、バックアップ用I/Oスレーブを設定した。I/O統計ビューの確認について正しい説明を選べ。",
+      "choices": {
+        "A": "I/Oスレーブの構成では、OS自体が同期I/OでもV$BACKUP_ASYNC_IO側に情報が表示されることがある。",
+        "B": "OS同期I/Oなら、I/Oスレーブ利用中もV$BACKUP_SYNC_IOに情報は記録されない。",
+        "C": "I/Oスレーブが有効なら、V$BACKUP_ASYNC_IOのLONG_WAITSは0になる。",
+        "D": "スレーブ構成時のI/O結果はV$SESSION_LONGOPSに蓄積され、同期・非同期ビューには残らない。"
+      },
+      "correctChoice": "A",
+      "correctText": "I/Oスレーブの構成では、OS自体が同期I/OでもV$BACKUP_ASYNC_IO側に情報が表示されることがある。",
+      "explanation": "正解：A\n\nA（正しい）：OracleによるI/Oスレーブ方式も非同期I/O統計として計上される場合がある。\nB（誤り）：スレーブ利用時のビュー表示条件を取り違えている。\nC（誤り）：非同期I/Oでも長時間待機は発生し得る。\nD（誤り）：I/O実績を示す動的パフォーマンスビューを使用できる。",
+      "topic": "非同期スレーブとビュー",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch17q016",
+      "chapter": 17,
+      "question": "同じ対象で BACKUP DATABASE に120分、BACKUP VALIDATE DATABASE に115分かかった。最初に疑うボトルネックとして妥当なものを選べ。",
+      "choices": {
+        "A": "出力先SBTドライブへのテープ書込みI/O",
+        "B": "入力側のデータファイル読取りI/O",
+        "C": "バックアップ時の圧縮処理によるCPU負荷",
+        "D": "出力チャネルに設定したRATEの帯域制限"
+      },
+      "correctChoice": "B",
+      "correctText": "入力側のデータファイル読取りI/O",
+      "explanation": "正解：B\n\nA（誤り）：VALIDATEは出力を作成しないため出力先I/Oから原因を特定しにくい。\nB（正しい）：VALIDATEは出力ファイルを書かないため、時間が近ければ読取り側等の共通工程を疑う。\nC（誤り）：VALIDATEとの差が小さい状況から圧縮処理が主因であるとは考えにくい。\nD（誤り）：VALIDATEは出力書込みを伴わないため、両者が同程度の時間を要した事実と出力レート制限が主因という推定は整合しにくい。",
+      "topic": "バックアップとVALIDATEの時間比較",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch17q017",
+      "chapter": 17,
+      "question": "同じ対象で BACKUP DATABASE は150分、BACKUP VALIDATE DATABASE は18分だった。推定として適切なものを選べ。",
+      "choices": {
+        "A": "VALIDATEの実行時にデータベースブロックを読み取らないため比較はできない。",
+        "B": "入力ファイル読取りが主要なボトルネックで、書込み側は原因候補から外す。",
+        "C": "出力側I/Oやバックアップ処理工程に時間を要している可能性を調べる。",
+        "D": "バックアップ時の出力方式に関係なくVALIDATEはバックアップピースを書き込む。"
+      },
+      "correctChoice": "C",
+      "correctText": "出力側I/Oやバックアップ処理工程に時間を要している可能性を調べる。",
+      "explanation": "正解：C\n\nA（誤り）：BACKUP VALIDATEは対象を読んで検証する。\nB（誤り）：VALIDATEが短いことから入力読取りが主因と断定しにくい。\nC（正しい）：出力を伴わないVALIDATEとの差から出力処理や圧縮など追加工程を調査する。\nD（誤り）：VALIDATEはバックアップ出力を生成しない。",
+      "topic": "バックアップとVALIDATEの出力比較",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch17q018",
+      "chapter": 17,
+      "question": "ディスク読取り帯域がバックアップ全体のボトルネックになっている。RMAN機能による対策として適切なものを選べ。",
+      "choices": {
+        "A": "MAXPIECESIZEを小さくすることで増分バックアップの読取りブロック数が削減される。",
+        "B": "RMANのRATE設定値を下げることで読取り対象ブロック数を削減する。",
+        "C": "PARALLELISMを増やすことで各データファイルの読取り対象ブロック数が減る。",
+        "D": "ブロックチェンジトラッキングを利用できる増分バックアップ方式を検討する。"
+      },
+      "correctChoice": "D",
+      "correctText": "ブロックチェンジトラッキングを利用できる増分バックアップ方式を検討する。",
+      "explanation": "正解：D\n\nA（誤り）：ピースサイズは読取り対象のブロック数を変更しない。\nB（誤り）：RATEは読取り速度制限であって対象ブロックの絞込みではない。\nC（誤り）：チャネル数は対象ブロック数の削減にならない。\nD（正しい）：高速増分バックアップは対象となる変更ブロックを効率よく特定する。",
+      "topic": "I/O削減",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch17q019",
+      "chapter": 17,
+      "question": "テープドライブの書込み速度にデータ供給が追いつかず、停止・巻戻しが頻発する。対策として妥当なものを選べ。",
+      "choices": {
+        "A": "入力読取り性能、チャネルのRATE、テープ用バッファを確認し、途切れないデータ供給を目指す。",
+        "B": "テープ側への転送を均一にするため、RATE値を現在より小さく設定する。",
+        "C": "読取りファイル数を減らすため、MAXOPENFILESを小さくすればテープ供給が増える。",
+        "D": "テープのBLKSIZE設定を制御ファイルのサイズに合わせるとデータ供給停止を防げる。"
+      },
+      "correctChoice": "A",
+      "correctText": "入力読取り性能、チャネルのRATE、テープ用バッファを確認し、途切れないデータ供給を目指す。",
+      "explanation": "正解：A\n\nA（正しい）：テープへ十分な速度で連続供給できるようI/O経路を調整する。\nB（誤り）：速度上限の引下げは供給不足を改善しにくい。\nC（誤り）：MAXOPENFILESの低減は入力側スループットを増やすとは限らない。\nD（誤り）：BLKSIZEはSBT I/Oバッファ等の設定であり制御ファイルサイズ基準ではない。",
+      "topic": "テープストリーミング",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch17q020",
+      "chapter": 17,
+      "question": "テープへ送る1チャネル当たりの入力スループットを改善したい。MAXOPENFILESとPARALLELISMの作用として適切なものを選べ。",
+      "choices": {
+        "A": "MAXOPENFILESは同時割当チャネル数、PARALLELISMは1チャネルのファイル数に関係する。",
+        "B": "MAXOPENFILESは1チャネルの同時読取りファイル数、PARALLELISMは自動割当チャネル数に関係する。",
+        "C": "両者ともチャネルの入力バッファサイズを直接指定する。",
+        "D": "両者ともテープのメディアファミリ選択に関係する。"
+      },
+      "correctChoice": "B",
+      "correctText": "MAXOPENFILESは1チャネルの同時読取りファイル数、PARALLELISMは自動割当チャネル数に関係する。",
+      "explanation": "正解：B\n\nA（誤り）：機能を入れ替えた説明。\nB（正しい）：MAXOPENFILESとPARALLELISMの役割は異なる。\nC（誤り）：いずれもバッファ容量を直接指定する句ではない。\nD（誤り）：メディアファミリの選択はMML側のベンダー設定等で行う。",
+      "topic": "MAXOPENFILESとPARALLELISM",
+      "difficulty": "hard"
+    },
+    {
+      "id": "ch17q021",
+      "chapter": 17,
+      "question": "ストリーミングテープドライブへのI/Oでスレーブを使いたい。設定とメモリーの関係として適切なものを選べ。",
+      "choices": {
+        "A": "BACKUP_TAPE_IO_SLAVES=TRUEを検討し、ラージプールなどのバッファ資源も評価する。",
+        "B": "ラージプールはテープI/Oスレーブのバッファに利用され得る。",
+        "C": "DBWR_IO_SLAVES=0に設定するとテープスレーブの処理能力が高まる。",
+        "D": "RATEを設定してテープへの送出速度を制限すると、I/Oスレーブが自動で有効になる。"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "BACKUP_TAPE_IO_SLAVES=TRUEを検討し、ラージプールなどのバッファ資源も評価する。、ラージプールはテープI/Oスレーブのバッファに利用され得る。",
+      "explanation": "正解：A、B\n\nA（正しい）：BACKUP_TAPE_IO_SLAVESはテープI/Oスレーブの設定である。\nB（正しい）：正しい。テープI/Oスレーブ利用時の共有バッファ領域となる。\nC（誤り）：DBWR_IO_SLAVESはディスク等のI/Oスレーブ関連設定でありテープ設定とは異なる。\nD（誤り）：RATEはチャネルレート制限。",
+      "topic": "テープI/Oスレーブ",
       "difficulty": "hard",
       "multiple": true
     }
