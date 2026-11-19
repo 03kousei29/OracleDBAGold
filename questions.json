@@ -71,6 +71,11 @@
       "description": "Flashback Database・フラッシュバックログ・保証付きリストアポイント・運用条件"
     },
     {
+      "chapter": 15,
+      "title": "トランスポータブル表領域とクロスプラットフォーム転送",
+      "description": "Data Pump/RMANによる転送、自己完結性、エンディアン、データベース移行"
+    },
+    {
       "chapter": 16,
       "title": "RMANを用いたデータベース複製",
       "description": "補助インスタンス、TARGET/AUXILIARY、DUPLICATE、アクティブ複製、バックアップセット・イメージコピー"
@@ -79,6 +84,11 @@
       "chapter": 17,
       "title": "RMANジョブの監視とチューニング",
       "description": "RMANエラー、LOG/SPOOL、LONGOPS、非同期I/O、バックアップ性能、テープストリーミング"
+    },
+    {
+      "chapter": 18,
+      "title": "Oracle Restart・ASM・Grid Infrastructureの導入",
+      "description": "RestartとClusterware、ASM、OSユーザー、GI/Databaseインストール、起動停止"
     },
     {
       "chapter": 19,
@@ -96,9 +106,24 @@
       "description": "SRVCTL、Oracle Restart、依存関係、データベースサービス"
     },
     {
+      "chapter": 22,
+      "title": "Grid Infrastructureのアップグレード",
+      "description": "out-of-place、対応リリース、事前確認、gridSetup.shによる移行手順"
+    },
+    {
       "chapter": 23,
       "title": "Oracle Databaseのアップグレード・DBUA",
       "description": "直接アップグレードとデータ移行、事前検査、DBUA、事後スクリプト、CDB処理"
+    },
+    {
+      "chapter": 24,
+      "title": "読取専用Oracleホーム・RPMによるインストール",
+      "description": "ORACLE_BASE_HOME/CONFIG、roohctl、RPMでの単一インスタンス導入"
+    },
+    {
+      "chapter": 25,
+      "title": "高速ホームプロビジョニング（RHP/FPP）",
+      "description": "ゴールドイメージ、作業用コピー、RHP/FPPとrhpctlの操作"
     },
     {
       "chapter": 26,
@@ -13319,6 +13344,1662 @@
       "explanation": "正解：A\n\nA（正しい）：ダンプファイルURIのファイル名の置換変数を使える。\nB（誤り）：ファイル名置換用の具体的な指定ではない。\nC（誤り）：REMAP_SCHEMAは所有者変換に用いる。\nD（誤り）：TRANSPORTABLEは移送方式の設定。",
       "topic": "URIファイルと置換変数",
       "difficulty": "hard"
+    },
+    {
+      "chapter": 15,
+      "question": "大量の表データを別のDBへ転送する。トランスポータブル表領域の基本的な考え方として正しいものを1つ選べ。",
+      "choices": {
+        "A": "表領域のデータファイルを転送し、Data Pumpなどでメタデータを移す",
+        "B": "表の各行をSQLで抽出したダンプファイルにまとめ、データファイルは転送しない",
+        "C": "制御ファイルを複製して表領域のデータを新DBへ登録する",
+        "D": "REDOログを転送して対象表のDDLと行データを再生成する"
+      },
+      "correctChoice": "A",
+      "correctText": "表領域のデータファイルを転送し、Data Pumpなどでメタデータを移す",
+      "explanation": "正解：A\n\nA（正しい）：データ本体はデータファイルで、構造情報はメタデータとして移行する。\nB（誤り）：これは通常の論理エクスポートに近い。\nC（誤り）：制御ファイルの移動は別DBへの表領域移行の手順ではない。\nD（誤り）：REDOは変更の記録であり、表領域転送の主媒体ではない。",
+      "topic": "転送方式",
+      "difficulty": "medium",
+      "id": "ch15q001"
+    },
+    {
+      "chapter": 15,
+      "question": "Data Pumpを用いた表領域転送について、転送先で表のデータにアクセスするために必要なものを2つ選べ。",
+      "choices": {
+        "A": "転送元DBのオンラインREDOログ",
+        "B": "転送したデータファイル",
+        "C": "転送対象の表領域を記述したメタデータ",
+        "D": "転送元DBのSPFILE"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "転送したデータファイル、転送対象の表領域を記述したメタデータ",
+      "explanation": "正解：B、C\n\nA（誤り）：表領域転送の構成要素ではない。\nB（正しい）：実データを格納する。\nC（正しい）：転送先DBへ表領域の定義を取り込むために必要。\nD（誤り）：移行先DBの初期化設定を置換する操作ではない。",
+      "topic": "転送対象",
+      "difficulty": "medium",
+      "id": "ch15q002",
+      "multiple": true
+    },
+    {
+      "chapter": 15,
+      "question": "Data Pumpで表領域を転送する際、転送元の一般的な作業順序として正しいものを1つ選べ。",
+      "choices": {
+        "A": "メタデータをエクスポートしてから表領域をREAD ONLYに変更する",
+        "B": "データファイルを削除し、メタデータをエクスポートして表領域を再作成する",
+        "C": "表領域をREAD WRITEに変更し、転送先でメタデータをエクスポートする",
+        "D": "表領域をREAD ONLYに変更し、メタデータをエクスポートしてデータファイルをコピーする"
+      },
+      "correctChoice": "D",
+      "correctText": "表領域をREAD ONLYに変更し、メタデータをエクスポートしてデータファイルをコピーする",
+      "explanation": "正解：D\n\nA（誤り）：通常は整合性確保のためREAD ONLY化が先になる。\nB（誤り）：元データを削除する操作は転送手順に含めない。\nC（誤り）：転送元と転送先の役割が逆。\nD（正しい）：Data Pumpによるオフライン型の移行手順に対応する。",
+      "topic": "Data Pump手順",
+      "difficulty": "medium",
+      "id": "ch15q003"
+    },
+    {
+      "chapter": 15,
+      "question": "表領域のデータファイルとData Pumpダンプを転送先へコピーした。次に必要な作業として正しいものを1つ選べ。",
+      "choices": {
+        "A": "転送先でRMANのRECOVER DATABASEを実行する",
+        "B": "転送先で制御ファイルをRESTOREする",
+        "C": "転送先で表領域のメタデータをインポートする",
+        "D": "転送先でDBNEWIDを用いてDBIDを変更する"
+      },
+      "correctChoice": "C",
+      "correctText": "転送先で表領域のメタデータをインポートする",
+      "explanation": "正解：C\n\nA（誤り）：新DB全体のメディアリカバリではない。\nB（誤り）：元DBの制御ファイルを復元する操作ではない。\nC（正しい）：インポートにより表領域の構造情報を登録する。\nD（誤り）：DBIDの変更は表領域転送の必要条件ではない。",
+      "topic": "Data Pump手順",
+      "difficulty": "medium",
+      "id": "ch15q004"
+    },
+    {
+      "chapter": 15,
+      "question": "ソース表領域をREAD WRITEで運用しながら転送準備したい。教材で扱う適切な方法を1つ選べ。",
+      "choices": {
+        "A": "Data Pumpトランスポータブル表領域の通常手順",
+        "B": "Data PumpのFULL=Yエクスポート",
+        "C": "RMANのCROSSCHECK TABLESPACEによる転送",
+        "D": "RMANのTRANSPORT TABLESPACEを用いたバックアップからの転送"
+      },
+      "correctChoice": "D",
+      "correctText": "RMANのTRANSPORT TABLESPACEを用いたバックアップからの転送",
+      "explanation": "正解：D\n\nA（誤り）：通常のData Pump表領域転送ではREAD ONLYへ変更する。\nB（誤り）：FULLエクスポートは今回の表領域転送方式とは異なる。\nC（誤り）：CROSSCHECKはバックアップの整合性照合。\nD（正しい）：補助インスタンスとバックアップを使い、元表領域をREAD ONLYにせず転送用コピーを生成できる。",
+      "topic": "RMAN転送",
+      "difficulty": "medium",
+      "id": "ch15q005"
+    },
+    {
+      "chapter": 15,
+      "question": "RMANのTRANSPORT TABLESPACEで使用する作業領域に関する説明として正しいものを2つ選べ。",
+      "choices": {
+        "A": "TABLESPACE DESTINATIONは転送用データファイルの作成先となる",
+        "B": "AUXILIARY DESTINATIONは補助インスタンスが使う一時領域となる",
+        "C": "DATAPUMP DIRECTORYはオンラインREDOログの複製先を指定する",
+        "D": "TABLESPACE DESTINATIONはターゲットDBの制御ファイル名を指定する"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "TABLESPACE DESTINATIONは転送用データファイルの作成先となる、AUXILIARY DESTINATIONは補助インスタンスが使う一時領域となる",
+      "explanation": "正解：A、B\n\nA（正しい）：転送先へ渡すデータファイルを作成する領域。\nB（正しい）：補助インスタンスのファイル用作業領域。\nC（誤り）：Data Pumpメタデータ用のディレクトリである。\nD（誤り）：制御ファイルの指定ではない。",
+      "topic": "RMAN転送",
+      "difficulty": "medium",
+      "id": "ch15q006",
+      "multiple": true
+    },
+    {
+      "chapter": 15,
+      "question": "トランスポータブル表領域セットの「自己完結性」の説明として正しいものを1つ選べ。",
+      "choices": {
+        "A": "すべての表に主キーが設定されていること",
+        "B": "転送する表領域の中に少なくとも1個の索引があること",
+        "C": "転送元と転送先のデータベース名が一致すること",
+        "D": "転送対象の表領域セットが、必要なオブジェクトをセット外へ依存させていないこと"
+      },
+      "correctChoice": "D",
+      "correctText": "転送対象の表領域セットが、必要なオブジェクトをセット外へ依存させていないこと",
+      "explanation": "正解：D\n\nA（誤り）：主キーの有無は自己完結性の定義ではない。\nB（誤り）：索引数の要件ではない。\nC（誤り）：DB名は自己完結性と関係しない。\nD（正しい）：転送対象に閉じた依存関係が求められる。",
+      "topic": "自己完結性",
+      "difficulty": "medium",
+      "id": "ch15q007"
+    },
+    {
+      "chapter": 15,
+      "question": "表とそのLOBセグメントを転送する。自己完結性の確認で問題となり得る状態を2つ選べ。",
+      "choices": {
+        "A": "表のLOBが転送対象外の表領域に保存されている",
+        "B": "表とLOBが同じ転送対象セットに入っている",
+        "C": "転送する表の索引が転送対象外の表領域にある",
+        "D": "複数の表領域を1つのセットとして転送する"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "表のLOBが転送対象外の表領域に保存されている、転送する表の索引が転送対象外の表領域にある",
+      "explanation": "正解：A、C\n\nA（正しい）：表に必要なLOBがセット外に残る。\nB（誤り）：セット内にまとめれば問題の原因を減らせる。\nC（正しい）：表に関係する索引がセット外となる。\nD（誤り）：複数表領域のセット転送は可能。",
+      "topic": "自己完結性",
+      "difficulty": "medium",
+      "id": "ch15q008",
+      "multiple": true
+    },
+    {
+      "chapter": 15,
+      "question": "異なるプラットフォーム間で表領域を移す。データファイルのエンディアン変換について正しいものを1つ選べ。",
+      "choices": {
+        "A": "OS名の違いを基準にデータファイルの変換要否を判断する",
+        "B": "ソースとターゲットのエンディアンが異なる場合にRMANで変換する",
+        "C": "データベース文字セットが一致すればエンディアン変換は不要となる",
+        "D": "表領域のブロックサイズが一致すればエンディアン変換は不要となる"
+      },
+      "correctChoice": "B",
+      "correctText": "ソースとターゲットのエンディアンが異なる場合にRMANで変換する",
+      "explanation": "正解：B\n\nA（誤り）：異なるプラットフォームでもエンディアンが同じことがある。\nB（正しい）：バイト順序の違いを変換する。\nC（誤り）：文字セットとエンディアンは異なる属性。\nD（誤り）：ブロックサイズとエンディアンは別の条件。",
+      "topic": "エンディアン",
+      "difficulty": "medium",
+      "id": "ch15q009"
+    },
+    {
+      "chapter": 15,
+      "question": "クロスプラットフォーム転送で、Oracleが扱うプラットフォームのエンディアンを確認するビューとして正しいものを1つ選べ。",
+      "choices": {
+        "A": "V$TRANSPORTABLE_PLATFORM",
+        "B": "V$DATABASE_BLOCK_CORRUPTION",
+        "C": "V$BACKUP_ASYNC_IO",
+        "D": "V$RECOVERY_FILE_DEST"
+      },
+      "correctChoice": "A",
+      "correctText": "V$TRANSPORTABLE_PLATFORM",
+      "explanation": "正解：A\n\nA（正しい）：プラットフォーム名とエンディアン形式を示す。\nB（誤り）：破損ブロックの情報。\nC（誤り）：非同期バックアップI/Oの統計。\nD（誤り）：高速リカバリ領域の使用状況。",
+      "topic": "プラットフォーム情報",
+      "difficulty": "medium",
+      "id": "ch15q010"
+    },
+    {
+      "chapter": 15,
+      "question": "転送元ホストで、転送先プラットフォーム向けに表領域のコピーを変換するRMANコマンドを1つ選べ。",
+      "choices": {
+        "A": "RESTORE TABLESPACE ... FROM PLATFORM",
+        "B": "BACKUP DATABASE PLUS ARCHIVELOG",
+        "C": "CONVERT TABLESPACE ... TO PLATFORM",
+        "D": "CONVERT DATAFILE ... FROM PLATFORM"
+      },
+      "correctChoice": "C",
+      "correctText": "CONVERT TABLESPACE ... TO PLATFORM",
+      "explanation": "正解：C\n\nA（誤り）：通常の表領域RESTOREとは指定形式が異なる。\nB（誤り）：DB全体とアーカイブログのバックアップ。\nC（正しい）：転送元側で宛先プラットフォーム向けに変換する。\nD（誤り）：FROM PLATFORMは転送先で元プラットフォームを指定する場面の構文。",
+      "topic": "変換コマンド",
+      "difficulty": "medium",
+      "id": "ch15q011"
+    },
+    {
+      "chapter": 15,
+      "question": "転送先ホストで受け取ったデータファイルを元プラットフォームから変換したい。対応するRMANコマンドを1つ選べ。",
+      "choices": {
+        "A": "CONVERT TABLESPACE ... TO PLATFORM",
+        "B": "CONVERT DATAFILE ... FROM PLATFORM",
+        "C": "BACKUP FOR TRANSPORT TABLESPACE",
+        "D": "RESTORE DATABASE FROM SERVICE"
+      },
+      "correctChoice": "B",
+      "correctText": "CONVERT DATAFILE ... FROM PLATFORM",
+      "explanation": "正解：B\n\nA（誤り）：転送元で表領域を宛先形式に変換する場合の操作。\nB（正しい）：転送先側で元プラットフォームのデータファイルを変換する。\nC（誤り）：バックアップセット作成の操作。\nD（誤り）：サービス経由のデータベースリストアであり、今回の変換ではない。",
+      "topic": "変換コマンド",
+      "difficulty": "medium",
+      "id": "ch15q012"
+    },
+    {
+      "chapter": 15,
+      "question": "クロスプラットフォームの表領域転送にバックアップセットを使う利点として正しいものを2つ選べ。",
+      "choices": {
+        "A": "未使用領域の除外などで転送サイズを減らせる場合がある",
+        "B": "データファイルのエンディアンをOracle Netの設定で自動統一できる",
+        "C": "SYSTEM表領域を一般の表領域セットとして追加できる",
+        "D": "Data Pumpメタデータのバックアップを併せて作成できる"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "未使用領域の除外などで転送サイズを減らせる場合がある、Data Pumpメタデータのバックアップを併せて作成できる",
+      "explanation": "正解：A、D\n\nA（正しい）：データ量の削減が転送効率に寄与する。\nB（誤り）：Oracle Netの設定とデータ形式変換は別。\nC（誤り）：一般の表領域転送にはSYSTEMの制限がある。\nD（正しい）：DATAPUMP FORMAT句でメタデータをバックアップ形式に含められる。",
+      "topic": "バックアップセット方式",
+      "difficulty": "medium",
+      "id": "ch15q013",
+      "multiple": true
+    },
+    {
+      "chapter": 15,
+      "question": "転送元でクロスプラットフォーム用バックアップセットを作り、転送先でデータファイルを復元する。このとき用いるRMAN操作の組合せとして適切なものを1つ選べ。",
+      "choices": {
+        "A": "BACKUP DATABASE と RESTORE CONTROLFILE",
+        "B": "BACKUP ARCHIVELOG と RECOVER DATABASE",
+        "C": "CONVERT TABLESPACE と SWITCH DATAFILE",
+        "D": "BACKUP ... TABLESPACE と RESTORE FOREIGN TABLESPACE"
+      },
+      "correctChoice": "D",
+      "correctText": "BACKUP ... TABLESPACE と RESTORE FOREIGN TABLESPACE",
+      "explanation": "正解：D\n\nA（誤り）：DB全体の通常バックアップと制御ファイル復元ではない。\nB（誤り）：REDOの通常リカバリではない。\nC（誤り）：イメージコピーに関わる操作と混同している。\nD（正しい）：クロスプラットフォームのバックアップセットを転送して復元する。",
+      "topic": "バックアップセット方式",
+      "difficulty": "medium",
+      "id": "ch15q014"
+    },
+    {
+      "chapter": 15,
+      "question": "クロスプラットフォーム・トランスポータブルデータベースを、表領域セットの転送と区別する特徴を1つ選べ。",
+      "choices": {
+        "A": "ユーザー定義の表領域を選んでメタデータを移行する",
+        "B": "SYSTEMを含むデータベース全体を移行対象とする",
+        "C": "表領域ごとに異なる文字セットを設定して移行する",
+        "D": "ターゲットの既存DBへ1つの表をインポートする"
+      },
+      "correctChoice": "B",
+      "correctText": "SYSTEMを含むデータベース全体を移行対象とする",
+      "explanation": "正解：B\n\nA（誤り）：これは表領域セットの転送の特徴。\nB（正しい）：データベース全体の移行である。\nC（誤り）：表領域ごとに文字セットを独立させる操作ではない。\nD（誤り）：表単位の論理インポートではない。",
+      "topic": "データベース転送",
+      "difficulty": "medium",
+      "id": "ch15q015"
+    },
+    {
+      "chapter": 15,
+      "question": "バックアップセットによるクロスプラットフォーム・データベース転送の操作について正しいものを2つ選べ。",
+      "choices": {
+        "A": "ソースDBのバックアップはBACKUP VALIDATE DATABASEで作成する",
+        "B": "ターゲット側では元DBのREDOをRECOVER DATABASEで再生する",
+        "C": "ソースDBをREAD ONLYでOPENしてバックアップを取得する",
+        "D": "ターゲット側でRESTORE FOREIGN DATABASEを実行する"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "ソースDBをREAD ONLYでOPENしてバックアップを取得する、ターゲット側でRESTORE FOREIGN DATABASEを実行する",
+      "explanation": "正解：C、D\n\nA（誤り）：VALIDATEはバックアップファイルを生成しない。\nB（誤り）：提示された移行方式の基本手順ではない。\nC（正しい）：転送元をREAD ONLYとして一貫性を確保する。\nD（正しい）：転送先で異種プラットフォームのDBを復元する操作。",
+      "topic": "データベース転送",
+      "difficulty": "medium",
+      "id": "ch15q016",
+      "multiple": true
+    },
+    {
+      "chapter": 15,
+      "question": "トランスポータブル表領域の利用前に確認したい条件として適切なものを2つ選べ。",
+      "choices": {
+        "A": "転送対象セットの自己完結性",
+        "B": "ソース・ターゲット間の文字セット互換性",
+        "C": "RMANのデフォルトデバイスがSBTであること",
+        "D": "転送先にリカバリカタログが登録されていること"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "転送対象セットの自己完結性、ソース・ターゲット間の文字セット互換性",
+      "explanation": "正解：A、B\n\nA（正しい）：表領域間の依存関係を検査する。\nB（正しい）：互換性の制限がある。\nC（誤り）：ディスクを用いた転送も可能。\nD（誤り）：リカバリカタログ登録は必須条件ではない。",
+      "topic": "制限事項",
+      "difficulty": "medium",
+      "id": "ch15q017",
+      "multiple": true
+    },
+    {
+      "chapter": 15,
+      "question": "ソースで表領域をREAD ONLYに切り替える時間を確保できない場合、教材にある代替方式の説明として正しいものを1つ選べ。",
+      "choices": {
+        "A": "Data Pump表領域転送でエクスポート前にREAD WRITEへ戻す",
+        "B": "SQL*Loaderでデータファイルを転送先に直接接続する",
+        "C": "RMANによる表領域転送を選び、補助インスタンスで必要なコピーとメタデータを用意する",
+        "D": "RMAN CROSSCHECKで表領域の整合性を確保してコピーを省略する"
+      },
+      "correctChoice": "C",
+      "correctText": "RMANによる表領域転送を選び、補助インスタンスで必要なコピーとメタデータを用意する",
+      "explanation": "正解：C\n\nA（誤り）：READ ONLYでの整合性確保を満たせない。\nB（誤り）：SQL*Loaderはデータファイルの物理移行手段ではない。\nC（正しい）：バックアップからの転送は元表領域をREAD WRITEに保てる。\nD（誤り）：CROSSCHECKはファイル移動を代替しない。",
+      "topic": "移行方法比較",
+      "difficulty": "medium",
+      "id": "ch15q018"
+    },
+    {
+      "chapter": 15,
+      "question": "データファイルを転送先へコピーしたが、まだ表領域メタデータをインポートしていない。妥当な説明を1つ選べ。",
+      "choices": {
+        "A": "データファイルがあるので移行先DBの辞書へ表領域登録済みとなる",
+        "B": "移行先の制御ファイルを更新すればメタデータインポートを省略できる",
+        "C": "ファイルの転送は完了しても、表領域としての利用にはメタデータの取り込みが必要",
+        "D": "移行先DBをMOUNTにするとメタデータを自動抽出できる"
+      },
+      "correctChoice": "C",
+      "correctText": "ファイルの転送は完了しても、表領域としての利用にはメタデータの取り込みが必要",
+      "explanation": "正解：C\n\nA（誤り）：データファイルのコピーと辞書登録は別。\nB（誤り）：制御ファイル置換でData Pumpの登録を代替できない。\nC（正しい）：表領域定義を移行先へ反映する必要がある。\nD（誤り）：MOUNTによる自動登録は今回の手順と異なる。",
+      "topic": "メタデータ",
+      "difficulty": "medium",
+      "id": "ch15q019"
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle Restartの目的を説明したものとして正しいものを1つ選べ。",
+      "choices": {
+        "A": "複数ホストのDBインスタンスを同時に実行する",
+        "B": "単一サーバーで管理対象コンポーネントの障害を検出して再起動する",
+        "C": "別サーバーにスタンバイDBを作成してREDOを転送する",
+        "D": "RMANのバックアップを指定した時間に自動実行する"
+      },
+      "correctChoice": "B",
+      "correctText": "単一サーバーで管理対象コンポーネントの障害を検出して再起動する",
+      "explanation": "正解：B\n\nA（誤り）：これはRAC構成に関わる。\nB（正しい）：単一インスタンス環境で障害時の再起動を支援する。\nC（誤り）：これはData Guardに関わる。\nD（誤り）：ジョブスケジュールはOracle Restartの主目的ではない。",
+      "topic": "Oracle Restart概要",
+      "difficulty": "medium",
+      "id": "ch18q001"
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle Restartを利用する環境の基本ソフトウェア構成として正しいものを2つ選べ。",
+      "choices": {
+        "A": "スタンドアロンサーバー用Oracle Grid Infrastructure",
+        "B": "Oracle RACを構成する2台目のDBサーバー",
+        "C": "Oracle Databaseソフトウェア",
+        "D": "RMANリカバリカタログ用の専用DB"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "スタンドアロンサーバー用Oracle Grid Infrastructure、Oracle Databaseソフトウェア",
+      "explanation": "正解：A、C\n\nA（正しい）：Oracle RestartとASMなどを含む。\nB（誤り）：Restartは単一サーバーで動作する。\nC（正しい）：DBを作成・実行するために必要。\nD（誤り）：カタログ専用DBはRestartの必須要件ではない。",
+      "topic": "導入構成",
+      "difficulty": "medium",
+      "id": "ch18q002",
+      "multiple": true
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle Restartの一般的な導入順序を1つ選べ。",
+      "choices": {
+        "A": "Oracle Databaseを導入し、Data Guardを構成し、Grid Infrastructureを導入する",
+        "B": "DBCAでDBを作成してからOracle Grid Infrastructureを導入する",
+        "C": "Oracle ASMディスクグループを作成する前にGrid Infrastructureを削除する",
+        "D": "Grid Infrastructureを導入・構成し、Oracle Databaseを導入してDBCAでDBを作成する"
+      },
+      "correctChoice": "D",
+      "correctText": "Grid Infrastructureを導入・構成し、Oracle Databaseを導入してDBCAでDBを作成する",
+      "explanation": "正解：D\n\nA（誤り）：Data Guardの導入はRestartの標準手順ではない。\nB（誤り）：後からGIを導入できる場合もあるが、通常の推奨順序と異なる。\nC（誤り）：ディスクグループの構成と製品削除を混同している。\nD（正しい）：依存コンポーネントを先に整える。",
+      "topic": "導入順序",
+      "difficulty": "medium",
+      "id": "ch18q003"
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle Restartスタックの実体として正しいものを1つ選べ。",
+      "choices": {
+        "A": "Oracle Clusterwareのデーモン群",
+        "B": "ASMディスクグループ内のメタデータファイル群",
+        "C": "Oracle DatabaseのPGA内に配置された監視スレッド",
+        "D": "Oracle Netのサービス名定義ファイル群"
+      },
+      "correctChoice": "A",
+      "correctText": "Oracle Clusterwareのデーモン群",
+      "explanation": "正解：A\n\nA（正しい）：OSのバックグラウンドでClusterware関連プロセスが動作する。\nB（誤り）：ASMデータファイル自体ではない。\nC（誤り）：PGAのメモリ領域ではない。\nD（誤り）：接続設定ファイル群ではない。",
+      "topic": "Clusterware",
+      "difficulty": "medium",
+      "id": "ch18q004"
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle Restartのクラスタリソースとして管理対象になり得るものを2つ選べ。",
+      "choices": {
+        "A": "表の索引リーフブロック",
+        "B": "ASMディスクグループ",
+        "C": "データベースサービス",
+        "D": "セッションのPGA作業領域"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "ASMディスクグループ、データベースサービス",
+      "explanation": "正解：B、C\n\nA（誤り）：索引ブロックはインスタンスのリソース管理対象ではない。\nB（正しい）：ASMのリソースとして管理できる。\nC（正しい）：サービスもリソースとして管理できる。\nD（誤り）：PGAの個別領域はClusterwareリソースではない。",
+      "topic": "クラスタリソース",
+      "difficulty": "medium",
+      "id": "ch18q005",
+      "multiple": true
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle Restartに登録されたASMインスタンスの一般的なリソース名を1つ選べ。",
+      "choices": {
+        "A": "ora.asm.db",
+        "B": "ora.asm.svc",
+        "C": "ora.asm.lsnr",
+        "D": "ora.asm"
+      },
+      "correctChoice": "D",
+      "correctText": "ora.asm",
+      "explanation": "正解：D\n\nA（誤り）：DBリソースの接尾辞を混在させている。\nB（誤り）：サービスの接尾辞を混在させている。\nC（誤り）：リスナーの接尾辞を混在させている。\nD（正しい）：ASMインスタンスのリソース名。",
+      "topic": "クラスタリソース名",
+      "difficulty": "medium",
+      "id": "ch18q006"
+    },
+    {
+      "chapter": 18,
+      "question": "データファイルがASMディスクグループにあるDBをRestart経由で起動する。依存関係として適切なものを1つ選べ。",
+      "choices": {
+        "A": "データベースを起動してからASMディスクグループをマウントする",
+        "B": "ASMディスクグループをマウントし、その後に依存するDBを起動する",
+        "C": "データベースを起動した後でASMインスタンスを停止する",
+        "D": "リスナーを起動するまでASMディスクグループをマウントできない"
+      },
+      "correctChoice": "B",
+      "correctText": "ASMディスクグループをマウントし、その後に依存するDBを起動する",
+      "explanation": "正解：B\n\nA（誤り）：DBはファイルを使うため先にディスクグループが必要。\nB（正しい）：依存する記憶域を先に使用可能にする。\nC（誤り）：ASMに依存するDBの稼働を維持できない。\nD（誤り）：ASMディスクグループのマウントにリスナー起動は必須ではない。",
+      "topic": "依存関係",
+      "difficulty": "medium",
+      "id": "ch18q007"
+    },
+    {
+      "chapter": 18,
+      "question": "`crsctl status resource -t`の主な用途として正しいものを1つ選べ。",
+      "choices": {
+        "A": "ASMのエクステント再配置を実行する",
+        "B": "Oracle Databaseのメモリパラメータを表示する",
+        "C": "クラスタリソースの状態を表形式で確認する",
+        "D": "リスナーサービスのポート番号を変更する"
+      },
+      "correctChoice": "C",
+      "correctText": "クラスタリソースの状態を表形式で確認する",
+      "explanation": "正解：C\n\nA（誤り）：リバランス実行コマンドではない。\nB（誤り）：インスタンスパラメータ閲覧ではない。\nC（正しい）：リソース状態を一覧表示する。\nD（誤り）：設定変更ではない。",
+      "topic": "リソース状態",
+      "difficulty": "medium",
+      "id": "ch18q008"
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle Restart構成で、通常Gridホームに含まれるものを2つ選べ。",
+      "choices": {
+        "A": "Oracle Clusterware関連ソフトウェア",
+        "B": "ユーザー表のデータファイル",
+        "C": "業務アプリケーションのスキーマ定義",
+        "D": "Oracle ASM関連ソフトウェア"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "Oracle Clusterware関連ソフトウェア、Oracle ASM関連ソフトウェア",
+      "explanation": "正解：A、D\n\nA（正しい）：Restartスタックの実体となる。\nB（誤り）：DBのデータファイルはGridホームとは別に管理する。\nC（誤り）：スキーマはDBの論理構造。\nD（正しい）：ASMインスタンスを動作させるソフトウェア。",
+      "topic": "Gridホーム",
+      "difficulty": "medium",
+      "id": "ch18q009",
+      "multiple": true
+    },
+    {
+      "chapter": 18,
+      "question": "ASMディスクグループについて正しい説明を1つ選べ。",
+      "choices": {
+        "A": "データベースに対する認証ユーザーの集合である",
+        "B": "複数の物理ディスクを論理的な記憶域として管理する",
+        "C": "Oracle Netの接続記述子のグループである",
+        "D": "REDOログを保存するメモリ上のキャッシュである"
+      },
+      "correctChoice": "B",
+      "correctText": "複数の物理ディスクを論理的な記憶域として管理する",
+      "explanation": "正解：B\n\nA（誤り）：ASMは記憶域管理機能。\nB（正しい）：ディスクを束ねてASMファイルを配置できる。\nC（誤り）：接続設定ではない。\nD（誤り）：REDOログバッファではない。",
+      "topic": "ASM概要",
+      "difficulty": "medium",
+      "id": "ch18q010"
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle ASMのストライピングの目的として最も適切なものを1つ選べ。",
+      "choices": {
+        "A": "ファイルを異なるASMディスクに分散してI/Oの並列性を高める",
+        "B": "同じファイルのコピーを異なるASMディスクへ保持して耐障害性を高める",
+        "C": "ASMファイルをData Pumpのダンプへ変換する",
+        "D": "ASMディスクのエンディアンをDBインスタンス起動時に変換する"
+      },
+      "correctChoice": "A",
+      "correctText": "ファイルを異なるASMディスクに分散してI/Oの並列性を高める",
+      "explanation": "正解：A\n\nA（正しい）：ストライピングはデータの分散配置。\nB（誤り）：これはミラーリングの目的。\nC（誤り）：Data Pumpのデータ転送とは異なる。\nD（誤り）：エンディアン変換ではない。",
+      "topic": "ASMストライピング",
+      "difficulty": "medium",
+      "id": "ch18q011"
+    },
+    {
+      "chapter": 18,
+      "question": "ASMミラーリングが主に担う役割を1つ選べ。",
+      "choices": {
+        "A": "共有プール上にバックアップを常駐させる",
+        "B": "ディスクI/Oをシングルスレッド化する",
+        "C": "ディスク間のデータ冗長性によって耐障害性を高める",
+        "D": "論理表領域を複数スキーマへ割り当てる"
+      },
+      "correctChoice": "C",
+      "correctText": "ディスク間のデータ冗長性によって耐障害性を高める",
+      "explanation": "正解：C\n\nA（誤り）：共有プールでのバックアップ保持ではない。\nB（誤り）：I/O並列性の説明ではない。\nC（正しい）：冗長配置の目的。\nD（誤り）：スキーマ配分とは無関係。",
+      "topic": "ASMミラーリング",
+      "difficulty": "medium",
+      "id": "ch18q012"
+    },
+    {
+      "chapter": 18,
+      "question": "ASMディスクグループにディスクを追加した後、データ配置に関して適切な説明を1つ選べ。",
+      "choices": {
+        "A": "ALTER DATABASEで各表領域のデータをエクスポートする",
+        "B": "データベース内のすべての索引を再作成する",
+        "C": "RMANでデータファイルをすべてRESTOREする",
+        "D": "ASMのリバランスでエクステントを再配置する"
+      },
+      "correctChoice": "D",
+      "correctText": "ASMのリバランスでエクステントを再配置する",
+      "explanation": "正解：D\n\nA（誤り）：論理移行ではない。\nB（誤り）：索引再作成はディスク追加の基本手順ではない。\nC（誤り）：バックアップからの復元操作ではない。\nD（正しい）：ASMがディスク構成変更に応じて分散配置を調整する。",
+      "topic": "ASMリバランス",
+      "difficulty": "medium",
+      "id": "ch18q013"
+    },
+    {
+      "chapter": 18,
+      "question": "ASMディスクグループをGUIで作成・管理するOracleのツールを1つ選べ。",
+      "choices": {
+        "A": "DBCA",
+        "B": "NetCA",
+        "C": "ASMCA",
+        "D": "DBUA"
+      },
+      "correctChoice": "C",
+      "correctText": "ASMCA",
+      "explanation": "正解：C\n\nA（誤り）：DBCAは主にデータベースを作成する。\nB（誤り）：NetCAはネットワーク構成用。\nC（正しい）：ASM Configuration Assistant。\nD（誤り）：DBUAはアップグレードに関するツール。",
+      "topic": "ASMCA",
+      "difficulty": "medium",
+      "id": "ch18q014"
+    },
+    {
+      "chapter": 18,
+      "question": "SQL*PlusでASMインスタンスのディスクグループを管理する際、主に使用する権限を1つ選べ。",
+      "choices": {
+        "A": "SYSBACKUP",
+        "B": "SYSASM",
+        "C": "SYSKM",
+        "D": "SYSOPER"
+      },
+      "correctChoice": "B",
+      "correctText": "SYSASM",
+      "explanation": "正解：B\n\nA（誤り）：バックアップ管理用の権限。\nB（正しい）：ASMの管理に用いる。\nC（誤り）：鍵管理用の権限。\nD（誤り）：DB運用管理権限でありASMの主たる管理権限ではない。",
+      "topic": "ASM管理権限",
+      "difficulty": "medium",
+      "id": "ch18q015"
+    },
+    {
+      "chapter": 18,
+      "question": "ASMディスクグループの状態を確認できる動的パフォーマンスビューを1つ選べ。",
+      "choices": {
+        "A": "V$DATABASE",
+        "B": "V$DATAFILE",
+        "C": "V$ARCHIVED_LOG",
+        "D": "V$ASM_DISKGROUP"
+      },
+      "correctChoice": "D",
+      "correctText": "V$ASM_DISKGROUP",
+      "explanation": "正解：D\n\nA（誤り）：DBそのものの情報。\nB（誤り）：DBデータファイルの情報。\nC（誤り）：アーカイブREDOの履歴。\nD（正しい）：ASMディスクグループとMOUNTED等の状態を表示。",
+      "topic": "ASM確認ビュー",
+      "difficulty": "medium",
+      "id": "ch18q016"
+    },
+    {
+      "chapter": 18,
+      "question": "ASMディスクグループをOMFのデータファイル配置先に指定する代表的な初期化パラメータを1つ選べ。",
+      "choices": {
+        "A": "DB_CREATE_FILE_DEST",
+        "B": "DB_RECOVERY_FILE_DEST",
+        "C": "CONTROL_FILES",
+        "D": "ASM_DISKGROUPS"
+      },
+      "correctChoice": "A",
+      "correctText": "DB_CREATE_FILE_DEST",
+      "explanation": "正解：A\n\nA（正しい）：Oracle Managed Filesのデータファイル配置先。\nB（誤り）：高速リカバリ領域の配置先。\nC（誤り）：制御ファイルのパス。\nD（誤り）：ASMインスタンスの起動時にマウントするディスクグループ。",
+      "topic": "OMF",
+      "difficulty": "medium",
+      "id": "ch18q017"
+    },
+    {
+      "chapter": 18,
+      "question": "ASM利用時のファイルI/Oについて正しいものを2つ選べ。",
+      "choices": {
+        "A": "データファイル読み取りはDBサーバープロセスが実行する",
+        "B": "データファイルへの書き込みはDBWnが担当する",
+        "C": "データファイルへの書き込みはASMインスタンスのLGWRが担当する",
+        "D": "ASMインスタンスが各SQLの行データを受け取り、表ブロックを返す"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "データファイル読み取りはDBサーバープロセスが実行する、データファイルへの書き込みはDBWnが担当する",
+      "explanation": "正解：A、B\n\nA（正しい）：DBのサーバープロセスが直接アクセスする。\nB（正しい）：DBWnが変更ブロックを書き込む。\nC（誤り）：LGWRはREDO書き込み担当。\nD（誤り）：ASMは各SQLの行処理を中継しない。",
+      "topic": "I/O処理",
+      "difficulty": "medium",
+      "id": "ch18q018",
+      "multiple": true
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle ASMフィルタドライバ（ASMFD）の役割として正しいものを1つ選べ。",
+      "choices": {
+        "A": "Oracle Netの接続先を自動更新する",
+        "B": "ASMディスクグループをData Pumpのダンプ形式に変換する",
+        "C": "ASMディスクへの不正なI/Oを防止する機能を提供する",
+        "D": "Oracle Databaseのリカバリカタログを自動生成する"
+      },
+      "correctChoice": "C",
+      "correctText": "ASMディスクへの不正なI/Oを防止する機能を提供する",
+      "explanation": "正解：C\n\nA（誤り）：ネットワークサービス登録機能ではない。\nB（誤り）：データ転送形式の変換ではない。\nC（正しい）：ディスクの保護とデバイス管理を支援する。\nD（誤り）：RMANのカタログ作成ではない。",
+      "topic": "ASMFD",
+      "difficulty": "medium",
+      "id": "ch18q019"
+    },
+    {
+      "chapter": 18,
+      "question": "GIとOracle Databaseでソフトウェア所有者を分ける構成の説明として正しいものを2つ選べ。",
+      "choices": {
+        "A": "gridユーザーはSYSDBA権限のDBユーザーとして定義される",
+        "B": "gridユーザーはGrid Infrastructureの導入・管理を担う",
+        "C": "oracleユーザーはASMインスタンスのデータベース表を所有する",
+        "D": "oracleユーザーはOracle Databaseの導入・管理を担う"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "gridユーザーはGrid Infrastructureの導入・管理を担う、oracleユーザーはOracle Databaseの導入・管理を担う",
+      "explanation": "正解：B、D\n\nA（誤り）：OSユーザーとDBユーザーは異なる。\nB（正しい）：一般的なソフトウェア所有者の分担。\nC（誤り）：ASMには業務表のスキーマはない。\nD（正しい）：Databaseホームの所有者。",
+      "topic": "OSユーザー",
+      "difficulty": "medium",
+      "id": "ch18q020",
+      "multiple": true
+    },
+    {
+      "chapter": 18,
+      "question": "Oracleソフトウェア所有者のプライマリグループとして利用される一般的なOSグループ名を1つ選べ。",
+      "choices": {
+        "A": "asmadmin",
+        "B": "oper",
+        "C": "oinstall",
+        "D": "backupdba"
+      },
+      "correctChoice": "C",
+      "correctText": "oinstall",
+      "explanation": "正解：C\n\nA（誤り）：ASMの管理用グループ。\nB（誤り）：OSOPERのDB管理グループ。\nC（正しい）：Oracleインベントリグループの一般的な名前。\nD（誤り）：バックアップ管理のOSグループ。",
+      "topic": "oinstall",
+      "difficulty": "medium",
+      "id": "ch18q021"
+    },
+    {
+      "chapter": 18,
+      "question": "Grid InfrastructureとDatabaseのOSグループを役割別に分ける目的として正しいものを1つ選べ。",
+      "choices": {
+        "A": "OSグループごとにASMのブロックサイズを変更する",
+        "B": "1つのDBの異なるPDBにエンディアンを設定する",
+        "C": "GridホームのファイルをData Pumpでインポートする",
+        "D": "各種管理権限をOSグループで区分する"
+      },
+      "correctChoice": "D",
+      "correctText": "各種管理権限をOSグループで区分する",
+      "explanation": "正解：D\n\nA（誤り）：ブロックサイズの設定とは異なる。\nB（誤り）：エンディアンの指定ではない。\nC（誤り）：インストールとData Pumpは別。\nD（正しい）：役割区分により権限を分ける。",
+      "topic": "役割分離",
+      "difficulty": "medium",
+      "id": "ch18q022"
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle Preinstallation RPMが主に支援する作業を2つ選べ。",
+      "choices": {
+        "A": "インストールに必要なOSパッケージの導入",
+        "B": "推奨されるカーネルパラメータなどの設定",
+        "C": "Oracle Databaseの業務表の初期データ投入",
+        "D": "Data GuardスタンバイDBのREDO適用開始"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "インストールに必要なOSパッケージの導入、推奨されるカーネルパラメータなどの設定",
+      "explanation": "正解：A、B\n\nA（正しい）：前提条件の準備を補助する。\nB（正しい）：OS側の設定を推奨値へ調整する。\nC（誤り）：アプリデータ作成ではない。\nD（誤り）：スタンバイ構成の操作ではない。",
+      "topic": "preinstall RPM",
+      "difficulty": "medium",
+      "id": "ch18q023",
+      "multiple": true
+    },
+    {
+      "chapter": 18,
+      "question": "OracleホームとOracleベースの役割を説明したものとして正しいものを1つ選べ。",
+      "choices": {
+        "A": "Oracleホームはバックアップ保存期間で、Oracleベースは共有プールのサイズを表す",
+        "B": "OracleホームはASMディスクグループ名、OracleベースはPDB名を表す",
+        "C": "Oracleホームはインストール先、Oracleベースは関連ファイル配置の基準となるディレクトリ",
+        "D": "OracleホームはDBの文字セット、Oracleベースはデータブロックサイズを表す"
+      },
+      "correctChoice": "C",
+      "correctText": "Oracleホームはインストール先、Oracleベースは関連ファイル配置の基準となるディレクトリ",
+      "explanation": "正解：C\n\nA（誤り）：パラメータの単位ではない。\nB（誤り）：論理名称ではない。\nC（正しい）：ソフトウェア配置先と基準ディレクトリの違い。\nD（誤り）：DB属性ではない。",
+      "topic": "環境変数",
+      "difficulty": "medium",
+      "id": "ch18q024"
+    },
+    {
+      "chapter": 18,
+      "question": "`tnsnames.ora`などのOracle Net設定ファイルの配置先を標準位置から変更したい。参照する環境変数を1つ選べ。",
+      "choices": {
+        "A": "ORACLE_SID",
+        "B": "ORACLE_BASE",
+        "C": "ORA_TZFILE",
+        "D": "TNS_ADMIN"
+      },
+      "correctChoice": "D",
+      "correctText": "TNS_ADMIN",
+      "explanation": "正解：D\n\nA（誤り）：インスタンス識別子。\nB（誤り）：ソフトウェア関連ファイルの基準。\nC（誤り）：タイムゾーンファイル位置。\nD（正しい）：Oracle Net構成ファイルの検索先を指定する。",
+      "topic": "Net設定変数",
+      "difficulty": "medium",
+      "id": "ch18q025"
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle Database 19cのイメージベースインストールの流れとして正しいものを1つ選べ。",
+      "choices": {
+        "A": "ZIPをOracleホームに展開してrunInstallerを実行する",
+        "B": "ZIPをData Pumpのディレクトリへ展開してimpdpを実行する",
+        "C": "ZIPをASMディスクグループへ展開してDBCAを実行する",
+        "D": "ZIPをFast Recovery Areaへ展開してOPatchを実行する"
+      },
+      "correctChoice": "A",
+      "correctText": "ZIPをOracleホームに展開してrunInstallerを実行する",
+      "explanation": "正解：A\n\nA（正しい）：19cの一般的な導入手順。\nB（誤り）：impdpは論理データインポート。\nC（誤り）：ASMをインストールアーカイブ展開先とする説明ではない。\nD（誤り）：OPatchはパッチ管理。",
+      "topic": "イメージインストール",
+      "difficulty": "medium",
+      "id": "ch18q026"
+    },
+    {
+      "chapter": 18,
+      "question": "スタンドアロンサーバー用Grid Infrastructureの対話的導入で、主に実行するスクリプトを1つ選べ。",
+      "choices": {
+        "A": "runInstaller",
+        "B": "gridSetup.sh",
+        "C": "dbupgrade",
+        "D": "datapatch"
+      },
+      "correctChoice": "B",
+      "correctText": "gridSetup.sh",
+      "explanation": "正解：B\n\nA（誤り）：Database製品のインストーラで使う。\nB（正しい）：Grid Infrastructureの構成ウィザードを起動する。\nC（誤り）：DBのアップグレード。\nD（誤り）：DB内へのパッチ適用。",
+      "topic": "セットアップスクリプト",
+      "difficulty": "medium",
+      "id": "ch18q027"
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle製品インストール時のroot構成スクリプトに関する説明として正しいものを1つ選べ。",
+      "choices": {
+        "A": "データベース内の表領域をEXPORTする",
+        "B": "ASMディスクをData Pumpのダンプに変換する",
+        "C": "OS管理者権限で必要なシステム構成を行う",
+        "D": "RMANカタログのスキーマを再構築する"
+      },
+      "correctChoice": "C",
+      "correctText": "OS管理者権限で必要なシステム構成を行う",
+      "explanation": "正解：C\n\nA（誤り）：エクスポート作業ではない。\nB（誤り）：ASMの転送操作ではない。\nC（正しい）：OS側の権限と構成を整えるために実行する。\nD（誤り）：RMANリポジトリ管理ではない。",
+      "topic": "root構成",
+      "difficulty": "medium",
+      "id": "ch18q028"
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle Databaseソフトウェアのサイレントインストールで使用する代表的な指定を1つ選べ。",
+      "choices": {
+        "A": "runInstaller -silent -responseFile ファイル",
+        "B": "sqlplus -silent -responseFile ファイル",
+        "C": "dbca -upgrade -responseFile ファイル",
+        "D": "rman -silent -responseFile ファイル"
+      },
+      "correctChoice": "A",
+      "correctText": "runInstaller -silent -responseFile ファイル",
+      "explanation": "正解：A\n\nA（正しい）：OUIへ非対話実行用の回答ファイルを渡す。\nB（誤り）：SQL*Plusはインストーラではない。\nC（誤り）：DBCAはDB作成や構成。\nD（誤り）：RMANはバックアップ・リカバリ。",
+      "topic": "サイレントモード",
+      "difficulty": "medium",
+      "id": "ch18q029"
+    },
+    {
+      "chapter": 18,
+      "question": "レスポンスファイルに関する説明として正しいものを2つ選べ。",
+      "choices": {
+        "A": "RMANのバックアップ片そのものを格納する",
+        "B": "Oracle Databaseのアーカイブログ内容を保持する",
+        "C": "インストール画面で入力する設定をテキストで保持する",
+        "D": "OUIのサマリー画面から設定内容を保存できる"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "インストール画面で入力する設定をテキストで保持する、OUIのサマリー画面から設定内容を保存できる",
+      "explanation": "正解：C、D\n\nA（誤り）：RMANのバックアップデータではない。\nB（誤り）：REDOログの保管ではない。\nC（正しい）：パラメータ名と値を使って設定を表現する。\nD（正しい）：ウィザードから生成できる。",
+      "topic": "レスポンスファイル",
+      "difficulty": "medium",
+      "id": "ch18q030",
+      "multiple": true
+    },
+    {
+      "chapter": 18,
+      "question": "Oracleインベントリの目的として正しいものを1つ選べ。",
+      "choices": {
+        "A": "バックアップセットのチェックサムを記録する",
+        "B": "インストール済みOracleソフトウェアの情報を管理する",
+        "C": "アーカイブログの適用SCNを管理する",
+        "D": "CDB内のPDB開閉状態を監視する"
+      },
+      "correctChoice": "B",
+      "correctText": "インストール済みOracleソフトウェアの情報を管理する",
+      "explanation": "正解：B\n\nA（誤り）：RMANの管理情報ではない。\nB（正しい）：インストール状態の情報を管理する。\nC（誤り）：リカバリ履歴ではない。\nD（誤り）：PDB状態ビューとは異なる。",
+      "topic": "インベントリ",
+      "difficulty": "medium",
+      "id": "ch18q031"
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle Database側のソフトウェアだけを導入した。次にデータベースを作成するために用いる代表的なツールを1つ選べ。",
+      "choices": {
+        "A": "ASMCA",
+        "B": "NetCA",
+        "C": "OPatch",
+        "D": "DBCA"
+      },
+      "correctChoice": "D",
+      "correctText": "DBCA",
+      "explanation": "正解：D\n\nA（誤り）：ASMディスクグループ管理。\nB（誤り）：ネットワーク構成。\nC（誤り）：パッチ管理。\nD（正しい）：データベース作成用。",
+      "topic": "ORACLE_HOME",
+      "difficulty": "medium",
+      "id": "ch18q032"
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle Restartスタック全体を起動するGridホーム側のコマンドを1つ選べ。",
+      "choices": {
+        "A": "crsctl start has",
+        "B": "srvctl start database",
+        "C": "sqlplus startup",
+        "D": "asmcmd mount"
+      },
+      "correctChoice": "A",
+      "correctText": "crsctl start has",
+      "explanation": "正解：A\n\nA（正しい）：Oracle Restartスタックの起動。\nB（誤り）：登録された特定DBの起動。\nC（誤り）：DBインスタンスの起動。\nD（誤り）：ASMのディスクグループ操作。",
+      "topic": "Restart操作",
+      "difficulty": "medium",
+      "id": "ch18q033"
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle Restartの自動起動設定の操作として正しいものを2つ選べ。",
+      "choices": {
+        "A": "`crsctl enable has`で自動起動を有効化する",
+        "B": "`crsctl stop has`で自動起動設定を削除する",
+        "C": "`crsctl config has`で設定状態を確認する",
+        "D": "`srvctl status database`でOS起動時のスタック自動起動を有効化する"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "`crsctl enable has`で自動起動を有効化する、`crsctl config has`で設定状態を確認する",
+      "explanation": "正解：A、C\n\nA（正しい）：OS起動時の有効化設定。\nB（誤り）：現在のスタック停止と自動起動設定は異なる。\nC（正しい）：設定状態の確認。\nD（誤り）：DBリソースの状態確認でありスタックの自動起動設定ではない。",
+      "topic": "Restart操作",
+      "difficulty": "medium",
+      "id": "ch18q034",
+      "multiple": true
+    },
+    {
+      "chapter": 18,
+      "question": "`crsctl stop has`と`crsctl disable has`の違いとして正しいものを1つ選べ。",
+      "choices": {
+        "A": "stopは自動起動設定を無効化し、disableは実行中スタックを停止する",
+        "B": "stopは実行中スタックを停止し、disableは自動起動設定を無効化する",
+        "C": "stopはリスナー構成を削除し、disableはASMディスクグループを削除する",
+        "D": "stopはDBをMOUNTへ変更し、disableはDBをOPENへ変更する"
+      },
+      "correctChoice": "B",
+      "correctText": "stopは実行中スタックを停止し、disableは自動起動設定を無効化する",
+      "explanation": "正解：B\n\nA（誤り）：停止と設定変更の役割が逆。\nB（正しい）：実行状態の停止と自動起動設定変更の違い。\nC（誤り）：リソース削除の操作ではない。\nD（誤り）：DBのOPENモード操作ではない。",
+      "topic": "Restart操作",
+      "difficulty": "medium",
+      "id": "ch18q035"
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle RestartでASMディスクグループ`+DATA`を使う。データファイルの配置について正しいものを1つ選べ。",
+      "choices": {
+        "A": "ASMのディスクグループはOracle Netサービスの接続先として指定する",
+        "B": "ASMディスクグループはOracleホーム内のフォルダに展開される",
+        "C": "ASMファイルの書込みはSQL*Plusプロセスを経由する",
+        "D": "ASMディスクグループにはOMF形式でDBファイルを配置できる"
+      },
+      "correctChoice": "D",
+      "correctText": "ASMディスクグループにはOMF形式でDBファイルを配置できる",
+      "explanation": "正解：D\n\nA（誤り）：ASMは記憶域であり接続サービスではない。\nB（誤り）：ASMディスクグループとOracleホームは別物。\nC（誤り）：DBのバックグラウンドプロセスがI/Oを担当する。\nD（正しい）：OMFとASMを組み合わせて管理できる。",
+      "topic": "ASMとOMF",
+      "difficulty": "medium",
+      "id": "ch18q036"
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle Grid Infrastructureの導入に関係するユーティリティと対象の対応として正しいものを2つ選べ。",
+      "choices": {
+        "A": "ASMCA：ASMディスクグループの構成",
+        "B": "DBUA：ASMディスクの物理故障交換",
+        "C": "Data Pump：Oracle Restartスタック起動",
+        "D": "SRVCTL：登録済みクラスタリソースの管理"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "ASMCA：ASMディスクグループの構成、SRVCTL：登録済みクラスタリソースの管理",
+      "explanation": "正解：A、D\n\nA（正しい）：ASMの構成管理を行う。\nB（誤り）：DBUAはDBアップグレード用。\nC（誤り）：Data Pumpはデータの論理移動用。\nD（正しい）：起動停止や登録の管理を行う。",
+      "topic": "Grid関連ツール",
+      "difficulty": "medium",
+      "id": "ch18q037",
+      "multiple": true
+    },
+    {
+      "chapter": 18,
+      "question": "Linuxでインストール所有者のOSグループ所属を確認したい。適切なコマンドを1つ選べ。",
+      "choices": {
+        "A": "`crsctl config has`",
+        "B": "`id oracle`",
+        "C": "`srvctl status database`",
+        "D": "`asmcmd lsdg`"
+      },
+      "correctChoice": "B",
+      "correctText": "`id oracle`",
+      "explanation": "正解：B\n\nA（誤り）：Restart自動起動設定の確認。\nB（正しい）：OSユーザーのUID/GID/グループを確認できる。\nC（誤り）：DBの稼働状況。\nD（誤り）：ASMディスクグループの一覧。",
+      "topic": "役割区分",
+      "difficulty": "medium",
+      "id": "ch18q038"
+    },
+    {
+      "chapter": 18,
+      "question": "Oracle関連ディレクトリの所有者とアクセス権限を設定する際に使うOSコマンドを2つ選べ。",
+      "choices": {
+        "A": "`dbca`",
+        "B": "`chown`",
+        "C": "`chmod`",
+        "D": "`lsnrctl`"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "`chown`、`chmod`",
+      "explanation": "正解：B、C\n\nA（誤り）：DBの作成用。\nB（正しい）：ファイルやディレクトリの所有者を変更する。\nC（正しい）：ファイルやディレクトリのアクセス権を変更する。\nD（誤り）：リスナー管理用。",
+      "topic": "OSファイル権限",
+      "difficulty": "medium",
+      "id": "ch18q039",
+      "multiple": true
+    },
+    {
+      "id": "ch22q001",
+      "chapter": 22,
+      "question": "Grid Infrastructureのアップグレードと同一リリース内のパッチ適用の関係として適切な説明を1つ選べ。",
+      "choices": {
+        "A": "異なるリリースへ移行する操作がアップグレードで、同一リリース内の修正適用はパッチ適用に当たる",
+        "B": "同一リリース内でRUを適用する操作をアップグレードと呼び、異なるリリースへの移行はパッチ適用と呼ぶ",
+        "C": "アップグレードはOracle Databaseソフトウェアの変更を指し、Grid Infrastructureの更新はパッチ適用に分類する",
+        "D": "Grid Infrastructureのアップグレードとパッチ適用は、使用するGridホームの変更有無で同じ名称に分類される"
+      },
+      "correctChoice": "A",
+      "correctText": "異なるリリースへ移行する操作がアップグレードで、同一リリース内の修正適用はパッチ適用に当たる",
+      "explanation": "正解：A\n\nA（正しい）：教材ではリリース移行と同一リリース内の修正適用を区別している。\nB（誤り）：RUはパッチの一種であり、リリース移行ではない。\nC（誤り）：Grid Infrastructureにもアップグレードが存在する。\nD（誤り）：ホームの配置方式と、アップグレード／パッチ適用という操作区分は別の概念。",
+      "topic": "アップグレードの位置づけ",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch22q002",
+      "chapter": 22,
+      "question": "19c Grid Infrastructureへアップグレードする際のGridホームについて、適切な説明を1つ選べ。",
+      "choices": {
+        "A": "従来のGridホーム上に19cのファイルを展開し、既存の実行ファイルを置き換えて移行する",
+        "B": "新しいGridホームへソフトウェアを展開して移行し、既存のGridホームとは区別して管理する",
+        "C": "新しいGridベースを作成し、既存のGridホームのパスを新しいGridベースの直下に変更する",
+        "D": "既存GridホームをOracleホームへ移動し、新Grid Infrastructureをそのディレクトリに配置する"
+      },
+      "correctChoice": "B",
+      "correctText": "新しいGridホームへソフトウェアを展開して移行し、既存のGridホームとは区別して管理する",
+      "explanation": "正解：B\n\nA（誤り）：その方式は既存ホームへの上書きに当たり、GIアップグレードの方式と異なる。\nB（正しい）：Grid Infrastructureのアップグレードはout-of-place方式。\nC（誤り）：Gridベースを必然的に変更する操作ではない。\nD（誤り）：GridホームとOracle DatabaseのOracleホームは別のインストール先である。",
+      "topic": "out-of-place",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch22q003",
+      "chapter": 22,
+      "question": "19c Grid Infrastructureへのアップグレード前に確認すべき条件を2つ選べ。",
+      "choices": {
+        "A": "新Oracle Databaseの作成に用いるDBCAテンプレートが19c形式であること",
+        "B": "アップグレード対象のすべてのDBについてDBIDが新しい値へ更新されていること",
+        "C": "移行元のGrid Infrastructureリリースが19cへのサポート対象であること",
+        "D": "必要な前提パッチが旧Grid Infrastructureに適用済みであること"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "移行元のGrid Infrastructureリリースが19cへのサポート対象であること、必要な前提パッチが旧Grid Infrastructureに適用済みであること",
+      "explanation": "正解：C、D\n\nA（誤り）：Grid Infrastructureアップグレードの事前条件としてDBCAテンプレートの変更は扱わない。\nB（誤り）：GI更新の前提として既存DBのDBID変更は求められない。\nC（正しい）：19cへ直接移行できる旧リリースは制限されている。\nD（正しい）：アップグレード前に必須パッチが指定される場合がある。",
+      "topic": "作業前提",
+      "difficulty": "medium",
+      "multiple": true
+    },
+    {
+      "id": "ch22q004",
+      "chapter": 22,
+      "question": "教材の19c Grid Infrastructureへのアップグレード対象リリースに含まれるものを2つ選べ。",
+      "choices": {
+        "A": "Oracle Grid Infrastructure 11.2.0.4",
+        "B": "Oracle Grid Infrastructure 12.1.0.2",
+        "C": "Oracle Grid Infrastructure 11.2.0.3",
+        "D": "Oracle Grid Infrastructure 12.1.0.1"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "Oracle Grid Infrastructure 11.2.0.4、Oracle Grid Infrastructure 12.1.0.2",
+      "explanation": "正解：A、B\n\nA（正しい）：教材で19cへの移行元として列挙される11g Release 2の最終パッチセット。\nB（正しい）：教材で19cへの移行元として列挙される12c Release 1の最終パッチセット。\nC（誤り）：11.2系では教材に列挙される11.2.0.4と異なる。\nD（誤り）：12.1系では教材に列挙される12.1.0.2と異なる。",
+      "topic": "対応リリース",
+      "difficulty": "medium",
+      "multiple": true
+    },
+    {
+      "id": "ch22q005",
+      "chapter": 22,
+      "question": "Grid Infrastructureのout-of-placeアップグレード後のホームの扱いとして正しいものを1つ選べ。",
+      "choices": {
+        "A": "新しいGridホームに含まれるコマンドを使用するため、既存のGridベースは利用不可となる",
+        "B": "旧Gridホームのコマンドを使用し、Gridベースを新しいGridホームへ変更する",
+        "C": "新しいGridホームに含まれるコマンドを使用し、既存のGridベースは引き続き利用できる",
+        "D": "旧Gridホームと新Gridホームのコマンドを用途ごとに使い分け、Gridベースを削除する"
+      },
+      "correctChoice": "C",
+      "correctText": "新しいGridホームに含まれるコマンドを使用し、既存のGridベースは引き続き利用できる",
+      "explanation": "正解：C\n\nA（誤り）：新ホームを使用する点は正しいが、Gridベースについての帰結が誤り。\nB（誤り）：アップグレード後は新Gridホームのコマンドを使う。\nC（正しい）：インストール先ホームは変わるが、Gridベース自体の利用が直ちに失われるわけではない。\nD（誤り）：旧コマンドを通常の管理に使う方針ではなく、Gridベースの削除も伴わない。",
+      "topic": "ホーム構成",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch22q006",
+      "chapter": 22,
+      "question": "Grid Infrastructureのアップグレードをウィザードから開始する手順として適切なものを1つ選べ。",
+      "choices": {
+        "A": "Grid所有者として旧Gridホームにソフトウェアを展開し、gridSetup.shで新規クラスタ構成を選択する",
+        "B": "Oracle Database所有者として新Oracleホームに展開し、runInstallerでDatabase Upgradeを選択する",
+        "C": "Grid所有者として新Gridホームに展開し、dbupgradeでGrid Infrastructureをアップグレードする",
+        "D": "Grid所有者として新Gridホームにソフトウェアを展開し、gridSetup.shでアップグレードを選択する"
+      },
+      "correctChoice": "D",
+      "correctText": "Grid所有者として新Gridホームにソフトウェアを展開し、gridSetup.shでアップグレードを選択する",
+      "explanation": "正解：D\n\nA（誤り）：新ホームを使い、既存構成のアップグレードを選ぶ必要がある。\nB（誤り）：Oracle Databaseソフトウェアのインストール手順と混同している。\nC（誤り）：dbupgradeはOracle Databaseのアップグレードで使われる。\nD（正しい）：教材の新Gridホーム展開→gridSetup.sh→アップグレード選択という流れ。",
+      "topic": "インストールの開始",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch22q007",
+      "chapter": 22,
+      "question": "Oracle Restart環境で19c Grid Infrastructureへアップグレードする際の基本的な作業順序として適切なものを1つ選べ。",
+      "choices": {
+        "A": "前提条件の確認・旧環境の必要パッチ確認→DB停止→新Gridホーム準備→gridSetup.sh起動",
+        "B": "新Gridホーム準備→DBを新リリースへアップグレード→旧Grid Infrastructureへ必要パッチ適用",
+        "C": "Gridベース削除→旧Gridホーム上書き→DB停止→gridSetup.sh起動",
+        "D": "旧Grid Infrastructure停止→新DBホームのdbupgrade実行→新Gridホーム準備"
+      },
+      "correctChoice": "A",
+      "correctText": "前提条件の確認・旧環境の必要パッチ確認→DB停止→新Gridホーム準備→gridSetup.sh起動",
+      "explanation": "正解：A\n\nA（正しい）：教材の準備・停止・ホーム作成・ウィザードという手順に沿う。\nB（誤り）：DBアップグレードとGIアップグレードの前提確認を逆転させている。\nC（誤り）：既存Gridベース削除と旧ホーム上書きはout-of-place手順ではない。\nD（誤り）：dbupgradeはGrid Infrastructureをアップグレードするツールではない。",
+      "topic": "アップグレード順序",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch22q008",
+      "chapter": 22,
+      "question": "GridホームとGridベースに関する説明として適切なものを1つ選べ。",
+      "choices": {
+        "A": "GridホームはADRログの専用配置先で、Gridベースは実行ファイルの配置先である",
+        "B": "Gridホームはソフトウェアの配置先で、GridベースはGrid Infrastructureの関連ファイルの基準となる場所である",
+        "C": "GridホームはDBのデータファイル格納先で、GridベースはOracle DatabaseのSPFILE格納先である",
+        "D": "Gridホームはインストール時の一時領域で、Gridベースは更新後の実行コマンド格納先となる"
+      },
+      "correctChoice": "B",
+      "correctText": "Gridホームはソフトウェアの配置先で、GridベースはGrid Infrastructureの関連ファイルの基準となる場所である",
+      "explanation": "正解：B\n\nA（誤り）：ベースとホームの役割を逆にしている。\nB（正しい）：役割の違いに基づき、アップグレードではGridホームが新設される。\nC（誤り）：GIソフトウェアの配置とDBファイル保管は別概念。\nD（誤り）：Gridホームは通常の実行コマンドも含むインストール先である。",
+      "topic": "GridホームとGridベース",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch22q009",
+      "chapter": 22,
+      "question": "Grid InfrastructureとOracle Databaseのリリースの関係を説明したものとして、教材に沿うものを1つ選べ。",
+      "choices": {
+        "A": "Grid Infrastructureは管理するOracle Databaseと同じか、それより古いリリースで構成する",
+        "B": "Oracle Databaseを先にアップグレードすればGrid Infrastructureのリリースとの関係は問われない",
+        "C": "Grid Infrastructureは管理するOracle Databaseと同じか、それより新しいリリースで構成する",
+        "D": "Grid Infrastructureのパッチレベルが一致していればOracle Databaseのリリースは任意にできる"
+      },
+      "correctChoice": "C",
+      "correctText": "Grid Infrastructureは管理するOracle Databaseと同じか、それより新しいリリースで構成する",
+      "explanation": "正解：C\n\nA（誤り）：大小関係が逆になる。\nB（誤り）：GIとDBの対応リリースには制約がある。\nC（正しい）：教材が示す基本的なバージョン関係。\nD（誤り）：パッチレベル以外にリリース組合せのサポート範囲がある。",
+      "topic": "GridとDBの互換性",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch22q010",
+      "chapter": 22,
+      "question": "19c Grid Infrastructureのアップグレードに関する説明として正しいものを2つ選べ。",
+      "choices": {
+        "A": "ソフトウェア展開先として旧ホームとは別のGridホームを用意する",
+        "B": "Grid Infrastructureの更新作業ではDBCAがGridスタックの更新を実行する",
+        "C": "新Grid Infrastructureの実行先は従来のOracle Databaseホームとなる",
+        "D": "gridSetup.shの構成選択でアップグレードを選ぶ"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "ソフトウェア展開先として旧ホームとは別のGridホームを用意する、gridSetup.shの構成選択でアップグレードを選ぶ",
+      "explanation": "正解：A、D\n\nA（正しい）：out-of-placeアップグレードの基本。\nB（誤り）：DBCAはデータベース構成用であり、GIの更新主体ではない。\nC（誤り）：GridホームとOracle Databaseホームは別管理である。\nD（正しい）：Grid Infrastructureの設定ウィザードから更新する。",
+      "topic": "アップグレードの対象",
+      "difficulty": "medium",
+      "multiple": true
+    },
+    {
+      "id": "ch24q001",
+      "chapter": 24,
+      "question": "読取専用Oracleホームの考え方として正しい説明を1つ選べ。",
+      "choices": {
+        "A": "環境固有の構成ファイルやログをOracleホーム外へ配置し、ソフトウェア部分を再利用しやすくする",
+        "B": "データベースのデータファイルをOracleホームへ集約し、構成ファイルをDB内で管理する",
+        "C": "Oracleホームから実行ファイルを排除し、各DBが独自の実行ファイルを作成する",
+        "D": "Oracleホーム内の構成ファイルを固定化し、データベースごとのログをOracleホームに集約する"
+      },
+      "correctChoice": "A",
+      "correctText": "環境固有の構成ファイルやログをOracleホーム外へ配置し、ソフトウェア部分を再利用しやすくする",
+      "explanation": "正解：A\n\nA（正しい）：読取専用ホームでは環境依存の情報を分離する。\nB（誤り）：データファイルをホームへ集約する構成ではない。\nC（誤り）：共有対象となるソフトウェア実行ファイルがOracleホーム側に置かれる。\nD（誤り）：ログや構成ファイルをホーム外へ分離する方向と逆。",
+      "topic": "読取専用ホームの概要",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch24q002",
+      "chapter": 24,
+      "question": "読取専用Oracleホームの利点を2つ選べ。",
+      "choices": {
+        "A": "異なるデータベース間でデータファイルを自動共有しやすい",
+        "B": "ソフトウェアのホームイメージを別環境へ複製して利用しやすい",
+        "C": "環境固有の設定をOracleホームから分離することで配布するソフトウェア構成を標準化しやすい",
+        "D": "データベースのスキーマ更新をOracleホームのコピーによって反映しやすい"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "ソフトウェアのホームイメージを別環境へ複製して利用しやすい、環境固有の設定をOracleホームから分離することで配布するソフトウェア構成を標準化しやすい",
+      "explanation": "正解：B、C\n\nA（誤り）：ソフトウェアホームの共有はDBのデータファイル共有ではない。\nB（正しい）：環境固有ファイルが分離されるためホームの配布に向く。\nC（正しい）：構成差を分離することで標準化に役立つ。\nD（誤り）：スキーマ変更はDB内のオブジェクト操作でありホーム配布ではない。",
+      "topic": "メリット",
+      "difficulty": "medium",
+      "multiple": true
+    },
+    {
+      "id": "ch24q003",
+      "chapter": 24,
+      "question": "読取専用OracleホームでOracle Net Servicesの構成ファイルが主に配置される場所を1つ選べ。",
+      "choices": {
+        "A": "ORACLE_BASE_CONFIG以下",
+        "B": "ORACLE_HOME/dbs以下",
+        "C": "Oracleインベントリ以下",
+        "D": "ORACLE_BASE_HOME以下"
+      },
+      "correctChoice": "D",
+      "correctText": "ORACLE_BASE_HOME以下",
+      "explanation": "正解：D\n\nA（誤り）：教材ではSPFILEなどの構成ファイルの領域として区別される。\nB（誤り）：従来構成の位置と混同している。\nC（誤り）：インベントリはインストールソフトウェアの管理情報を保持する。\nD（正しい）：教材ではネットワーク構成はORACLE_BASE_HOMEに移る。",
+      "topic": "ファイル配置",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch24q004",
+      "chapter": 24,
+      "question": "読取専用Oracleホームにおける配置場所の対応として正しいものを2つ選べ。",
+      "choices": {
+        "A": "SPFILEやパスワードファイルはORACLE_BASE_CONFIG側で管理する",
+        "B": "Oracle Net Servicesの構成ファイルはORACLE_BASE_HOME側で管理する",
+        "C": "SPFILEやパスワードファイルはORACLE_BASE_HOME側で管理する",
+        "D": "Oracle Net Servicesの構成ファイルはORACLE_BASE_CONFIG側で管理する"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "SPFILEやパスワードファイルはORACLE_BASE_CONFIG側で管理する、Oracle Net Servicesの構成ファイルはORACLE_BASE_HOME側で管理する",
+      "explanation": "正解：A、B\n\nA（正しい）：教材が示すSPFILE等の配置先。\nB（正しい）：教材が示すネットワーク構成ファイルの配置先。\nC（誤り）：ORACLE_BASE_CONFIGとORACLE_BASE_HOMEを取り違えている。\nD（誤り）：こちらも二つのベースディレクトリの役割を取り違えている。",
+      "topic": "構成ファイル",
+      "difficulty": "medium",
+      "multiple": true
+    },
+    {
+      "id": "ch24q005",
+      "chapter": 24,
+      "question": "読取専用Oracleホームの設定でORACLE_BASE_HOMEのパスを確認するコマンドを1つ選べ。",
+      "choices": {
+        "A": "orabaseconfig",
+        "B": "orabase",
+        "C": "orabasehome",
+        "D": "roohctl -enable"
+      },
+      "correctChoice": "C",
+      "correctText": "orabasehome",
+      "explanation": "正解：C\n\nA（誤り）：ORACLE_BASE_CONFIGの場所を確認するコマンド。\nB（誤り）：ORACLE_BASEの場所を確認するコマンド。\nC（正しい）：ORACLE_BASE_HOMEの場所を返すコマンド。\nD（誤り）：読取専用構成の有効化に用いる操作。",
+      "topic": "確認用コマンド",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch24q006",
+      "chapter": 24,
+      "question": "読取専用Oracleホームで`orabasehome`と`orabaseconfig`が返すパスの関係として、教材に沿うものを1つ選べ。",
+      "choices": {
+        "A": "BASE_HOMEはOracleベースそのものを返し、BASE_CONFIGはホームごとの構成領域を返す",
+        "B": "BASE_HOMEとBASE_CONFIGは読取専用構成でも同じOracleホームを返す",
+        "C": "BASE_CONFIGはOracleインベントリを返し、BASE_HOMEはデータファイルの配置先を返す",
+        "D": "BASE_HOMEはホームごとの構成領域で、BASE_CONFIGはOracleベースに対応する"
+      },
+      "correctChoice": "D",
+      "correctText": "BASE_HOMEはホームごとの構成領域で、BASE_CONFIGはOracleベースに対応する",
+      "explanation": "正解：D\n\nA（誤り）：二つのディレクトリの対応が逆。\nB（誤り）：読み取り専用構成ではBASE_HOMEのパスはBASE_CONFIGと異なる。\nC（誤り）：いずれもそのような用途のディレクトリではない。\nD（正しい）：教材ではBASE_HOMEがOracleベース配下のホーム別領域、BASE_CONFIGはOracleベースに対応する。",
+      "topic": "パスの違い",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch24q007",
+      "chapter": 24,
+      "question": "Oracle Database 19cで読取専用Oracleホームを有効化する流れとして適切なものを1つ選べ。",
+      "choices": {
+        "A": "DBCAでデータベースを作成→`roohctl -enable`→DBを作成せずソフトウェアを追加インストール",
+        "B": "DBを作成せずソフトウェアをインストール→`roohctl -enable`→DBCAなどでデータベースを作成",
+        "C": "DBを作成せずソフトウェアをインストール→`orabaseconfig`→DBCAでデータベースを作成",
+        "D": "DBCAでデータベースを作成→`orabasehome`→`roohctl -enable`"
+      },
+      "correctChoice": "B",
+      "correctText": "DBを作成せずソフトウェアをインストール→`roohctl -enable`→DBCAなどでデータベースを作成",
+      "explanation": "正解：B\n\nA（誤り）：DB作成後に切り替える流れは教材の前提と異なる。\nB（正しい）：読取専用ホームの有効化はDB作成前に行う。\nC（誤り）：orabaseconfigはパス参照用のコマンド。\nD（誤り）：orabasehomeはパス参照用で、有効化順序も逆。",
+      "topic": "有効化手順",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch24q008",
+      "chapter": 24,
+      "question": "`roohctl -enable`の役割について適切な説明を1つ選べ。",
+      "choices": {
+        "A": "Oracleホームを読取専用の構成に切り替える",
+        "B": "ORACLE_BASE_HOMEのパスを表示する",
+        "C": "ORACLE_BASE_CONFIGのパスを表示する",
+        "D": "読取専用ホームのOracleインベントリを新規作成する"
+      },
+      "correctChoice": "A",
+      "correctText": "Oracleホームを読取専用の構成に切り替える",
+      "explanation": "正解：A\n\nA（正しい）：構成ファイルの分離を有効化する操作。\nB（誤り）：orabasehomeの用途。\nC（誤り）：orabaseconfigの用途。\nD（誤り）：インベントリ作成を指示するコマンドではない。",
+      "topic": "roohctlの動作",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch24q009",
+      "chapter": 24,
+      "question": "Oracleの「読取専用Oracleホーム」の名称について適切な説明を1つ選べ。",
+      "choices": {
+        "A": "Oracleホームを配置したファイルシステムを読取専用マウントした状態を名称の定義とする",
+        "B": "Oracleのデータファイルが読取専用になる構成を意味する",
+        "C": "Oracleホーム内の環境固有ファイルを分離する構成であり、OSファイルシステム自体が読取専用マウントになることとは区別する",
+        "D": "Oracleホームに関連する全ログファイルの書き込みを止める構成を意味する"
+      },
+      "correctChoice": "C",
+      "correctText": "Oracleホーム内の環境固有ファイルを分離する構成であり、OSファイルシステム自体が読取専用マウントになることとは区別する",
+      "explanation": "正解：C\n\nA（誤り）：論理的なOracleホーム構成の話とOSマウント属性を混同している。\nB（誤り）：DBのデータファイルの読取専用状態とは無関係。\nC（正しい）：Oracle公式資料もOSのファイルシステムはread/writeのままであると明記する。\nD（誤り）：ログはホーム外へ書き込まれる。",
+      "topic": "read-onlyの意味",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch24q010",
+      "chapter": 24,
+      "question": "Oracle Database 19cのRPMによる導入対象を説明したものとして適切なものを2つ選べ。",
+      "choices": {
+        "A": "通常のシングルインスタンスOracle Database構成で使用できる",
+        "B": "Oracle RestartのGrid Infrastructure構成をRPMパッケージで導入するために使用する",
+        "C": "Oracle RACのクラスタ構成をRPMパッケージを用いて新規作成するために使用する",
+        "D": "Oracle Database Instant ClientもRPMパッケージが用意されている"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "通常のシングルインスタンスOracle Database構成で使用できる、Oracle Database Instant ClientもRPMパッケージが用意されている",
+      "explanation": "正解：A、D\n\nA（正しい）：教材ではRPMを使うDB導入は通常のシングル構成に対応する。\nB（誤り）：Grid Infrastructureのインストール方式としては対象外。\nC（誤り）：教材が説明するRPM導入はRACを対象にしない。\nD（正しい）：Instant ClientのRPMも提供される。",
+      "topic": "RPM導入の対象",
+      "difficulty": "medium",
+      "multiple": true
+    },
+    {
+      "id": "ch24q011",
+      "chapter": 24,
+      "question": "19cのRPMによるOracle Database導入で、ソフトウェアをインストールした後に実施する操作を1つ選べ。",
+      "choices": {
+        "A": "`roohctl -enable`を実行してデータベースを構成する",
+        "B": "`/etc/init.d/oracledb_ORCLCDB-19c configure`を実行してデータベースを構成する",
+        "C": "`orabasehome`を実行してデータベースを構成する",
+        "D": "`rhpctl add database`を実行してRPMによるDB構成を完了する"
+      },
+      "correctChoice": "B",
+      "correctText": "`/etc/init.d/oracledb_ORCLCDB-19c configure`を実行してデータベースを構成する",
+      "explanation": "正解：B\n\nA（誤り）：読取専用ホームの有効化用のコマンド。\nB（正しい）：教材のRPM導入手順で示される構成スクリプト。\nC（誤り）：ベースホームの参照用コマンド。\nD（誤り）：RHP/FPPの作業用コピーからDBを作成する操作。",
+      "topic": "RPMの処理",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch24q012",
+      "chapter": 24,
+      "question": "教材のOracle Database 19c RPM導入手順で正しい操作を2つ選べ。",
+      "choices": {
+        "A": "Gridソフトウェア所有者で`gridSetup.sh`を実行してRPMからデータベースを作成する",
+        "B": "データベース作成後に`rhpctl import image`を実行してRPM導入を完了する",
+        "C": "rootユーザーでRPMの導入作業を行う",
+        "D": "RPMでソフトウェアを導入後、構成スクリプトでデータベースを作成する"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "rootユーザーでRPMの導入作業を行う、RPMでソフトウェアを導入後、構成スクリプトでデータベースを作成する",
+      "explanation": "正解：C、D\n\nA（誤り）：gridSetup.shはGrid Infrastructure構成用のウィザード。\nB（誤り）：RHPゴールドイメージの登録はRPM導入の完了条件ではない。\nC（正しい）：教材ではrootユーザーによる導入を前提にする。\nD（正しい）：RPMインストールとデータベース構成スクリプト実行を分けている。",
+      "topic": "RPMの手順",
+      "difficulty": "medium",
+      "multiple": true
+    },
+    {
+      "id": "ch24q013",
+      "chapter": 24,
+      "question": "教材のOracle Database 19cのRPM構成スクリプトで管理ユーザーのパスワードはどのように扱われるか。適切なものを1つ選べ。",
+      "choices": {
+        "A": "構成処理によりSYSとSYSTEMのパスワードが生成される",
+        "B": "構成処理前にORACLE_BASE_CONFIGへSYSとSYSTEMのパスワードを記載する",
+        "C": "構成処理ではSYSパスワードを生成し、SYSTEMパスワードはRHP側から受け取る",
+        "D": "構成処理ではSYSとSYSTEMのパスワードをorabasehomeの出力値から決定する"
+      },
+      "correctChoice": "A",
+      "correctText": "構成処理によりSYSとSYSTEMのパスワードが生成される",
+      "explanation": "正解：A\n\nA（正しい）：教材では構成スクリプトが管理ユーザーのパスワードを自動生成する。\nB（誤り）：そのような構成ファイルへの事前記載は教材の手順にない。\nC（誤り）：RPM導入時にRHPは前提条件ではない。\nD（誤り）：orabasehomeはパス表示コマンド。",
+      "topic": "RPMによるパスワード",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch24q014",
+      "chapter": 24,
+      "question": "読取専用OracleホームとRPM導入について正しい対応を1つ選べ。",
+      "choices": {
+        "A": "読取専用ホームはソフトウェア配布方式、RPM導入は構成ファイルの配置方式を指す",
+        "B": "読取専用ホームは構成ファイルの配置方式、RPM導入はソフトウェア配布・インストール方式を指す",
+        "C": "読取専用ホームはGrid Infrastructureのクラスタ構成方式、RPM導入はPDB作成方式を指す",
+        "D": "読取専用ホームはData Pumpの設定方式、RPM導入はRMANのバックアップ方式を指す"
+      },
+      "correctChoice": "B",
+      "correctText": "読取専用ホームは構成ファイルの配置方式、RPM導入はソフトウェア配布・インストール方式を指す",
+      "explanation": "正解：B\n\nA（誤り）：2つの技術の役割が逆。\nB（正しい）：両者は別の技術領域を扱う。\nC（誤り）：どちらもここで述べた対象ではない。\nD（誤り）：どちらもここで述べた対象ではない。",
+      "topic": "RPMとホーム構成",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch25q001",
+      "chapter": 25,
+      "question": "Rapid Home Provisioning（RHP）の主な目的として適切なものを1つ選べ。",
+      "choices": {
+        "A": "複数のターゲットに対するOracleソフトウェアの導入・更新を集中管理し、構成を標準化する",
+        "B": "複数データベースのSQL実行計画を集中管理し、構成を標準化する",
+        "C": "複数PDBのデータファイルを共通のディスクグループに集中配置し、構成を標準化する",
+        "D": "複数データベースの監査証跡を単一のAWRスナップショットに集約する"
+      },
+      "correctChoice": "A",
+      "correctText": "複数のターゲットに対するOracleソフトウェアの導入・更新を集中管理し、構成を標準化する",
+      "explanation": "正解：A\n\nA（正しい）：RHPはOracleソフトウェアのライフサイクル管理を集中化する。\nB（誤り）：SQL計画管理は別の技術領域。\nC（誤り）：記憶域管理ではなくソフトウェアプロビジョニングの仕組み。\nD（誤り）：AWR／監査証跡の集約機能ではない。",
+      "topic": "RHPの目的",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch25q002",
+      "chapter": 25,
+      "question": "RHPサーバーとターゲットの関係として正しいものを1つ選べ。",
+      "choices": {
+        "A": "RHPターゲットがゴールドイメージを管理し、RHPサーバーへ作業用コピーを配布する",
+        "B": "RHPサーバーがゴールドイメージを管理し、ターゲットへ作業用コピーを配布する",
+        "C": "RHPサーバーがターゲットDBのデータファイルを管理し、そのコピーをゴールドイメージとして配布する",
+        "D": "RHPターゲットがRHPサーバーのOracleホームを直接書き換えて更新を適用する"
+      },
+      "correctChoice": "B",
+      "correctText": "RHPサーバーがゴールドイメージを管理し、ターゲットへ作業用コピーを配布する",
+      "explanation": "正解：B\n\nA（誤り）：管理の中心と配布先の役割を逆転させている。\nB（正しい）：サーバーに集中管理したイメージから作業用コピーを配布する。\nC（誤り）：ゴールドイメージはOracleソフトウェアのコピーでありDBデータファイルのバックアップではない。\nD（誤り）：ターゲットでの更新は作業用コピーの切替などで行う。",
+      "topic": "RHPの管理構成",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch25q003",
+      "chapter": 25,
+      "question": "RHPにおけるゴールドイメージと作業用コピーの違いを説明したものとして適切なものを1つ選べ。",
+      "choices": {
+        "A": "ゴールドイメージはターゲットで使用する構成、作業用コピーは配布元のマスターイメージ",
+        "B": "ゴールドイメージはデータベースのスキーマ定義、作業用コピーは表領域のデータファイル",
+        "C": "ゴールドイメージは配布元のソフトウェアイメージ、作業用コピーはターゲットで使用するそのコピー",
+        "D": "ゴールドイメージはパッチ履歴の記録、作業用コピーはパッチの競合チェック結果"
+      },
+      "correctChoice": "C",
+      "correctText": "ゴールドイメージは配布元のソフトウェアイメージ、作業用コピーはターゲットで使用するそのコピー",
+      "explanation": "正解：C\n\nA（誤り）：二つの用語の役割を取り違えている。\nB（誤り）：ここで管理するのはOracleソフトウェアである。\nC（正しい）：教材の用語の対応関係。\nD（誤り）：パッチ管理結果そのものを指す用語ではない。",
+      "topic": "用語の整理",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch25q004",
+      "chapter": 25,
+      "question": "RHPによる管理対象の作業として適切なものを2つ選べ。",
+      "choices": {
+        "A": "Oracleソフトウェアの配布後にパッチ適用・ロールバックを管理する",
+        "B": "データベースの全SQLをAWRへ収集する",
+        "C": "作業用コピーを用いてSQLの統計ヒストグラムを収集する",
+        "D": "作業用コピーを用いてデータベースを作成する"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "Oracleソフトウェアの配布後にパッチ適用・ロールバックを管理する、作業用コピーを用いてデータベースを作成する",
+      "explanation": "正解：A、D\n\nA（正しい）：RHPの更新管理機能の一つ。\nB（誤り）：AWRの統計収集はRHPの機能ではない。\nC（誤り）：オプティマイザ統計収集は別機能。\nD（正しい）：RHPでデータベースを作成する操作がある。",
+      "topic": "主な機能",
+      "difficulty": "medium",
+      "multiple": true
+    },
+    {
+      "id": "ch25q005",
+      "chapter": 25,
+      "question": "RHPでソフトウェア更新を行う際の基本的な考え方として正しいものを1つ選べ。",
+      "choices": {
+        "A": "稼働中の作業用コピーの実行ファイルを上書きして、ソフトウェアをin-placeで更新する",
+        "B": "ゴールドイメージの代わりにデータベースのSPFILEをコピーして、ソフトウェア更新を反映する",
+        "C": "Oracleインベントリの履歴を修正して、実行ファイルを変更せずにソフトウェア更新を反映する",
+        "D": "更新済みの別作業用コピーへ切り替えて、ソフトウェアをout-of-placeで更新する"
+      },
+      "correctChoice": "D",
+      "correctText": "更新済みの別作業用コピーへ切り替えて、ソフトウェアをout-of-placeで更新する",
+      "explanation": "正解：D\n\nA（誤り）：教材のRHPの更新方式は作業用コピーの置換である。\nB（誤り）：SPFILE複製はソフトウェアの更新ではない。\nC（誤り）：インベントリ情報の変更だけでは実行ファイルの更新にならない。\nD（正しい）：ソフトウェアを別の作業用コピーへ移行する方式。",
+      "topic": "out-of-place更新",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch25q006",
+      "chapter": 25,
+      "question": "教材に記載されたRHPのソフトウェア管理対象を2つ選べ。",
+      "choices": {
+        "A": "RMANバックアップピース",
+        "B": "Oracle Databaseソフトウェア",
+        "C": "Oracle Grid Infrastructureソフトウェア",
+        "D": "AWRスナップショット"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "Oracle Databaseソフトウェア、Oracle Grid Infrastructureソフトウェア",
+      "explanation": "正解：B、C\n\nA（誤り）：バックアップピースはRMANの管理対象。\nB（正しい）：Oracle Databaseのソフトウェア配布が対象。\nC（正しい）：Grid Infrastructureのホーム管理も対象。\nD（誤り）：AWRは性能統計の保存機構。",
+      "topic": "製品とリリース",
+      "difficulty": "medium",
+      "multiple": true
+    },
+    {
+      "id": "ch25q007",
+      "chapter": 25,
+      "question": "RHPにおけるクライアントの説明として適切なものを1つ選べ。",
+      "choices": {
+        "A": "Grid InfrastructureがインストールされているRHPターゲットをRHPクライアントと呼ぶ",
+        "B": "RHPサーバーにゴールドイメージを登録するOSユーザーをRHPクライアントと呼ぶ",
+        "C": "RHPサーバー上のOracleインベントリをRHPクライアントと呼ぶ",
+        "D": "RHPの作業用コピーを作成する前のイメージをRHPクライアントと呼ぶ"
+      },
+      "correctChoice": "A",
+      "correctText": "Grid InfrastructureがインストールされているRHPターゲットをRHPクライアントと呼ぶ",
+      "explanation": "正解：A\n\nA（正しい）：教材で示されるターゲットとクライアントの区別。\nB（誤り）：クライアントはOSユーザー名ではない。\nC（誤り）：Oracleインベントリとは異なる。\nD（誤り）：ゴールドイメージや作業用コピーはソフトウェア資産でありクライアントではない。",
+      "topic": "RHPクライアント",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch25q008",
+      "chapter": 25,
+      "question": "Oracle 18c以降、RHPに対して段階的に使われるようになった名称を1つ選べ。",
+      "choices": {
+        "A": "Automatic Storage Management（ASM）",
+        "B": "Fleet Patching and Provisioning（FPP）",
+        "C": "Oracle Database Replay（DB Replay）",
+        "D": "Automatic Database Diagnostic Monitor（ADDM）"
+      },
+      "correctChoice": "B",
+      "correctText": "Fleet Patching and Provisioning（FPP）",
+      "explanation": "正解：B\n\nA（誤り）：ASMは記憶域管理機能。\nB（正しい）：Oracleの機能名称はFPPへ変更されている。\nC（誤り）：Database Replayはワークロードの再現機能。\nD（誤り）：ADDMは性能診断機能。",
+      "topic": "管理の名称",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch25q009",
+      "chapter": 25,
+      "question": "RHPサーバーにゴールドイメージを登録する操作として適切なコマンドを1つ選べ。",
+      "choices": {
+        "A": "rhpctl query image",
+        "B": "rhpctl add workingcopy",
+        "C": "rhpctl import image",
+        "D": "rhpctl query workingcopy"
+      },
+      "correctChoice": "C",
+      "correctText": "rhpctl import image",
+      "explanation": "正解：C\n\nA（誤り）：既存イメージの情報を表示する。\nB（誤り）：イメージを元に作業用コピーを作成する。\nC（正しい）：既存ソフトウェアホームなどを元にイメージを取り込む。\nD（誤り）：作業用コピーの情報を表示する。",
+      "topic": "イメージの登録",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch25q010",
+      "chapter": 25,
+      "question": "RHPで登録済みゴールドイメージから作業用コピーを作成するコマンドを1つ選べ。",
+      "choices": {
+        "A": "rhpctl query workingcopy",
+        "B": "rhpctl import image",
+        "C": "rhpctl move database",
+        "D": "rhpctl add workingcopy"
+      },
+      "correctChoice": "D",
+      "correctText": "rhpctl add workingcopy",
+      "explanation": "正解：D\n\nA（誤り）：作業用コピーを参照する操作。\nB（誤り）：イメージをサーバーに取り込む操作。\nC（誤り）：DBの使用ホームを移行する操作。\nD（正しい）：ゴールドイメージから新規作業用コピーを作る。",
+      "topic": "作業用コピー",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch25q011",
+      "chapter": 25,
+      "question": "RHPで既存ゴールドイメージと既存作業用コピーの情報を参照するコマンドを2つ選べ。",
+      "choices": {
+        "A": "rhpctl query image",
+        "B": "rhpctl query workingcopy",
+        "C": "rhpctl import image",
+        "D": "rhpctl add workingcopy"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "rhpctl query image、rhpctl query workingcopy",
+      "explanation": "正解：A、B\n\nA（正しい）：イメージの登録内容を問い合わせる。\nB（正しい）：作業用コピーの登録内容を問い合わせる。\nC（誤り）：イメージの取り込みを行う。\nD（誤り）：作業用コピーの追加を行う。",
+      "topic": "コマンドの役割",
+      "difficulty": "medium",
+      "multiple": true
+    },
+    {
+      "id": "ch25q012",
+      "chapter": 25,
+      "question": "RHPのデータベース操作とコマンドの対応として正しいものを1つ選べ。",
+      "choices": {
+        "A": "`rhpctl move database`は指定した作業用コピーを使ってデータベースを新規作成する",
+        "B": "`rhpctl upgrade database`は作業用コピーの内容を照会する",
+        "C": "`rhpctl add database`は指定した作業用コピーを使ってデータベースを作成する",
+        "D": "`rhpctl query workingcopy`はデータベースのリリースを変更する"
+      },
+      "correctChoice": "C",
+      "correctText": "`rhpctl add database`は指定した作業用コピーを使ってデータベースを作成する",
+      "explanation": "正解：C\n\nA（誤り）：move databaseは既存DBの作業用コピー間での移行。\nB（誤り）：upgrade databaseはDBのアップグレード。\nC（正しい）：教材におけるadd databaseの操作。\nD（誤り）：query workingcopyは情報照会。",
+      "topic": "DB操作コマンド",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch25q013",
+      "chapter": 25,
+      "question": "RHPにおいて`move database`と`upgrade database`の使い分けとして適切な説明を1つ選べ。",
+      "choices": {
+        "A": "moveはリリースを上げ、upgradeは作業用コピーのパッチをロールバックする",
+        "B": "moveは作業用コピーの新規登録を行い、upgradeはイメージをサーバーに取り込む",
+        "C": "moveはイメージを照会し、upgradeはデータベースの接続サービスを新規登録する",
+        "D": "moveは作業用コピーの切替によりパッチ適用などを行い、upgradeは新しいリリースへのDBアップグレードを行う"
+      },
+      "correctChoice": "D",
+      "correctText": "moveは作業用コピーの切替によりパッチ適用などを行い、upgradeは新しいリリースへのDBアップグレードを行う",
+      "explanation": "正解：D\n\nA（誤り）：移行とアップグレードの目的が逆。\nB（誤り）：その操作はadd workingcopyとimport imageに近い。\nC（誤り）：query imageなどの管理操作と混同している。\nD（正しい）：教材の2コマンドの役割。",
+      "topic": "移行とアップグレード",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch25q014",
+      "chapter": 25,
+      "question": "RHPでGrid Infrastructureスタックの使用Gridホームを切り替えるためのコマンドを1つ選べ。",
+      "choices": {
+        "A": "rhpctl move gihome",
+        "B": "rhpctl move database",
+        "C": "rhpctl upgrade database",
+        "D": "rhpctl add workingcopy"
+      },
+      "correctChoice": "A",
+      "correctText": "rhpctl move gihome",
+      "explanation": "正解：A\n\nA（正しい）：GIスタックを異なるGridホームへ移動する操作。\nB（誤り）：DBが使用する作業用コピーを移行する。\nC（誤り）：データベースのリリースを上げる操作。\nD（誤り）：作業用コピーの新規作成。",
+      "topic": "GIの移行",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ch25q015",
+      "chapter": 25,
+      "question": "RHPターゲット側の管理方式について適切な説明を1つ選べ。",
+      "choices": {
+        "A": "ターゲットにはRHP専用ソフトウェアエージェントを導入し、それをゴールドイメージとして管理する",
+        "B": "ターゲットへのRHP専用ソフトウェアエージェントの導入は前提とされない",
+        "C": "ターゲットにはRMANのリカバリカタログを配置し、それをRHPエージェントとして使用する",
+        "D": "ターゲットにはAWRエージェントを導入し、ソフトウェア配布をそのエージェント経由で実行する"
+      },
+      "correctChoice": "B",
+      "correctText": "ターゲットへのRHP専用ソフトウェアエージェントの導入は前提とされない",
+      "explanation": "正解：B\n\nA（誤り）：イメージとエージェントは別物で、専用エージェントは不要。\nB（正しい）：教材はターゲットに専用ソフトウェアエージェントを要求しないとする。\nC（誤り）：リカバリカタログはRHPエージェントではない。\nD（誤り）：AWRはRHPソフトウェア配布エージェントではない。",
+      "topic": "エージェント",
+      "difficulty": "medium"
     }
   ]
 }
