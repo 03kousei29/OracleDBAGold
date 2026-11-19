@@ -584,6 +584,13 @@ button, .choice, .linkbtn {
   .bookmark-help{font-size:.78rem}
 }
 
+
+/* Cross-device bookmark sync */
+.cloud-sync-panel{border:1px solid var(--border,rgba(120,130,145,.35));border-radius:14px;padding:14px;margin-bottom:16px;background:rgba(120,130,145,.07)}
+.cloud-sync-title{font-weight:800;margin-bottom:6px}
+.cloud-sync-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:9px}
+.cloud-sync-status{font-size:.85rem;line-height:1.5;color:var(--muted)}
+.cloud-sync-actions button{max-width:100%}
 </style>
 </head>
 <body>
@@ -596,6 +603,15 @@ button, .choice, .linkbtn {
   <section id="menuView" class="panel" style="margin-top:18px;">
     <h2 style="margin-top:0;">メインメニュー</h2>
     <div class="sub" style="margin-bottom:18px;">出題範囲を選択してください。</div>
+
+    <div id="cloudSyncPanel" class="cloud-sync-panel">
+      <div class="cloud-sync-title">あとで復習：端末間同期</div>
+      <div id="cloudSyncStatus" class="cloud-sync-status" role="status" aria-live="polite">同期機能を確認中…</div>
+      <div class="cloud-sync-actions">
+        <button type="button" id="cloudLoginBtn" class="secondary" hidden>Googleでログインして同期</button>
+        <button type="button" id="cloudLogoutBtn" class="secondary" hidden>ログアウト</button>
+      </div>
+    </div>
 
     <div id="savedProgressBox" class="save-box hidden">
       <div class="save-title">前回の続きがあります</div>
@@ -653,7 +669,7 @@ button, .choice, .linkbtn {
         <input id="bookmarkCheckbox" type="checkbox" />
         <span id="bookmarkText">あとで復習する</span>
       </label>
-      <div class="bookmark-help">チェックした問題はこの端末のブラウザに保存され、メニューの「あとで復習」から解けます。</div>
+      <div class="bookmark-help">チェックした問題は端末内に保存されます。Googleログイン中は同じアカウントの他端末にも同期されます。</div>
     </div>
     <div id="choices" class="choices"></div>
 
@@ -719,7 +735,7 @@ button, .choice, .linkbtn {
       「問題を見る」を押すと、その問題と解説を再表示します。<br>
       サマリー画面の「不正解だけ復習する」「不正解＋未回答を復習する」で、対象問題だけを続けて解けます。<br>
       回答状況はlocalStorageに自動保存されるため、同じ端末・同じブラウザなら続きから再開できます。<br>
-      GitHub Pagesで公開した場合も、学習履歴はGitHubではなくスマホ側のブラウザに保存されます。
+      GitHub Pagesで公開した場合も、回答履歴は各端末のブラウザに保存されます。「あとで復習」はGoogleログイン中、Firestore経由で端末間同期されます。
     </div>
   </section>
 </div>
@@ -828,6 +844,39 @@ const summaryActions = document.getElementById("summaryActions");
 
 const STORAGE_KEY = "oracleDbaGold2019StudyProgress.v1";
 const BOOKMARK_STORAGE_KEY = "oracleDbaGold2019Bookmarks.v1";
+const CLOUD_SYNC_STATUS = document.getElementById("cloudSyncStatus");
+const CLOUD_LOGIN_BTN = document.getElementById("cloudLoginBtn");
+const CLOUD_LOGOUT_BTN = document.getElementById("cloudLogoutBtn");
+let cloudSyncEnabled = false;
+let cloudSnapshotReady = false;
+let cloudAccountUid = null;
+
+function setCloudStatus(message, { login = false, logout = false } = {}) {
+  CLOUD_SYNC_STATUS.textContent = message;
+  CLOUD_LOGIN_BTN.hidden = !login;
+  CLOUD_LOGOUT_BTN.hidden = !logout;
+}
+
+// Firebase モジュールから呼び出す。学習の回答履歴は引き続き端末内のみ。
+window.goldCloudSetStatus = setCloudStatus;
+window.goldCloudKnownQuestionIds = () => QUESTIONS.map(q=>String(q.id));
+window.goldCloudSetAccount = function (uid) {
+  cloudAccountUid = uid;
+  cloudSyncEnabled = !!uid;
+  cloudSnapshotReady = false;
+  if (!quizView.classList.contains("hidden")) updateBookmarkBox(actualIndexAt(state.currentIndex));
+};
+window.goldCloudApplyBookmarks = function (ids) {
+  const valid = new Set(QUESTIONS.map(q => String(q.id)));
+  state.bookmarkIds = [...new Set(ids.map(String).filter(id => valid.has(id)))];
+  cloudSnapshotReady = true;
+  saveBookmarkIds();
+  if (!quizView.classList.contains("hidden")) updateBookmarkBox(actualIndexAt(state.currentIndex));
+  if (!menuView.classList.contains("hidden")) buildMenu();
+};
+CLOUD_LOGIN_BTN.addEventListener("click", () => window.goldCloudLogin?.());
+CLOUD_LOGOUT_BTN.addEventListener("click", () => window.goldCloudLogout?.());
+
 
 
 function questionSignature() {
@@ -882,6 +931,10 @@ function setBookmarked(actualIndex, checked) {
   }
   saveBookmarkIds();
   updateBookmarkBox(actualIndex);
+  if (cloudSyncEnabled && cloudSnapshotReady && typeof window.goldCloudWriteBookmark === "function") {
+    window.goldCloudWriteBookmark(id, checked);
+  }
+  if (!menuView.classList.contains("hidden")) buildMenu();
 }
 
 function getBookmarkQuestionIndexes(chapter = null) {
@@ -2079,6 +2132,110 @@ async function initApp() {
 }
 
 initApp();
+</script>
+
+<!-- FirebaseプロジェクトのWebアプリ設定をコピーしてください。ここに秘密鍵は置かないでください。 -->
+<script>
+window.GOLD_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCurzDKcXKb1hNN0IwUzmh3wax-kKPHvlo",
+  authDomain: "oraclegolddba.firebaseapp.com",
+  projectId: "oraclegolddba",
+  appId: "1:695953821663:web:df1e9d0e11f78f9bccfe6a"
+};
+</script>
+<script type="module">
+const config = window.GOLD_FIREBASE_CONFIG;
+const configured = Boolean(config?.apiKey && config?.authDomain && config?.projectId && config?.appId);
+if (!configured) {
+  window.goldCloudSetStatus("現在は端末内保存です。端末間同期を使うにはFirebaseの設定が必要です。");
+} else {
+  try {
+    const [{initializeApp}, {getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut}, {getFirestore, collection, doc, getDocs, setDoc, deleteDoc, onSnapshot}] = await Promise.all([
+      import('https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js'),
+      import('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js'),
+      import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js')
+    ]);
+    const app = initializeApp(config);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    let stopWatching = null;
+    let currentUid = null;
+    let generation = 0;
+    const provider = new GoogleAuthProvider();
+    window.goldCloudLogin = async () => {
+      try {
+        window.goldCloudSetStatus("Googleログイン中…");
+        await signInWithPopup(auth,provider);
+      } catch(e) {
+        if (['auth/popup-blocked','auth/operation-not-supported-in-this-environment'].includes(e.code)) {
+          await signInWithRedirect(auth,provider);
+          return;
+        }
+        window.goldCloudSetStatus("ログインに失敗しました: " + e.message,{login:true});
+      }
+    };
+    window.goldCloudLogout = async () => { await signOut(auth); };
+    window.goldCloudWriteBookmark = async (id, checked) => {
+      const uid = currentUid;
+      if (!uid) return;
+      try {
+        const ref = doc(db,'users',uid,'bookmarks',id);
+        if (checked) await setDoc(ref,{saved:true,updatedAt:Date.now()});
+        else await deleteDoc(ref);
+        if (uid===currentUid) window.goldCloudSetStatus("Googleアカウントで同期中（変更を保存しました）",{logout:true});
+      } catch(e) {
+        console.error('Bookmark synchronization failed',e);
+        window.goldCloudSetStatus("同期エラー: 通信状態やFirestoreの権限設定を確認してください。",{logout:true});
+      }
+    };
+    // ログイン直後はクラウドを優先。初回のみ、クラウドが空の場合に旧端末内登録を引き継ぐ。
+    onAuthStateChanged(auth, async user => {
+      ++generation;
+      const token = generation;
+      if (stopWatching) { stopWatching(); stopWatching = null; }
+      currentUid = user?.uid || null;
+      window.goldCloudSetAccount(currentUid);
+      if (!user) {
+        window.goldCloudSetStatus("端末内保存中。別端末と共有するにはGoogleでログインしてください。",{login:true});
+        return;
+      }
+      window.goldCloudSetStatus("クラウドの復習リストを読み込み中…",{logout:true});
+      const ref = collection(db,'users',user.uid,'bookmarks');
+      try {
+        const previousCloudUid = localStorage.getItem('oracleDbaGold2019CloudAccount.v1');
+        const initial = await getDocs(ref);
+        if (token!==generation) return;
+        if (initial.empty && !previousCloudUid) {
+          const local = JSON.parse(localStorage.getItem('oracleDbaGold2019Bookmarks.v1')||'[]');
+          if (Array.isArray(local) && local.length) {
+            const validIds = new Set(window.goldCloudKnownQuestionIds?.() || []);
+            // 最初のログイン時の既存登録をクラウドへ移行。
+            await Promise.all(local.filter(id=>validIds.has(String(id))).map(id =>
+              setDoc(doc(ref,String(id)),{saved:true,updatedAt:Date.now()})
+            ));
+            if (token!==generation) return;
+          }
+        }
+        localStorage.setItem('oracleDbaGold2019CloudAccount.v1',user.uid);
+        stopWatching = onSnapshot(ref, snapshot => {
+          if (token!==generation) return;
+          window.goldCloudApplyBookmarks(snapshot.docs.filter(d=>d.data().saved===true).map(d=>d.id));
+          window.goldCloudSetStatus("Googleアカウントで同期中："+(user.email||'ログイン済み')+"（変更は他端末に反映されます）",{logout:true});
+        },e=>{
+          console.error('Bookmark listener failed',e);
+          window.goldCloudSetStatus("同期エラー: Firestoreのルールや接続を確認してください。",{logout:true});
+        });
+      } catch(e) {
+        console.error('Bookmark initial sync failed',e);
+        window.goldCloudSetStatus("同期を開始できません: "+e.message,{logout:true});
+      }
+    });
+    getRedirectResult(auth).catch(e=>console.warn('Google redirect sign-in failed',e));
+  } catch(e) {
+    console.error('Cloud SDK failed',e);
+    window.goldCloudSetStatus("Firebaseを読み込めません。端末内保存を使用します。");
+  }
+}
 </script>
 </body>
 </html>
