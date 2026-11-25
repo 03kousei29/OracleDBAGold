@@ -605,8 +605,9 @@ button, .choice, .linkbtn {
     <div class="sub" style="margin-bottom:18px;">出題範囲を選択してください。</div>
 
     <div id="cloudSyncPanel" class="cloud-sync-panel">
-      <div class="cloud-sync-title">あとで復習：端末間同期</div>
+      <div class="cloud-sync-title">あとで復習・回答履歴：端末間同期</div>
       <div id="cloudSyncStatus" class="cloud-sync-status" role="status" aria-live="polite">同期機能を確認中…</div>
+      <div id="cloudProgressStatus" class="cloud-sync-status" role="status" aria-live="polite">回答履歴：端末内保存</div>
       <div class="cloud-sync-actions">
         <button type="button" id="cloudLoginBtn" class="secondary" hidden>Googleでログインして同期</button>
         <button type="button" id="cloudLogoutBtn" class="secondary" hidden>ログアウト</button>
@@ -620,7 +621,7 @@ button, .choice, .linkbtn {
         <button id="resumeSavedBtn" class="primary" type="button">続きから再開する</button>
         <button id="clearSavedBtn" class="secondary" type="button">保存履歴を削除する</button>
       </div>
-      <div class="save-mini">回答状況はこの端末のブラウザ内に保存されます。GitHubには送信されません。</div>
+      <div class="save-mini">回答履歴は端末内にも保存されます。Googleログイン中はFirestoreと同期します。</div>
     </div>
 
     <div id="menuButtons" class="choices"></div>
@@ -734,8 +735,7 @@ button, .choice, .linkbtn {
       途中で「回答を終了してサマリーへ」を押すと、その時点までの結果でサマリーを表示できます。<br>
       「問題を見る」を押すと、その問題と解説を再表示します。<br>
       サマリー画面の「不正解だけ復習する」「不正解＋未回答を復習する」で、対象問題だけを続けて解けます。<br>
-      回答状況はlocalStorageに自動保存されるため、同じ端末・同じブラウザなら続きから再開できます。<br>
-      GitHub Pagesで公開した場合も、回答履歴は各端末のブラウザに保存されます。「あとで復習」はGoogleログイン中、Firestore経由で端末間同期されます。
+      回答状況は端末内に自動保存されます。Googleログイン中は、回答履歴と「あとで復習」がFirestore経由で端末間同期されます。
     </div>
   </section>
 </div>
@@ -797,7 +797,9 @@ const state = {
   timerId: null,
   timerStopped: false,
   summaryReviewMode: false,
-  lastView: "menu"
+  lastView: "menu",
+  answerTimes: {},
+  resetAt: 0
 };
 
 const menuView = document.getElementById("menuView");
@@ -843,6 +845,9 @@ const retryWrongUnansweredBtn = document.getElementById("retryWrongUnansweredBtn
 const summaryActions = document.getElementById("summaryActions");
 
 const STORAGE_KEY = "oracleDbaGold2019StudyProgress.v1";
+const CLOUD_PROGRESS_STATUS = document.getElementById("cloudProgressStatus");
+let progressCloudReady = false;
+window.goldCloudProgressStatus = message => { CLOUD_PROGRESS_STATUS.textContent = message; };
 const BOOKMARK_STORAGE_KEY = "oracleDbaGold2019Bookmarks.v1";
 const CLOUD_SYNC_STATUS = document.getElementById("cloudSyncStatus");
 const CLOUD_LOGIN_BTN = document.getElementById("cloudLoginBtn");
@@ -857,13 +862,15 @@ function setCloudStatus(message, { login = false, logout = false } = {}) {
   CLOUD_LOGOUT_BTN.hidden = !logout;
 }
 
-// Firebase モジュールから呼び出す。学習の回答履歴は引き続き端末内のみ。
+// Firebase モジュールから呼び出す。回答履歴は問題IDで統合し、端末間同期する。
 window.goldCloudSetStatus = setCloudStatus;
 window.goldCloudKnownQuestionIds = () => QUESTIONS.map(q=>String(q.id));
 window.goldCloudSetAccount = function (uid) {
   cloudAccountUid = uid;
   cloudSyncEnabled = !!uid;
   cloudSnapshotReady = false;
+  progressCloudReady = false;
+  if (!uid) window.goldCloudProgressStatus("回答履歴：端末内保存（ログインすると同期）");
   if (!quizView.classList.contains("hidden")) updateBookmarkBox(actualIndexAt(state.currentIndex));
 };
 window.goldCloudApplyBookmarks = function (ids) {
@@ -980,6 +987,53 @@ function safeReadSavedProgress() {
   }
 }
 
+// 回答の衝突は問題ID単位で解決。新規セッションの明示的なリセットはresetAtで判定する。
+function normalizeCloudProgress(raw) {
+  if (!isSavedProgressCompatible(raw)) return null;
+  const mapped = remapSavedProgress(raw);
+  const ids = QUESTIONS.map(q => String(q.id));
+  const answerTimes = {};
+  const oldTimes = raw.answerTimes || {};
+  const fallback = Date.parse(raw.savedAt) || 1;
+  ids.forEach((id, i) => {
+    if (mapped.answers[i] !== null) {
+      answerTimes[id] = Number(oldTimes[id]) || fallback;
+    }
+  });
+  return { ...mapped, version:2, questionIds:ids, questionCount:ids.length,
+    signature:questionSignature(), answerTimes, resetAt:Number(raw.resetAt)||0 };
+}
+function mergeCloudProgress(a, b) {
+  const left = normalizeCloudProgress(a), right = normalizeCloudProgress(b);
+  if (!left) return right;
+  if (!right) return left;
+  const leftDate = Date.parse(left.savedAt)||0, rightDate=Date.parse(right.savedAt)||0;
+  const newer = rightDate > leftDate ? right : left;
+  const resetAt=Math.max(left.resetAt||0,right.resetAt||0);
+  const ids=QUESTIONS.map(q=>String(q.id));
+  const answers=Array(ids.length).fill(null), answerTimes={};
+  ids.forEach((id,i)=>{
+    const lTime=Number(left.answerTimes[id])||0, rTime=Number(right.answerTimes[id])||0;
+    const winner = rTime > lTime ? right : left;
+    const t=Math.max(lTime,rTime);
+    if (t>0 && t>=resetAt && winner.answers[i]!=null) { answers[i]=winner.answers[i]; answerTimes[id]=t; }
+  });
+  return {...newer, version:2, questionIds:ids, questionCount:ids.length,
+    signature:questionSignature(), answers, answerTimes, resetAt};
+}
+window.goldCloudMergeProgress = mergeCloudProgress;
+window.goldCloudReadProgress = safeReadSavedProgress;
+window.goldCloudApplyProgress = function (remote) {
+  const merged = mergeCloudProgress(safeReadSavedProgress(),remote);
+  if (!merged) return;
+  try {
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(merged));
+    updateSavedProgressBox();
+    // 途中の回答画面を強制的に切り替えない。メニューの「続きから再開」に反映する。
+    if (!menuView.classList.contains('hidden')) updateSavedProgressBox();
+  } catch(e) { console.warn('回答履歴の端末保存に失敗',e); }
+};
+window.goldCloudSetProgressReady = ready => { progressCloudReady=!!ready; };
 function saveStudyProgress(view = "quiz") {
   try {
     if (!QUESTIONS.length) return;
@@ -1000,17 +1054,26 @@ function saveStudyProgress(view = "quiz") {
       reviewAnswers: state.reviewAnswers,
       selectedChapters: state.selectedChapters,
       allChapterQuestionCount: state.allChapterQuestionCount,
-      bookmarkChapterFilter: state.bookmarkChapterFilter
+      bookmarkChapterFilter: state.bookmarkChapterFilter,
+      answerTimes: state.answerTimes,
+      resetAt: state.resetAt
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     updateSavedProgressBox();
+    if (progressCloudReady && typeof window.goldCloudWriteProgress === "function") {
+      window.goldCloudWriteProgress(payload);
+    }
   } catch (e) {
     console.warn("学習履歴の保存に失敗しました", e);
   }
 }
 
 function clearStudyProgress() {
-  localStorage.removeItem(STORAGE_KEY);
+  state.answers = Array(QUESTIONS.length).fill(null);
+  state.answerTimes = {};
+  state.resetAt = Date.now();
+  // 空のリセット記録を同期し、旧端末の回答が復活しないようにする。
+  saveStudyProgress("menu");
   updateSavedProgressBox();
   updatePrevNextNavigationButtons();
 }
@@ -1079,6 +1142,7 @@ function updateSavedProgressBox() {
   }
   const saved = remapSavedProgress(raw);
   const answered = saved.order.filter(i => saved.answers[i] !== null).length;
+  if (answered === 0) { savedProgressBox.classList.add("hidden"); return; }
   const correct = saved.order.filter(i => saved.answers[i] && saved.answers[i].isCorrect).length;
   const total = saved.order.length;
   const savedDate = new Date(saved.savedAt);
@@ -1100,6 +1164,8 @@ function restoreStudyProgress() {
   }
   state.currentIndex = Math.min(saved.currentIndex || 0, saved.order.length - 1);
   state.answers = saved.answers;
+  state.answerTimes = saved.answerTimes || {};
+  state.resetAt = saved.resetAt || 0;
   state.order = saved.order;
   state.shuffle = !!saved.shuffle;
   state.reviewOnlyWrong = !!saved.reviewOnlyWrong;
@@ -1313,6 +1379,8 @@ function startMode(chapters, options = {}) {
   state.allChapterQuestionCount = Number.isInteger(options.allChapterQuestionCount) ? options.allChapterQuestionCount : null;
   state.bookmarkChapterFilter = Number.isFinite(options.bookmarkChapterFilter) ? options.bookmarkChapterFilter : null;
   state.answers = Array(QUESTIONS.length).fill(null);
+  state.answerTimes = {};
+  state.resetAt = Date.now();
   state.currentIndex = 0;
   state.reviewOnlyWrong = false;
   state.reviewWrongAndUnanswered = false;
@@ -1793,6 +1861,7 @@ function submitAnswer(selected) {
       selected: normalizedSelected,
       isCorrect
     };
+    state.answerTimes[questionIdAt(actualIndex)] = Date.now();
   }
 
   pendingSelections = new Set();
@@ -2017,6 +2086,8 @@ shuffleBtn.addEventListener("click", () => {
     const ok = confirm("現在の回答状況をリセットして、出題順を切り替えます。よろしいですか？");
     if (!ok) return;
     state.answers = Array(QUESTIONS.length).fill(null);
+    state.answerTimes = {};
+    state.resetAt = Date.now();
     state.currentIndex = 0;
   }
   state.reviewOnlyWrong = false;
@@ -2091,6 +2162,8 @@ retryWrongUnansweredBtn.addEventListener("click", () => {
 
 restartBtn.addEventListener("click", () => {
   state.answers = Array(QUESTIONS.length).fill(null);
+  state.answerTimes = {};
+  state.resetAt = Date.now();
   state.currentIndex = 0;
   state.reviewOnlyWrong = false;
   state.reviewWrongAndUnanswered = false;
@@ -2150,7 +2223,7 @@ if (!configured) {
   window.goldCloudSetStatus("現在は端末内保存です。端末間同期を使うにはFirebaseの設定が必要です。");
 } else {
   try {
-    const [{initializeApp}, {getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut}, {getFirestore, collection, doc, getDocs, setDoc, deleteDoc, onSnapshot}] = await Promise.all([
+    const [{initializeApp}, {getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut}, {getFirestore, collection, doc, getDocs, setDoc, deleteDoc, onSnapshot, runTransaction}] = await Promise.all([
       import('https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js'),
       import('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js'),
       import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js')
@@ -2159,6 +2232,9 @@ if (!configured) {
     const auth = getAuth(app);
     const db = getFirestore(app);
     let stopWatching = null;
+    let stopProgressWatching = null;
+    let progressWriteQueue = Promise.resolve();
+    let progressReady = false;
     let currentUid = null;
     let generation = 0;
     const provider = new GoogleAuthProvider();
@@ -2188,11 +2264,72 @@ if (!configured) {
         window.goldCloudSetStatus("同期エラー: 通信状態やFirestoreの権限設定を確認してください。",{logout:true});
       }
     };
+    const progressRefFor = uid => doc(db,'users',uid,'studyProgress','current');
+    async function writeMergedProgress(uid, localProgress) {
+      const ref = progressRefFor(uid);
+      return runTransaction(db,async tx=>{
+        const snap = await tx.get(ref);
+        const merged = window.goldCloudMergeProgress(localProgress,snap.exists()?snap.data().payload:null);
+        if (merged) tx.set(ref,{payload:merged,updatedAt:Date.now()});
+        return merged;
+      });
+    }
+    window.goldCloudWriteProgress = payload => {
+      const uid = currentUid;
+      if (!uid || !progressReady) return;
+      progressWriteQueue = progressWriteQueue.catch(()=>{}).then(async()=>{
+        if(uid!==currentUid) return;
+        try {
+          const merged=await writeMergedProgress(uid,payload);
+          if(uid===currentUid && merged) window.goldCloudApplyProgress(merged);
+          window.goldCloudProgressStatus('回答履歴：同期済み');
+        } catch(e) {
+          console.error('Progress sync failed',e);
+          window.goldCloudProgressStatus('回答履歴：同期失敗（端末内には保存済み）');
+        }
+      });
+    };
+    async function startProgressSync(user, token) {
+      window.goldCloudProgressStatus('回答履歴：既存データを統合中…');
+      progressReady=false;
+      window.goldCloudSetProgressReady(false);
+      try {
+        const local=window.goldCloudReadProgress();
+        if(local && !localStorage.getItem('oracleDbaGold2019ProgressBackupBeforeCloud.v1')) {
+          localStorage.setItem('oracleDbaGold2019ProgressBackupBeforeCloud.v1',JSON.stringify(local));
+        }
+        const merged=await writeMergedProgress(user.uid,local);
+        if(token!==generation) return;
+        if(merged) window.goldCloudApplyProgress(merged);
+        progressReady=true;
+        window.goldCloudSetProgressReady(true);
+        stopProgressWatching=onSnapshot(progressRefFor(user.uid),snapshot=>{
+          if(token!==generation || !snapshot.exists()) return;
+          const received=snapshot.data().payload;
+          if(received) window.goldCloudApplyProgress(received);
+          window.goldCloudProgressStatus('回答履歴：Googleアカウントで同期中');
+        },e=>{
+          console.error('Progress listener failed',e);
+          window.goldCloudProgressStatus('回答履歴：受信エラー（Firestoreルールを確認）');
+        });
+        // 初回同期の実行中に回答を進めた場合も、最新の端末データを反映する。
+        const after=window.goldCloudReadProgress();
+        if(after && (Date.parse(after.savedAt)||0)>(Date.parse(local?.savedAt)||0)) {
+          window.goldCloudWriteProgress(after);
+        }
+      } catch(e) {
+        console.error('Progress initial sync failed',e);
+        window.goldCloudProgressStatus('回答履歴：同期を開始できません（ルール・通信を確認）');
+      }
+    }
     // ログイン直後はクラウドを優先。初回のみ、クラウドが空の場合に旧端末内登録を引き継ぐ。
     onAuthStateChanged(auth, async user => {
       ++generation;
       const token = generation;
       if (stopWatching) { stopWatching(); stopWatching = null; }
+      if (stopProgressWatching) { stopProgressWatching(); stopProgressWatching = null; }
+      progressReady=false;
+      window.goldCloudSetProgressReady(false);
       currentUid = user?.uid || null;
       window.goldCloudSetAccount(currentUid);
       if (!user) {
@@ -2200,6 +2337,7 @@ if (!configured) {
         return;
       }
       window.goldCloudSetStatus("クラウドの復習リストを読み込み中…",{logout:true});
+      startProgressSync(user,token);
       const ref = collection(db,'users',user.uid,'bookmarks');
       try {
         const previousCloudUid = localStorage.getItem('oracleDbaGold2019CloudAccount.v1');
