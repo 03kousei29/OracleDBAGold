@@ -179,6 +179,11 @@
       "chapter": 36,
       "title": "練習問題",
       "description": "全35章の横断演習。重要論点・操作条件・例外を重点確認"
+    },
+    {
+      "chapter": 37,
+      "title": "模擬試験",
+      "description": "Oracle DBA Gold総合模擬試験。CDB・PDB、RMAN、アップグレード等を横断する実践問題"
     }
   ],
   "questions": [
@@ -18263,6 +18268,937 @@
       "correctText": "権限分析はEnterprise Editionで追加のDatabase Vaultライセンスなしに利用できる、ENABLE_SECURE_ROLESはData Pumpでセキュアロールの使用を制御する",
       "explanation": "正解：A、B\n\nA（正しい）：19c Enterprise Editionでは権限分析がDatabase Vaultの追加ライセンスなしで利用可能になった。\n\nB（正しい）：ENABLE_SECURE_ROLESはData Pumpジョブでパスワード保護等のセキュアロールを有効にするかどうか制御する。\n\nC（誤り）：パスワード保護ロール等の有効化可否を設定するパラメータ。\n\nD（誤り）：19cではEnterprise Editionで追加Database Vaultライセンスなしに使用可能。",
       "topic": "総合演習・複数選択",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch37q001",
+      "chapter": 37,
+      "question": "CDBルートに接続してData PumpのFULL=Yエクスポートを実行した場合、対象となるコンテナの範囲として適切なのはどれか。",
+      "choices": {
+        "A": "CDBルートのオブジェクトが対象となり、各PDBのユーザーオブジェクトは含まれない",
+        "B": "CDBルートとOPEN中のPDBが対象となる",
+        "C": "CDBルートとすべてのPDBが対象となる",
+        "D": "CDBルートを除くPDBが対象となる"
+      },
+      "correctChoice": "A",
+      "correctText": "CDBルートのオブジェクトが対象となり、各PDBのユーザーオブジェクトは含まれない",
+      "explanation": "正解：A\n\nA（正しい）：CDB全体を横断したフルエクスポートではなく接続先コンテナが対象となる。\n\nB（誤り）：PDBのデータはそれぞれのPDBサービスに接続してエクスポートする。\n\nC（誤り）：FULL=Yは接続先コンテナにおける全体モードでありCDB全体の指定ではない。\n\nD（誤り）：ルートに接続したジョブが他のPDBを全体エクスポートする仕組みではない。",
+      "topic": "Data PumpとCDBルート",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q002",
+      "chapter": 37,
+      "question": "RMANで単一PDBのRESTOREとRECOVERを実行する場合の接続先について適切なのはどれか。",
+      "choices": {
+        "A": "PDBのRESTOREはルート、RECOVERはPDB接続に分ける",
+        "B": "CDBルートに接続する方法と対象PDBに接続する方法がある",
+        "C": "CDBルート接続に限られ、PDB直接接続ではRESTOREできない",
+        "D": "PDB直接接続に限られ、ルート接続ではPDBを指定できない"
+      },
+      "correctChoice": "B",
+      "correctText": "CDBルートに接続する方法と対象PDBに接続する方法がある",
+      "explanation": "正解：B\n\nA（誤り）：RESTOREとRECOVERで接続コンテナをこのように分離する要件はない。\n\nB（正しい）：RMANではCDBルート接続またはPDBへの直接接続で適切な制限の下でPDB復旧を扱える。\n\nC（誤り）：PDB接続RMANでもPDBのバックアップ・リカバリ操作がサポートされる。\n\nD（誤り）：CDBルートからPLUGGABLE DATABASEを指定する操作が可能である。",
+      "topic": "PDBのRMAN復旧接続先",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q003",
+      "chapter": 37,
+      "question": "Oracle 19cのフラッシュバックデータベースの対象範囲について適切なものはどれか。",
+      "choices": {
+        "A": "CDB全体が対象でPDB単位のフラッシュバックは扱えない",
+        "B": "PDB単位が対象でCDB全体のフラッシュバックは扱えない",
+        "C": "CDB全体と特定のPDBを対象とする方法があり、UNDOモードで条件が異なる",
+        "D": "CDB全体のフラッシュバックは各PDBに個別RMAN接続して実行する"
+      },
+      "correctChoice": "C",
+      "correctText": "CDB全体と特定のPDBを対象とする方法があり、UNDOモードで条件が異なる",
+      "explanation": "正解：C\n\nA（誤り）：19cではPDB単位のフラッシュバックもサポートされる。\n\nB（誤り）：CDBに対するFLASHBACK DATABASEも可能である。\n\nC（正しい）：PDB単位のFLASHBACK PLUGGABLE DATABASEには共有UNDOとローカルUNDOで異なる制限がある。\n\nD（誤り）：CDB全体のフラッシュバックはCDBを対象に実行する操作である。",
+      "topic": "CDBとPDBのフラッシュバック",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q004",
+      "chapter": 37,
+      "question": "対象PDBを過去の状態へフラッシュバックする操作の開始時に必要な状態として適切なのはどれか。",
+      "choices": {
+        "A": "対象PDBをREAD WRITEでOPENしたまま実行する",
+        "B": "対象PDBをREAD ONLYでOPENしたまま実行する",
+        "C": "対象PDBだけをUPGRADEモードでOPENして実行する",
+        "D": "対象PDBをクローズしてから実行する"
+      },
+      "correctChoice": "D",
+      "correctText": "対象PDBをクローズしてから実行する",
+      "explanation": "正解：D\n\nA（誤り）：更新可能なPDBをOPENした状態ではPDBフラッシュバックの開始条件を満たさない。\n\nB（誤り）：READ ONLYへの切り替えは必要なクローズの代替ではない。\n\nC（誤り）：UPGRADEはアップグレード向けのOPENモードでフラッシュバックの前提ではない。\n\nD（正しい）：PDB単位のFLASHBACK PLUGGABLE DATABASEは対象PDBを閉じた状態で実行する。",
+      "topic": "PDBフラッシュバックの状態",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q005",
+      "chapter": 37,
+      "question": "XMLメタデータを残してCDBから切断したPDBを、同じCDBに再接続する。PDB名の扱いとして適切なのはどれか。",
+      "choices": {
+        "A": "既存の同名PDBがなければ、元のPDB名を使用して接続できる",
+        "B": "切断前と異なるPDB名に変更する必要がある",
+        "C": "PDBのGUIDが同じなら名前の重複を許して接続できる",
+        "D": "PDB名を保持するには切断後にXMLを生成し直す必要がある"
+      },
+      "correctChoice": "A",
+      "correctText": "既存の同名PDBがなければ、元のPDB名を使用して接続できる",
+      "explanation": "正解：A\n\nA（正しい）：切断したPDBの元の名前を再利用すること自体は禁止されていない。同名オブジェクトとの競合は避ける。\n\nB（誤り）：再接続時に元の名称を保持する構成は可能である。\n\nC（誤り）：同じCDBに同名のPDBを複数作成することはできない。\n\nD（誤り）：切断操作でメタデータが出力され、元の名前での再接続に再生成は要求されない。",
+      "topic": "PDB再接続時の名前",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q006",
+      "chapter": 37,
+      "question": "GUIを使わず、あらかじめ準備した設定ファイルに従ってDBCAを実行したい。適切な方法はどれか。",
+      "choices": {
+        "A": "dbca -interactiveにレスポンスファイルを指定して実行する",
+        "B": "dbca -silentにレスポンスファイルを指定して実行する",
+        "C": "dbca -silentにSQL*Plusのログインスクリプトを渡す",
+        "D": "DBCAのテンプレートファイルを-rmanオプションに指定する"
+      },
+      "correctChoice": "B",
+      "correctText": "dbca -silentにレスポンスファイルを指定して実行する",
+      "explanation": "正解：B\n\nA（誤り）：対話モードはGUIでの操作を前提とし、非対話処理の指定ではない。\n\nB（正しい）：DBCAのサイレントモードは非対話実行に対応し、レスポンスファイルを利用できる。\n\nC（誤り）：ログインスクリプトはDBCA構成のレスポンスファイル形式とは異なる。\n\nD（誤り）：RMAN関連の指定はDBCAのサイレント設定ファイルの指定方法ではない。",
+      "topic": "DBCAサイレントモード",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q007",
+      "chapter": 37,
+      "question": "19cのDBCAサイレントモードで別CDB上のPDBを複製する際、接続方法について適切なのはどれか。",
+      "choices": {
+        "A": "複製元CDBから複製先CDBへのデータベースリンクをDBCAが作成する",
+        "B": "複製先CDBから複製元PDBへのリンクをDBCA起動前に手作業で作る必要がある",
+        "C": "複製先CDBから複製元CDBに接続するデータベースリンクをDBCAが作成できる",
+        "D": "複製先CDBがリモートデータファイルを直接マウントするためリンクは用いない"
+      },
+      "correctChoice": "C",
+      "correctText": "複製先CDBから複製元CDBに接続するデータベースリンクをDBCAが作成できる",
+      "explanation": "正解：C\n\nA（誤り）：複製先からリモートの複製元を参照する方向で接続する。\n\nB（誤り）：DBCAのサイレント・リモートクローンはリンク作成を支援する。\n\nC（正しい）：DBCAのremote PDB cloneは指定されたリモート接続情報を使ってリンクを構成できる。\n\nD（誤り）：リモートクローンはデータベースリンクによるリモート接続に依存する。",
+      "topic": "DBCAリモートPDBクローン",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q008",
+      "chapter": 37,
+      "question": "19cでフラッシュバックログの自動削除が行われる条件について適切なのはどれか。",
+      "choices": {
+        "A": "FRAに空きがある間は保持目標期間を過ぎたログも削除されない",
+        "B": "保持目標期間を過ぎたログはDBAが明示的に手動削除する",
+        "C": "保持目標を超えたログの削除はアーカイブログ削除ポリシーで制御する",
+        "D": "保持目標期間を超えたログはFRAの逼迫がなくても削除対象になり得る"
+      },
+      "correctChoice": "D",
+      "correctText": "保持目標期間を超えたログはFRAの逼迫がなくても削除対象になり得る",
+      "explanation": "正解：D\n\nA（誤り）：19cではFRA容量不足以外の理由でも古いログが削除され得る。\n\nB（誤り）：19cではフラッシュバックログに自動削除の仕組みがある。\n\nC（誤り）：フラッシュバックログの保持はアーカイブログ削除ポリシーとは区別される。\n\nD（正しい）：19cは古いフラッシュバックログの自動整理を改善している。保持目標は絶対的な保存保証ではない。",
+      "topic": "フラッシュバックログ自動削除",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q009",
+      "chapter": 37,
+      "question": "ソフトウェアのみをインストールしたOracleホームを読取専用構成として有効化するコマンドはどれか。",
+      "choices": {
+        "A": "roohctl -enable",
+        "B": "roohctl -help",
+        "C": "orabasehome -enable",
+        "D": "orabaseconfig -enable"
+      },
+      "correctChoice": "A",
+      "correctText": "roohctl -enable",
+      "explanation": "正解：A\n\nA（正しい）：roohctl -enableは読取専用Oracleホームの構成を有効にする。\n\nB（誤り）：ヘルプの表示は読取専用構成の有効化ではない。\n\nC（誤り）：orabasehomeはORACLE_BASE_HOMEのパスを表示するユーティリティである。\n\nD（誤り）：orabaseconfigはORACLE_BASE_CONFIGのパスを確認するためのユーティリティである。",
+      "topic": "読取専用Oracleホーム",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q010",
+      "chapter": 37,
+      "question": "DBUAで19cへの直接アップグレードを行う際、アップグレード前に必要と判明した前提パッチの適用時期はどれか。",
+      "choices": {
+        "A": "DBUAのcatupgrd.sql完了後に、前提パッチとして適用する",
+        "B": "DBUAによるアップグレード実行前に、対象ソフトウェアへ適用しておく",
+        "C": "DBUAによるpreupgradeチェック終了後、DBUAのアップグレード本体が自動適用する",
+        "D": "アップグレード後のutlrp.sql実行時に適用する"
+      },
+      "correctChoice": "B",
+      "correctText": "DBUAによるアップグレード実行前に、対象ソフトウェアへ適用しておく",
+      "explanation": "正解：B\n\nA（誤り）：事前条件を満たさないままアップグレードを開始することになる。\n\nB（正しい）：前提パッチはアップグレード手順の前提条件なので事前に適用する。\n\nC（誤り）：DBUAは要求された前提パッチを一括取得して自動適用する手段ではない。\n\nD（誤り）：utlrp.sqlは無効オブジェクトの再コンパイル用でパッチ適用手段ではない。",
+      "topic": "DBUA前のパッチ",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q011",
+      "chapter": 37,
+      "question": "DBUAのアップグレード処理に含まれる作業の組合せとして適切なのはどれか。",
+      "choices": {
+        "A": "事前チェック、データファイルのData Pumpエクスポート、PL/SQL等の再コンパイル",
+        "B": "事前チェック、RMANのDUPLICATE、catupgrd.sqlの実行",
+        "C": "事前チェック、アップグレードスクリプト実行、PL/SQL等の再コンパイル",
+        "D": "事前チェック、全PDBのアンプラグ、catupgrd.sqlの実行"
+      },
+      "correctChoice": "C",
+      "correctText": "事前チェック、アップグレードスクリプト実行、PL/SQL等の再コンパイル",
+      "explanation": "正解：C\n\nA（誤り）：直接アップグレードはData Pumpで全データを移送する方式とは異なる。\n\nB（誤り）：既存データベースの直接アップグレードにRMAN複製は必須プロセスではない。\n\nC（正しい）：DBUAはpreupgradeチェックを行い、内部でcatupgrd.sqlによる更新や無効オブジェクト再コンパイルを実施する。\n\nD（誤り）：DBUAによるCDB直接アップグレードではPDBの切断は通常行わない。",
+      "topic": "DBUA内部処理",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q012",
+      "chapter": 37,
+      "question": "自動共有メモリー管理（ASMM）でSGAの調整対象について最も適切なのはどれか。",
+      "choices": {
+        "A": "バッファキャッシュとREDOログバッファを自動調整し、共有プールは対象外",
+        "B": "共有プールとREDOログバッファを自動調整し、バッファキャッシュは対象外",
+        "C": "REDOログバッファを調整してPGA_AGGREGATE_TARGETを決定する",
+        "D": "バッファキャッシュや共有プールなどを自動調整し、REDOログバッファは対象外"
+      },
+      "correctChoice": "D",
+      "correctText": "バッファキャッシュや共有プールなどを自動調整し、REDOログバッファは対象外",
+      "explanation": "正解：D\n\nA（誤り）：共有プールはASMMの調整対象であり、REDOログバッファは対象外。\n\nB（誤り）：バッファキャッシュもASMMの調整対象である。\n\nC（誤り）：SGAとPGAのメモリ管理は別の領域であり、ASMMがこのような処理をするわけではない。\n\nD（正しい）：ASMMは可変SGAコンポーネントを自動調整するがREDOログバッファは動的サイズ調整の対象ではない。",
+      "topic": "SGA自動チューニング",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q013",
+      "chapter": 37,
+      "question": "RMAN起動時に実行メッセージを指定したファイルに残したい。適切な方法はどれか。",
+      "choices": {
+        "A": "rmanのLOGオプションで出力先を指定する",
+        "B": "rmanのTRACEオプションにログ出力先を指定する",
+        "C": "rmanのCMDFILEにメッセージの出力先を指定する",
+        "D": "rmanのCATALOGにメッセージの出力先を指定する"
+      },
+      "correctChoice": "A",
+      "correctText": "rmanのLOGオプションで出力先を指定する",
+      "explanation": "正解：A\n\nA（正しい）：RMANのLOG起動オプションはメッセージのログファイル出力に対応する。\n\nB（誤り）：TRACEは診断用のトレースに関連し、通常メッセージを記録するLOGとは用途が異なる。\n\nC（誤り）：CMDFILEは実行するRMANコマンドを記述した入力ファイルを指定する。\n\nD（誤り）：CATALOG接続はリカバリカタログへの接続情報でありログ出力先ではない。",
+      "topic": "RMANログ出力",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q014",
+      "chapter": 37,
+      "question": "多重化された制御ファイルのうち1本が破損し、他のコピーは正常である。通常の復旧方針として適切なのはどれか。",
+      "choices": {
+        "A": "制御ファイルのRMAN自動バックアップを復元してRESETLOGSでOPENする",
+        "B": "正常な制御ファイルのコピーを利用して失われたコピーを復旧する",
+        "C": "CREATE CONTROLFILEで再作成してからデータベースをOPENする",
+        "D": "制御ファイルを再作成しないとSPFILEが読み込めなくなる"
+      },
+      "correctChoice": "B",
+      "correctText": "正常な制御ファイルのコピーを利用して失われたコピーを復旧する",
+      "explanation": "正解：B\n\nA（誤り）：正常なコピーが残る場合にバックアップ復元とRESETLOGSを必須としない。\n\nB（正しい）：一部だけ失った場合は正常な多重化コピーを利用でき、バックアップからの制御ファイル復元は通常不要である。\n\nC（誤り）：正常な制御ファイルが利用可能なら新たに再作成する必要はない。\n\nD（誤り）：制御ファイルの部分損失はSPFILEの読込み要件とは別問題である。",
+      "topic": "多重化制御ファイル復旧",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q015",
+      "chapter": 37,
+      "question": "障害後のインスタンスリカバリにおけるREDO適用と未コミット変更のUNDOについて適切なのはどれか。",
+      "choices": {
+        "A": "OPEN後にREDOのロールフォワードを開始し、完了後にUNDOする",
+        "B": "UNDOによる未コミット変更のロールバックを完了してからREDOを適用する",
+        "C": "REDOのロールフォワード後にOPENし、未コミット変更のロールバックが進む",
+        "D": "MOUNT中にUNDOだけを適用してOPEN後にREDOを適用する"
+      },
+      "correctChoice": "C",
+      "correctText": "REDOのロールフォワード後にOPENし、未コミット変更のロールバックが進む",
+      "explanation": "正解：C\n\nA（誤り）：REDO適用による一貫性回復はOPENに先立つ。\n\nB（誤り）：REDO適用で変更履歴を回復した後に未コミット変更のロールバックを行う。\n\nC（正しい）：Oracleのインスタンスリカバリではロールフォワード後にOPENし、トランザクションロールバックが続けられる。\n\nD（誤り）：インスタンスリカバリの順序はREDOによるロールフォワードが先である。",
+      "topic": "インスタンスリカバリ順序",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q016",
+      "chapter": 37,
+      "question": "RMAN表領域ポイントインタイムリカバリ（TSPITR）の対象として適切なものはどれか。",
+      "choices": {
+        "A": "制御ファイルを指定した過去時点へ戻す",
+        "B": "オンラインREDOログだけを指定した時点へ戻す",
+        "C": "SPFILEだけを指定した時点へ戻す",
+        "D": "アプリケーションデータを持つ表領域を過去の時点へ戻す"
+      },
+      "correctChoice": "D",
+      "correctText": "アプリケーションデータを持つ表領域を過去の時点へ戻す",
+      "explanation": "正解：D\n\nA（誤り）：制御ファイルの復元はTSPITRの対象操作ではない。\n\nB（誤り）：オンラインREDOログの時点復旧はTSPITRとして扱わない。\n\nC（誤り）：SPFILEをバックアップから復旧する手順と表領域の時点リカバリは別である。\n\nD（正しい）：TSPITRはリカバリ対象の表領域を指定した過去時点に復旧する。",
+      "topic": "TSPITRの対象",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q017",
+      "chapter": 37,
+      "question": "RMANでBACKUP RECOVERY FILESを実行した際のバックアップ最適化について適切なのはどれか。",
+      "choices": {
+        "A": "最適化が有効で条件を満たす場合、既に適切にバックアップされたファイルを省略できる",
+        "B": "最適化はBACKUP DATABASEに限られRECOVERY FILESには適用されない",
+        "C": "最適化はRECOVERY FILESで強制有効になりCONFIGURE設定を参照しない",
+        "D": "最適化はRECOVERY FILESの出力をイメージコピーへ変換する"
+      },
+      "correctChoice": "A",
+      "correctText": "最適化が有効で条件を満たす場合、既に適切にバックアップされたファイルを省略できる",
+      "explanation": "正解：A\n\nA（正しい）：BACKUP RECOVERY FILESはバックアップ最適化の適用対象コマンドである。\n\nB（誤り）：RECOVERY FILESも対象となる。\n\nC（誤り）：最適化は有効化設定と適用条件に従う。\n\nD（誤り）：最適化は重複したバックアップを省くための仕組みで出力形式の変換ではない。",
+      "topic": "BACKUP RECOVERY FILES最適化",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q018",
+      "chapter": 37,
+      "question": "OS上のCSV形式に近いテキストデータをOracle表へロードする手段として適切なのはどれか。",
+      "choices": {
+        "A": "SQL*PlusのCOPYでOS上のテキストファイルを直接ロードする",
+        "B": "SQL*Loaderで制御ファイル等を指定して取り込む",
+        "C": "RMANのCATALOG START WITHでテキストを表へ登録する",
+        "D": "Data Pumpのimpdpで任意のCSVファイルをダンプとしてロードする"
+      },
+      "correctChoice": "B",
+      "correctText": "SQL*Loaderで制御ファイル等を指定して取り込む",
+      "explanation": "正解：B\n\nA（誤り）：SQL*PlusのCOPYはデータベース間の問い合わせデータ転送向けである。\n\nB（正しい）：SQL*Loaderは外部テキストファイルを表にロードするためのOracleユーティリティである。\n\nC（誤り）：CATALOGはバックアップ関連ファイルをRMANリポジトリへ登録する。\n\nD（誤り）：impdpはData Pumpダンプファイルを扱い、一般的なCSVをそのまま読み込むものではない。",
+      "topic": "SQL Loader",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q019",
+      "chapter": 37,
+      "question": "OS上のデータファイルやテキストファイルをコピーする操作と、Oracle表への行挿入の関係で適切なのはどれか。",
+      "choices": {
+        "A": "テキストファイルを表領域のディレクトリに配置すると表に行が追加される",
+        "B": "外部表用ディレクトリにコピーすると表本体へ永続的に行が挿入される",
+        "C": "テキストファイルを配置しただけでは表に行は追加されず、ロード処理が必要",
+        "D": "RMANバックアップディレクトリにコピーすると表に行が追加される"
+      },
+      "correctChoice": "C",
+      "correctText": "テキストファイルを配置しただけでは表に行は追加されず、ロード処理が必要",
+      "explanation": "正解：C\n\nA（誤り）：Oracleは配置したテキストを表データとして自動解釈しない。\n\nB（誤り）：外部表は外部ファイルを問い合わせ可能にするがその配置だけで内部表へINSERTしない。\n\nC（正しい）：OSファイルコピーはDBの表に対するINSERT操作ではない。SQL*Loader等でロードする。\n\nD（誤り）：バックアップ配置場所とデータのロード機能は独立している。",
+      "topic": "OSコピーと表データ",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q020",
+      "chapter": 37,
+      "question": "ユーザー管理方式で一貫性のあるデータベース全体のオフラインバックアップを取得する際の前提はどれか。",
+      "choices": {
+        "A": "MOUNT状態でREDO適用中のファイルをOSコマンドでコピーする",
+        "B": "OPEN READ WRITEのまま各データファイルをコピーし、一貫性バックアップとする",
+        "C": "OPEN READ ONLYへの切替え後にSYSTEM表領域だけをコピーする",
+        "D": "正常停止したデータベースのファイルをOSコマンド等でコピーする"
+      },
+      "correctChoice": "D",
+      "correctText": "正常停止したデータベースのファイルをOSコマンド等でコピーする",
+      "explanation": "正解：D\n\nA（誤り）：MOUNT自体は一貫性のある停止済みファイルコピーを保証する条件ではない。\n\nB（誤り）：OPEN中に変更されるデータファイルのコピーは一貫性バックアップとして扱わない。\n\nC（誤り）：全体バックアップでは必要なデータベース構成ファイルを含める必要がある。\n\nD（正しい）：クリーンシャットダウン後ならデータファイルの整合したコピーを取得できる。",
+      "topic": "一貫性ユーザー管理バックアップ",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q021",
+      "chapter": 37,
+      "question": "ARCHIVELOGモードのDBでユーザー管理のオンライン表領域バックアップを行う際、BEGIN BACKUPの役割として適切なのはどれか。",
+      "choices": {
+        "A": "対象表領域をバックアップモードにし、OSコピー後にEND BACKUPで解除する",
+        "B": "対象表領域をREAD ONLYへ切替え、OSコピー後にREAD WRITEへ戻す",
+        "C": "対象表領域のデータファイルを自動でバックアップセットへ格納する",
+        "D": "対象表領域の一貫性を保証するため更新トランザクションをコミットする"
+      },
+      "correctChoice": "A",
+      "correctText": "対象表領域をバックアップモードにし、OSコピー後にEND BACKUPで解除する",
+      "explanation": "正解：A\n\nA（正しい）：BEGIN/END BACKUPはユーザー管理ホットバックアップ中のデータファイル取扱いを支援する。\n\nB（誤り）：BEGIN BACKUPはREAD ONLYへの切替えではない。\n\nC（誤り）：BEGIN BACKUP自体にはRMANバックアップセット生成処理はない。\n\nD（誤り）：BEGIN BACKUPは利用者トランザクションを一括コミットする機能ではない。",
+      "topic": "非一貫性ユーザー管理バックアップ",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q022",
+      "chapter": 37,
+      "question": "RMANでデータベース全体の不完全リカバリを行う場合、RECOVER DATABASE UNTIL ...を実行するデータベースの状態はどれか。",
+      "choices": {
+        "A": "NOMOUNT",
+        "B": "MOUNT",
+        "C": "OPEN READ WRITE",
+        "D": "OPEN UPGRADE"
+      },
+      "correctChoice": "B",
+      "correctText": "MOUNT",
+      "explanation": "正解：B\n\nA（誤り）：NOMOUNTでは制御ファイルがマウントされておらずデータベース全体のRECOVERを進められない。\n\nB（正しい）：一般的なデータベース全体の不完全リカバリはMOUNT状態でRECOVERし、結果に応じてRESETLOGSでOPENする。\n\nC（誤り）：DB全体を過去に戻す不完全リカバリはOPENしたまま実行しない。\n\nD（誤り）：UPGRADEモードはディクショナリのアップグレード用で不完全リカバリの状態ではない。",
+      "topic": "不完全リカバリの起動状態",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q023",
+      "chapter": 37,
+      "question": "不完全リカバリ後、RESETLOGSで書込み可能にOPENする前にデータを確認したい。Oracleが許す検証方法として適切なのはどれか。",
+      "choices": {
+        "A": "RESETLOGS前にALTER DATABASE OPEN READ WRITEで確認する",
+        "B": "RECOVER DATABASE後はOPENできないため、表のSELECTはRESETLOGS後だけ実行できる",
+        "C": "RESETLOGS前にALTER DATABASE OPEN READ ONLYで確認する",
+        "D": "RESETLOGS前にALTER DATABASE OPEN UPGRADEで確認する"
+      },
+      "correctChoice": "C",
+      "correctText": "RESETLOGS前にALTER DATABASE OPEN READ ONLYで確認する",
+      "explanation": "正解：C\n\nA（誤り）：不完全リカバリ後の通常の書込み可能OPENにはRESETLOGSが必要である。\n\nB（誤り）：READ ONLY OPENによる事前確認が可能である。\n\nC（正しい）：復旧先が意図どおりかをREAD ONLYで確認してから最終的なRESETLOGS OPENを判断できる。\n\nD（誤り）：UPGRADEモードは復旧結果の読取検証用ではない。",
+      "topic": "RESETLOGS前の確認",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q024",
+      "chapter": 37,
+      "question": "Oracle Restart構成でGrid Infrastructureを別リリースへアップグレードする際のデータベース状態として適切なのはどれか。",
+      "choices": {
+        "A": "管理対象データベースをOPEN READ ONLYにして作業する",
+        "B": "管理対象データベースをUPGRADEモードにして作業する",
+        "C": "管理対象データベースをOPEN READ WRITEのままDBUAでGIを更新する",
+        "D": "そのGrid Infrastructureに管理されるデータベースを停止して作業する"
+      },
+      "correctChoice": "D",
+      "correctText": "そのGrid Infrastructureに管理されるデータベースを停止して作業する",
+      "explanation": "正解：D\n\nA（誤り）：読取専用OPENのままGIを更新する構成を標準手順とはしない。\n\nB（誤り）：DBのUPGRADEモードはDB本体のアップグレードに関する状態でGI更新の前提ではない。\n\nC（誤り）：DBUAはDatabase Upgrade AssistantでありGIの更新手段ではない。\n\nD（正しい）：GIアップグレードでは管理下のデータベース停止を計画する必要がある。",
+      "topic": "Grid Infrastructureアップグレード",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q025",
+      "chapter": 37,
+      "question": "Oracle DatabaseをDBUAで新リリースへアップグレードする際、事前要件として示されたパッチの扱いとして適切なのはどれか。",
+      "choices": {
+        "A": "アップグレード処理に入る前に必要な前提パッチを適用する",
+        "B": "catupgrd.sqlが開始後に前提パッチを自動取得する",
+        "C": "preupgrade.jarが警告とともに前提パッチをOracleホームへ適用する",
+        "D": "アップグレード後のdatapatchが前提パッチをOSへ展開する"
+      },
+      "correctChoice": "A",
+      "correctText": "アップグレード処理に入る前に必要な前提パッチを適用する",
+      "explanation": "正解：A\n\nA（正しい）：前提パッチは事前の条件を満たすための作業でアップグレード本体に一括自動包含されない。\n\nB（誤り）：catupgrd.sqlはディクショナリ更新スクリプトでソフトウェアパッチの取得ではない。\n\nC（誤り）：preupgradeは事前検証と修正事項の提示に用いられる。\n\nD（誤り）：datapatchはソフトウェアパッチ適用に対応するSQL変更をDBへ反映する。",
+      "topic": "アップグレード前提パッチ",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q026",
+      "chapter": 37,
+      "question": "ARCHIVELOGモードで一部データファイルを失った場合、完全リカバリについて適切なのはどれか。",
+      "choices": {
+        "A": "必要なアーカイブログがあればバックアップがなくても失ったデータファイルは通常再構築できる",
+        "B": "利用できるバックアップと必要なオンラインREDO・アーカイブREDOが揃えば完全リカバリを目指せる",
+        "C": "バックアップさえあれば必要なREDOが欠けても完全リカバリできる",
+        "D": "NOARCHIVELOGでもオンラインREDOのみで任意の古いデータファイルを完全リカバリできる"
+      },
+      "correctChoice": "B",
+      "correctText": "利用できるバックアップと必要なオンラインREDO・アーカイブREDOが揃えば完全リカバリを目指せる",
+      "explanation": "正解：B\n\nA（誤り）：失われたデータファイルの復元元が必要でありREDOだけでは通常代替できない。\n\nB（正しい）：完全リカバリにはバックアップ以降の変更を再適用できるREDOが必要である。\n\nC（誤り）：バックアップ以後の変更を反映するREDOが不足すれば完全回復できない。\n\nD（誤り）：NOARCHIVELOGでは失われたアーカイブREDOを補えず復旧可能範囲が制限される。",
+      "topic": "完全リカバリの前提",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q027",
+      "chapter": 37,
+      "question": "RMANバックアップ時にデータファイル読取りI/Oがボトルネックである。改善策として適切なものはどれか。",
+      "choices": {
+        "A": "非同期ディスクI/Oを無効化し、MAXOPENFILESを常に1にする",
+        "B": "テープ書込みバッファだけ増やし、ディスク読取り条件は変更しない",
+        "C": "非同期ディスクI/Oの利用を検討し、チャネルのMAXOPENFILES調整も評価する",
+        "D": "RMANのLOGオプションを有効化して読取り並列度を上げる"
+      },
+      "correctChoice": "C",
+      "correctText": "非同期ディスクI/Oの利用を検討し、チャネルのMAXOPENFILES調整も評価する",
+      "explanation": "正解：C\n\nA（誤り）：同時読取りを抑えるとI/O効率が低下することがあり、一般的な改善策といえない。\n\nB（誤り）：読取側がボトルネックならテープ側の書込みバッファだけでは解決しない。\n\nC（正しい）：非同期I/Oと並行読取ファイル数の調整はディスク読取り性能の改善候補になる。\n\nD（誤り）：LOGはメッセージの出力先指定でI/O並列読取数を設定しない。",
+      "topic": "RMAN読取スループット",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q028",
+      "chapter": 37,
+      "question": "RMANでディスク読取りが遅い場合、SBTチャネルのテープI/Oバッファサイズ増加の評価として適切なのはどれか。",
+      "choices": {
+        "A": "ディスク読取りのブロックサイズを直接変更するため第一候補となる",
+        "B": "非同期ディスクI/Oを自動的に有効化するため第一候補となる",
+        "C": "MAXOPENFILESを自動増加させ、ファイル読取りを並列化する",
+        "D": "テープ書込み側の改善策であり、ディスク読取りのボトルネックを直接解決するものではない"
+      },
+      "correctChoice": "D",
+      "correctText": "テープ書込み側の改善策であり、ディスク読取りのボトルネックを直接解決するものではない",
+      "explanation": "正解：D\n\nA（誤り）：SBTのテープバッファサイズと入力データファイルのブロックサイズは別である。\n\nB（誤り）：テープバッファ調整は非同期ディスクI/O有効化の設定ではない。\n\nC（誤り）：MAXOPENFILESは別のチャネル設定でテープバッファ変更に連動しない。\n\nD（正しい）：テープI/Oバッファはテープ転送経路を調整するため、ディスク読取り遅延とは別の領域である。",
+      "topic": "テープI/Oとディスク読取り",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q029",
+      "chapter": 37,
+      "question": "切断したPDBのXMLメタデータを用いて、接続先CDBとの互換性を事前に判定したい。適切なAPIはどれか。",
+      "choices": {
+        "A": "DBMS_PDB.CHECK_PLUG_COMPATIBILITY",
+        "B": "DBMS_PDB.DESCRIBE",
+        "C": "DBMS_PDB.DESCRIBEで出力したXMLそのもの",
+        "D": "PDB_PLUG_IN_VIOLATIONSの情報を更新する操作"
+      },
+      "correctChoice": "A",
+      "correctText": "DBMS_PDB.CHECK_PLUG_COMPATIBILITY",
+      "explanation": "正解：A\n\nA（正しい）：接続先CDBとのプラグ互換性を確認し違反内容は関連ビューで調査できる。\n\nB（誤り）：DESCRIBEは非CDBなどの記述XMLを生成する用途で、互換性判定とは異なる。\n\nC（誤り）：DESCRIBEの出力はメタデータ記述であり、接続先との互換性判断結果ではない。\n\nD（誤り）：PDB_PLUG_IN_VIOLATIONSは互換性問題を調査するビューであり、互換性を判定するAPIではない。",
+      "topic": "PDB接続互換性チェック",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q030",
+      "chapter": 37,
+      "question": "PDBを切断する際にXMLだけでなくPDBアーカイブを作成するためのUNPLUG INTOの指定として適切なのはどれか。",
+      "choices": {
+        "A": "ALTER PLUGGABLE DATABASE pdb1 UNPLUG INTO '/tmp/pdb1.xml'",
+        "B": "ALTER PLUGGABLE DATABASE pdb1 UNPLUG INTO '/tmp/pdb1.pdb'",
+        "C": "ALTER PLUGGABLE DATABASE pdb1 UNPLUG INTO '/tmp/pdb1.dmp'",
+        "D": "ALTER PLUGGABLE DATABASE pdb1 UNPLUG INTO '/tmp/pdb1.bkp'"
+      },
+      "correctChoice": "B",
+      "correctText": "ALTER PLUGGABLE DATABASE pdb1 UNPLUG INTO '/tmp/pdb1.pdb'",
+      "explanation": "正解：B\n\nA（誤り）：拡張子.xmlならXMLメタデータを出力し、PDBアーカイブ形式ではない。\n\nB（正しい）：拡張子.pdbを指定するとPDBアーカイブファイルとして出力される。\n\nC（誤り）：Data Pumpダンプファイル形式のアンプラグはこの拡張子では作成しない。\n\nD（誤り）：RMANバックアップピース形式のPDBアーカイブを示す拡張子ではない。",
+      "topic": "PDBアーカイブの作成",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q031",
+      "chapter": 37,
+      "question": "CDBルートの共通ユーザーが、各PDBに存在する同名の共通ユーザー所有表を横断照会したい。CONTAINERS句に関する適切な説明はどれか。",
+      "choices": {
+        "A": "任意のPDBローカルユーザー所有表をCDBルートから無条件で横断照会できる",
+        "B": "CONTAINERS句を使うにはコンテナマップを必須構成とする",
+        "C": "対応するコンテナデータオブジェクトにCONTAINERS句を使用して横断照会できる",
+        "D": "CONTAINERS句はビューでは使用できず実表だけに利用できる"
+      },
+      "correctChoice": "C",
+      "correctText": "対応するコンテナデータオブジェクトにCONTAINERS句を使用して横断照会できる",
+      "explanation": "正解：C\n\nA（誤り）：CONTAINERS句には共通ユーザーや対象オブジェクトなどの制約がある。\n\nB（誤り）：CONTAINERS句とコンテナマップは独立した仕組みである。\n\nC（正しい）：CONTAINERS句には対象オブジェクトと権限などの条件があり、コンテナ間のデータを照会できる。\n\nD（誤り）：対象となる表およびビューを横断照会できる。",
+      "topic": "CONTAINERS句",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q032",
+      "chapter": 37,
+      "question": "Oracle 19cのPDBスナップショットと、そのスナップショットを使うPDB作成について適切なのはどれか。",
+      "choices": {
+        "A": "スナップショットからPDB作成はできず、既存PDBのFLASHBACK専用である",
+        "B": "PDBスナップショットはData Pumpのメタデータダンプだけを保存する",
+        "C": "PDBスナップショットはCDB全体のRMANバックアップセットを別名で保持する",
+        "D": "PDBのある時点のスナップショットを保持し、それを元にPDBを作成できる"
+      },
+      "correctChoice": "D",
+      "correctText": "PDBのある時点のスナップショットを保持し、それを元にPDBを作成できる",
+      "explanation": "正解：D\n\nA（誤り）：スナップショットを元にPDBを作成する用途がある。\n\nB（誤り）：PDBスナップショットは単なるメタデータエクスポートではない。\n\nC（誤り）：PDB単位のスナップショットとCDB全体のRMANバックアップは異なる。\n\nD（正しい）：PDBスナップショットはPDBを復元・複製するための特定時点のコピーとして扱える。",
+      "topic": "PDBスナップショット",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q033",
+      "chapter": 37,
+      "question": "スナップショットコピーPDBを作成する場合に確認すべき条件として適切なのはどれか。",
+      "choices": {
+        "A": "利用するファイルシステムや記憶域が必要なスナップショット機能に対応している",
+        "B": "DB_CREATE_FILE_DESTが設定されていればストレージの種類に依存しない",
+        "C": "ソースPDBのARCHIVELOGが有効ならストレージの要件は不要である",
+        "D": "PDBにFLASHBACK ONを設定すればスナップショットコピーの要件を満たす"
+      },
+      "correctChoice": "A",
+      "correctText": "利用するファイルシステムや記憶域が必要なスナップショット機能に対応している",
+      "explanation": "正解：A\n\nA（正しい）：スナップショットコピーPDBはストレージレベルのスナップショット技術と対応要件に依存する。\n\nB（誤り）：ファイル配置先の設定だけではストレージのスナップショット対応を保証しない。\n\nC（誤り）：ARCHIVELOGモードはストレージスナップショット機能の代替ではない。\n\nD（誤り）：フラッシュバック機能とスナップショットコピーの記憶域要件は別である。",
+      "topic": "スナップショットコピーPDB",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q034",
+      "chapter": 37,
+      "question": "CDB自体をMOUNT状態にした場合、CDB内のPDBのOPEN MODEの扱いとして適切なのはどれか。",
+      "choices": {
+        "A": "PDB$SEEDのみREAD ONLYでOPENし、一般PDBはMOUNTEDとなる",
+        "B": "PDB$SEEDを含めてPDBはMOUNTED状態となる",
+        "C": "保存済みのOPEN状態に従いPDBはREAD WRITEでOPENし続ける",
+        "D": "PDB$SEEDのみOPEN UPGRADEとなり、一般PDBはMOUNTEDとなる"
+      },
+      "correctChoice": "B",
+      "correctText": "PDB$SEEDを含めてPDBはMOUNTED状態となる",
+      "explanation": "正解：B\n\nA（誤り）：CDBがMOUNT中はシードPDBもOPENされない。\n\nB（正しい）：CDBがOPENしていないと個別PDBもOPENできない。\n\nC（誤り）：CDBのOPENが前提なので保存状態による自動OPENは行われない。\n\nD（誤り）：CDBのMOUNTだけでPDB$SEEDがUPGRADEモードでOPENするわけではない。",
+      "topic": "CDBとPDBのOPEN状態",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q035",
+      "chapter": 37,
+      "question": "RMANのバックアップセットの多重化に関する説明として適切なのはどれか。",
+      "choices": {
+        "A": "バックアップセットのコピー数を最大8まで設定できる",
+        "B": "バックアップセットの多重化でイメージコピーを自動生成する",
+        "C": "バックアップセットを複数のコピーとして保持でき、コピー数の上限は4である",
+        "D": "1つのバックアップセットの中に複数データファイルを含めることを多重化と呼ぶ"
+      },
+      "correctChoice": "C",
+      "correctText": "バックアップセットを複数のコピーとして保持でき、コピー数の上限は4である",
+      "explanation": "正解：C\n\nA（誤り）：バックアップセットの多重化ではコピー数上限は4である。\n\nB（誤り）：バックアップセットの複数コピーとイメージコピー形式は別物である。\n\nC（正しい）：BACKUP COPIESなどでバックアップセットの多重化を指定でき、最大4コピー。\n\nD（誤り）：複数入力ファイルを一つのセットに収めることとバックアップコピーの多重化は異なる。",
+      "topic": "バックアップセット多重化",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q036",
+      "chapter": 37,
+      "question": "Data Guardで自動ブロック修復が使用可能なとき、プライマリ側でブロック破損を検出した場合の処理として適切なのはどれか。",
+      "choices": {
+        "A": "フラッシュバックログから該当ブロックを復元して自動修復する",
+        "B": "RMANバックアップピースから毎回取得して自動修復する",
+        "C": "UNDO表領域に保存された旧ブロックを使って自動修復する",
+        "D": "フィジカルスタンバイから正常なブロックを取得し修復を試みる"
+      },
+      "correctChoice": "D",
+      "correctText": "フィジカルスタンバイから正常なブロックを取得し修復を試みる",
+      "explanation": "正解：D\n\nA（誤り）：自動ブロック修復の主な取得元はData Guardの相手側DBである。\n\nB（誤り）：この機能のブロック供給元はフィジカルスタンバイなどData Guard構成側である。\n\nC（誤り）：UNDOはトランザクション変更の整合性などに使われ、物理破損ブロックの供給元ではない。\n\nD（正しい）：Data Guardの自動ブロック修復は相手側DBの健全なブロックを取得して修復できる。",
+      "topic": "自動ブロック修復",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q037",
+      "chapter": 37,
+      "question": "19c DBCAサイレントモードの再配置（relocate）機能で直接対象にできるデータベース単位はどれか。",
+      "choices": {
+        "A": "PDB",
+        "B": "CDB全体",
+        "C": "PDB内の単一スキーマ",
+        "D": "PDB内の単一表領域"
+      },
+      "correctChoice": "A",
+      "correctText": "PDB",
+      "explanation": "正解：A\n\nA（正しい）：DBCAのrelocatePDBは既存のPDBを別CDBへ再配置する機能である。\n\nB（誤り）：CDB全体のホスト移設をDBCAのrelocatePDBで実現するわけではない。\n\nC（誤り）：PDB再配置はスキーマ転送ではなくPDB全体が対象である。\n\nD（誤り）：DBCAのrelocatePDBは特定表領域だけを転送する操作ではない。",
+      "topic": "DBCAでの再配置対象",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q038",
+      "chapter": 37,
+      "question": "CDBルートへRMANで接続しBACKUP DATABASEを実行した場合の対象はどれか。",
+      "choices": {
+        "A": "CDBルートのデータファイルだけ",
+        "B": "CDBルート、PDB$SEED、およびCDB内のPDBのデータファイル",
+        "C": "CDBルートとPDB$SEEDだけ",
+        "D": "OPEN中のPDBだけでCDBルートは含まない"
+      },
+      "correctChoice": "B",
+      "correctText": "CDBルート、PDB$SEED、およびCDB内のPDBのデータファイル",
+      "explanation": "正解：B\n\nA（誤り）：PDBを含めCDB全体のデータベースバックアップを取得する。\n\nB（正しい）：CDBルートからのBACKUP DATABASEはCDB全体を対象にできる。\n\nC（誤り）：一般PDBのデータファイルもCDB全体バックアップの範囲に入る。\n\nD（誤り）：CDBの全体バックアップにはルートも含まれる。",
+      "topic": "CDBルートのBACKUP DATABASE",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q039",
+      "chapter": 37,
+      "question": "旧リリースのPDBをより新しいOracle DatabaseリリースのCDBへ接続する際の適切な対応はどれか。",
+      "choices": {
+        "A": "互換性の確認を省略し、接続時点でPDBの辞書が自動更新されたとみなす",
+        "B": "CDBのリリースをPDBに合わせて下げてから接続する",
+        "C": "互換性を確認して接続し、必要なPDBアップグレードを実施する",
+        "D": "PDBのデータファイルをData Pumpに変換しないと接続できない"
+      },
+      "correctChoice": "C",
+      "correctText": "互換性を確認して接続し、必要なPDBアップグレードを実施する",
+      "explanation": "正解：C\n\nA（誤り）：上位バージョンCDBとの接続だけでPDBのアップグレード処理が完結するわけではない。\n\nB（誤り）：通常の移行では互換性を確認して上位CDBへ接続する手順がある。\n\nC（正しい）：新しいCDBへの接続後にPDB側の辞書アップグレードが必要となる場合がある。\n\nD（誤り）：プラグ操作はData Pumpによる全データ移送とは別方式である。",
+      "topic": "上位リリースCDBへのPDBプラグ",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q040",
+      "chapter": 37,
+      "question": "Oracle 19cのpreupgrade.jarを旧リリースDBに対して実行したとき得られる成果物として適切なのはどれか。",
+      "choices": {
+        "A": "事前修正用SQLスクリプトだけで事後修正用は生成しない",
+        "B": "事後修正用SQLスクリプトだけで事前修正用は生成しない",
+        "C": "catupgrd.sqlの書換版とRMANバックアップピースを生成する",
+        "D": "事前修正用と事後修正用のSQLスクリプトおよびチェック結果"
+      },
+      "correctChoice": "D",
+      "correctText": "事前修正用と事後修正用のSQLスクリプトおよびチェック結果",
+      "explanation": "正解：D\n\nA（誤り）：事後の推奨事項を扱うpostupgrade_fixups.sqlも生成対象となる。\n\nB（誤り）：preupgrade_fixups.sqlも生成される。\n\nC（誤り）：preupgrade.jarは診断とfixups作成を行いRMANバックアップを生成しない。\n\nD（正しい）：preupgrade.jarは事前・事後のfixupsスクリプトやチェックログを生成する。",
+      "topic": "preupgrade.jarの成果物",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q041",
+      "chapter": 37,
+      "question": "オプティマイザ統計アドバイザを手動で実行したい。適切なパッケージ・メソッドの組合せはどれか。",
+      "choices": {
+        "A": "DBMS_STATS.CREATE_ADVISOR_TASKとDBMS_STATS.EXECUTE_ADVISOR_TASK",
+        "B": "DBMS_STATS.GATHER_TABLE_STATSとDBMS_STATS.GATHER_SCHEMA_STATS",
+        "C": "DBMS_ADVISOR.CREATE_TASKとDBMS_STATS.GATHER_DATABASE_STATS",
+        "D": "DBMS_STATS.LOCK_TABLE_STATSとDBMS_STATS.RESTORE_TABLE_STATS"
+      },
+      "correctChoice": "A",
+      "correctText": "DBMS_STATS.CREATE_ADVISOR_TASKとDBMS_STATS.EXECUTE_ADVISOR_TASK",
+      "explanation": "正解：A\n\nA（正しい）：オプティマイザ統計アドバイザはDBMS_STATSのタスク作成・実行APIを提供する。\n\nB（誤り）：統計収集APIはアドバイザのタスク作成と実行に対応するものではない。\n\nC（誤り）：前者は汎用アドバイザのタスク作成、後者は統計収集で組合せが異なる。\n\nD（誤り）：統計ロックと復元はアドバイザ実行APIではない。",
+      "topic": "オプティマイザ統計アドバイザ",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q042",
+      "chapter": 37,
+      "question": "RHPでデータベースを別のパッチレベルの作業用コピーへ移動するコマンドとして適切なのはどれか。",
+      "choices": {
+        "A": "rhpctl add database",
+        "B": "rhpctl move database",
+        "C": "rhpctl query workingcopy",
+        "D": "rhpctl import image"
+      },
+      "correctChoice": "B",
+      "correctText": "rhpctl move database",
+      "explanation": "正解：B\n\nA（誤り）：add databaseは登録や作成に関わり、既存DBを別作業コピーへ切り替える操作ではない。\n\nB（正しい）：rhpctl move databaseはデータベースが使う作業用コピーを移動できる。\n\nC（誤り）：query workingcopyは作業用コピーの情報を取得する。\n\nD（誤り）：import imageはゴールドイメージを取り込む操作で、DBを移動するものではない。",
+      "topic": "RHP作業用コピー切替",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q043",
+      "chapter": 37,
+      "question": "GIとOracle Databaseがある環境でopatchautoを使用してパッチを適用する。停止操作について適切なのはどれか。",
+      "choices": {
+        "A": "事前にすべてのDBを停止しないとopatchautoは起動できない",
+        "B": "事前にGIスタックを停止しておくことがopatchautoの共通前提である",
+        "C": "opatchautoが必要な停止・起動を自動化するため、手順で別途指定されない限り事前停止は不要",
+        "D": "GIの停止は不要だがパッチ後の起動は管理者が手動実施する"
+      },
+      "correctChoice": "C",
+      "correctText": "opatchautoが必要な停止・起動を自動化するため、手順で別途指定されない限り事前停止は不要",
+      "explanation": "正解：C\n\nA（誤り）：opatchautoは停止・起動処理自体を管理できる。\n\nB（誤り）：GI側の停止を含めて自動化する方式であり共通の前提とはしない。\n\nC（正しい）：opatchautoは依存関係などに基づき停止・起動を含むパッチ操作を自動化できる。\n\nD（誤り）：opatchautoは起動操作も対象に含められる。",
+      "topic": "opatchauto事前停止",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q044",
+      "chapter": 37,
+      "question": "共有UNDOモードのCDBにおけるPDBフラッシュバックについて正しいものを2つ選べ。",
+      "choices": {
+        "A": "SQLのFLASHBACK PLUGGABLE DATABASEではクリーンPDBリストアポイントへ戻せる",
+        "B": "PDBをクローズして未処理トランザクションがない状態で作成する復元点はクリーンになり得る",
+        "C": "共有UNDOでは任意のSCNを指定してSQLからPDBをフラッシュバックできる",
+        "D": "共有UNDOではPDB単位のフラッシュバック操作がサポートされない"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "SQLのFLASHBACK PLUGGABLE DATABASEではクリーンPDBリストアポイントへ戻せる、PDBをクローズして未処理トランザクションがない状態で作成する復元点はクリーンになり得る",
+      "explanation": "正解：A、B\n\nA（正しい）：共有UNDOでSQLから実行する場合はクリーンPDBリストアポイントが対象。\n\nB（正しい）：共有UNDO下のクリーンなPDB復元点には未処理トランザクションがない等の条件がある。\n\nC（誤り）：共有UNDOのSQL実行ではクリーンPDBリストアポイントに制限される。\n\nD（誤り）：共有UNDOでもクリーンPDB復元点へのフラッシュバックに対応する。",
+      "topic": "共有UNDOとクリーン復元点",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch37q045",
+      "chapter": 37,
+      "question": "DBCAサイレントモードで別CDBのPDBをリモートクローンする場合に正しいものを2つ選べ。",
+      "choices": {
+        "A": "複製元のリモート側にリンク接続用ユーザーを準備する",
+        "B": "複製先でユーザー管理のOSコピーを実行することがDBCAの必要条件である",
+        "C": "DBCAが複製先でリモート接続用のDBリンクを構成する方式を利用できる",
+        "D": "複製元CDBに作成するリンクを使って複製先PDBの表領域を手動生成する"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "複製元のリモート側にリンク接続用ユーザーを準備する、DBCAが複製先でリモート接続用のDBリンクを構成する方式を利用できる",
+      "explanation": "正解：A、C\n\nA（正しい）：DBCAがリンクに使うアカウントの資格情報が必要となる。\n\nB（誤り）：DBCAによるリモートクローンはOSファイルコピーを前提にしない。\n\nC（正しい）：DBCAのリモートクローンは接続情報からリンクを構成できる。\n\nD（誤り）：リンク方向は複製先から複製元への参照である。",
+      "topic": "DBCAリモートクローン事前準備",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch37q046",
+      "chapter": 37,
+      "question": "RMANの実行メッセージをファイルへ保存する方法として正しいものを2つ選べ。",
+      "choices": {
+        "A": "RMAN起動時のLOGオプションでファイル名を指定する",
+        "B": "RMANのCMDFILEオプションを出力ログとして指定する",
+        "C": "RMANのCATALOGオプションを出力ログとして指定する",
+        "D": "OSシェルのリダイレクトを用いて標準出力をファイルへ保存する"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "RMAN起動時のLOGオプションでファイル名を指定する、OSシェルのリダイレクトを用いて標準出力をファイルへ保存する",
+      "explanation": "正解：A、D\n\nA（正しい）：LOG起動オプションはRMANメッセージのログ出力に使える。\n\nB（誤り）：CMDFILEはRMANコマンドの入力ファイルを指定する。\n\nC（誤り）：CATALOGはリカバリカタログ接続を指定する。\n\nD（正しい）：シェルのリダイレクトでも標準出力の保存が可能である。",
+      "topic": "RMANログの2通り",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch37q047",
+      "chapter": 37,
+      "question": "障害後のインスタンスリカバリ処理について正しいものを2つ選べ。",
+      "choices": {
+        "A": "未コミットのUNDO処理を開始する前にREDOを読み込まない",
+        "B": "ロールフォワードでREDOログの変更を適用する",
+        "C": "未コミットトランザクションのロールバックはOPEN後にも進められる",
+        "D": "OPENした後で初めてREDOのロールフォワードを開始する"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "ロールフォワードでREDOログの変更を適用する、未コミットトランザクションのロールバックはOPEN後にも進められる",
+      "explanation": "正解：B、C\n\nA（誤り）：インスタンスリカバリはREDOのロールフォワードを経る。\n\nB（正しい）：REDOに記録された更新内容を再適用する処理である。\n\nC（正しい）：OracleはOPEN後のバックグラウンドロールバックに対応する。\n\nD（誤り）：ロールフォワードはOPEN前に実施される。",
+      "topic": "インスタンスリカバリ段階",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch37q048",
+      "chapter": 37,
+      "question": "ARCHIVELOGモードのユーザー管理ホットバックアップについて正しいものを2つ選べ。",
+      "choices": {
+        "A": "BEGIN BACKUPにより対象表領域はREAD ONLYとなる",
+        "B": "ALTER TABLESPACE BEGIN BACKUPで対象表領域をバックアップモードへ切り替える",
+        "C": "BEGIN BACKUPがRMAN形式のバックアップピースを作成する",
+        "D": "OSコピーの後、ALTER TABLESPACE END BACKUPで解除する"
+      },
+      "correctChoice": [
+        "B",
+        "D"
+      ],
+      "correctText": "ALTER TABLESPACE BEGIN BACKUPで対象表領域をバックアップモードへ切り替える、OSコピーの後、ALTER TABLESPACE END BACKUPで解除する",
+      "explanation": "正解：B、D\n\nA（誤り）：ユーザー管理のオンラインバックアップはREAD ONLYへの変更ではない。\n\nB（正しい）：BEGIN BACKUPはファイルをOSコピーする準備処理として使用する。\n\nC（誤り）：BEGIN BACKUPはバックアップピースを生成しない。\n\nD（正しい）：END BACKUPで対象表領域のバックアップモードを終了する。",
+      "topic": "ユーザー管理バックアップ要件",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch37q049",
+      "chapter": 37,
+      "question": "RMANでディスクからの読込み性能を改善する候補として正しいものを2つ選べ。",
+      "choices": {
+        "A": "SBTのテープ出力バッファサイズだけを大きくする",
+        "B": "RMANのLOGの出力先をテープに変更する",
+        "C": "非同期ディスクI/Oの有効化を検討する",
+        "D": "チャネルのMAXOPENFILESを調整する"
+      },
+      "correctChoice": [
+        "C",
+        "D"
+      ],
+      "correctText": "非同期ディスクI/Oの有効化を検討する、チャネルのMAXOPENFILESを調整する",
+      "explanation": "正解：C、D\n\nA（誤り）：テープ出力側のバッファ増加はディスク読取りの直接改善策ではない。\n\nB（誤り）：LOGは実行メッセージの出力先で読込みI/Oの調整ではない。\n\nC（正しい）：ディスク読込みI/Oの待機削減につながり得る。\n\nD（正しい）：同時にオープンする入力ファイルの数を調整できる。",
+      "topic": "読取I/Oチューニング",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch37q050",
+      "chapter": 37,
+      "question": "PDBのアンプラグ／プラグについて正しいものを2つ選べ。",
+      "choices": {
+        "A": "DBMS_PDB.CHECK_PLUG_COMPATIBILITYで接続互換性を確認できる",
+        "B": "UNPLUG INTOで拡張子.pdbを指定するとPDBアーカイブを作成できる",
+        "C": "CHECK_PLUG_COMPATIBILITYはPDBを自動的に接続する",
+        "D": "UNPLUG INTOで拡張子.xmlを指定するとRMANバックアップピースを作成する"
+      },
+      "correctChoice": [
+        "A",
+        "B"
+      ],
+      "correctText": "DBMS_PDB.CHECK_PLUG_COMPATIBILITYで接続互換性を確認できる、UNPLUG INTOで拡張子.pdbを指定するとPDBアーカイブを作成できる",
+      "explanation": "正解：A、B\n\nA（正しい）：XML記述を使って接続先CDBとの互換性を評価できる。\n\nB（正しい）：拡張子に応じてPDBアーカイブの出力に対応する。\n\nC（誤り）：ファンクションは可否を確認するためで接続はCREATE PLUGGABLE DATABASEで行う。\n\nD（誤り）：XML形式は記述メタデータを出力する。",
+      "topic": "PDB互換性と形式",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch37q051",
+      "chapter": 37,
+      "question": "CONTAINERS句の説明として正しいものを2つ選べ。",
+      "choices": {
+        "A": "共通ユーザー所有の対応する表・ビューをコンテナ横断で照会できる",
+        "B": "CDBルートから任意のローカルユーザー所有表に無条件で使用できる",
+        "C": "コンテナマップを構成せずにCONTAINERS句を使うことができる",
+        "D": "CONTAINERS句はビューの照会をサポートしない"
+      },
+      "correctChoice": [
+        "A",
+        "C"
+      ],
+      "correctText": "共通ユーザー所有の対応する表・ビューをコンテナ横断で照会できる、コンテナマップを構成せずにCONTAINERS句を使うことができる",
+      "explanation": "正解：A、C\n\nA（正しい）：適切な権限・オブジェクト条件下でCONTAINERS句が使える。\n\nB（誤り）：対象オブジェクトの所有者やコンテナの条件がある。\n\nC（正しい）：両者は別機能で、コンテナマップはCONTAINERS句の必須前提ではない。\n\nD（誤り）：適切なビューも対象となる。",
+      "topic": "CONTAINERS利用条件",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch37q052",
+      "chapter": 37,
+      "question": "RMANバックアップセット多重化について正しいものを2つ選べ。",
+      "choices": {
+        "A": "同一バックアップセットの複数コピーを作成する操作である",
+        "B": "多重化するとバックアップセットと同時にイメージコピーが必須で生成される",
+        "C": "多重化の数は入力データファイルを一つのセットに束ねる数を示す",
+        "D": "バックアップセットのコピー数には最大4という制限がある"
+      },
+      "correctChoice": [
+        "A",
+        "D"
+      ],
+      "correctText": "同一バックアップセットの複数コピーを作成する操作である、バックアップセットのコピー数には最大4という制限がある",
+      "explanation": "正解：A、D\n\nA（正しい）：コピー数を増やし保存先を多重化できる。\n\nB（誤り）：RMANバックアップセットの複数コピーはイメージコピー生成を意味しない。\n\nC（誤り）：ファイル多重化と出力コピーの多重化を混同している。\n\nD（正しい）：BACKUP COPIESのコピー数上限は4である。",
+      "topic": "バックアップコピー多重化",
+      "difficulty": "hard",
+      "multiple": true
+    },
+    {
+      "id": "ch37q053",
+      "chapter": 37,
+      "question": "Oracle Databaseのアップグレード前後チェックについて正しいものを2つ選べ。",
+      "choices": {
+        "A": "preupgrade.jarはデータベースを19cのディクショナリへ直接更新する",
+        "B": "preupgrade.jarはpreupgrade_fixups.sqlなどを出力する",
+        "C": "preupgrade.jarはpostupgrade_fixups.sqlなどを出力する",
+        "D": "preupgrade.jarはDBUAに代わってOracleホームの前提パッチを適用する"
+      },
+      "correctChoice": [
+        "B",
+        "C"
+      ],
+      "correctText": "preupgrade.jarはpreupgrade_fixups.sqlなどを出力する、preupgrade.jarはpostupgrade_fixups.sqlなどを出力する",
+      "explanation": "正解：B、C\n\nA（誤り）：辞書のアップグレード本体はcatupgrd.sqlなどで行う。\n\nB（正しい）：事前に修正すべき問題を示すスクリプトを出力できる。\n\nC（正しい）：アップグレード後に実施する推奨修正も示す。\n\nD（誤り）：ソフトウェアパッチ適用はpreupgrade.jarの機能ではない。",
+      "topic": "アップグレード前チェック",
       "difficulty": "hard",
       "multiple": true
     }
