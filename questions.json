@@ -183,7 +183,7 @@
     {
       "chapter": 37,
       "title": "模擬試験",
-      "description": "Oracle DBA Gold総合模擬試験。CDB・PDB、RMAN、アップグレード等を横断する実践問題"
+      "description": "Oracle DBA Gold総合模擬試験。CDB・PDB、RMAN、アップグレード等の実践問題（追加観点監査済み）"
     }
   ],
   "questions": [
@@ -19201,6 +19201,159 @@
       "topic": "アップグレード前チェック",
       "difficulty": "hard",
       "multiple": true
+    },
+    {
+      "id": "ch37q054",
+      "chapter": 37,
+      "question": "CDB全体をFLASHBACK DATABASEで過去のSCNに戻す。Oracle Database 19cにおけるSQL実行時のCDBの状態として適切なのはどれか。",
+      "choices": {
+        "A": "CDBをMOUNT状態にし、ルートからFLASHBACK DATABASEを実行する",
+        "B": "CDBをREAD ONLYでOPENし、ルートからFLASHBACK DATABASEを実行する",
+        "C": "CDBをOPENしたまま、各PDBでFLASHBACK DATABASEを順次実行する",
+        "D": "CDBをNOMOUNT状態にし、制御ファイルを読み込まずFLASHBACK DATABASEを実行する"
+      },
+      "correctChoice": "A",
+      "correctText": "CDBをMOUNT状態にし、ルートからFLASHBACK DATABASEを実行する",
+      "explanation": "正解：A\n\nA（正しい）：CDB全体のFLASHBACK DATABASEはデータベースをMOUNT状態にして実行する。\n\nB（誤り）：READ ONLYであってもCDB全体のフラッシュバックを開始する状態ではない。\n\nC（誤り）：PDB個別のフラッシュバックとCDB全体のフラッシュバックは操作対象が異なる。\n\nD（誤り）：NOMOUNTでは制御ファイルがマウントされず、CDB全体のフラッシュバックの前提を満たさない。",
+      "topic": "CDB全体のフラッシュバック開始条件",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q055",
+      "chapter": 37,
+      "question": "多重化された制御ファイルがすべて失われ、現行の有効なコピーが存在しない。RMANによる復旧方針として最も適切なのはどれか。",
+      "choices": {
+        "A": "CONTROL_FILESパラメータを正常コピーへ変更し、現行制御ファイルのリストアを省略する",
+        "B": "バックアップ制御ファイルをリストアし、必要なメディアリカバリを行う",
+        "C": "障害が発生した制御ファイル名をV$CONTROLFILEから削除してOPENする",
+        "D": "NOMOUNTでALTER DATABASE OPENを実行して制御ファイルを自動再生成させる"
+      },
+      "correctChoice": "B",
+      "correctText": "バックアップ制御ファイルをリストアし、必要なメディアリカバリを行う",
+      "explanation": "正解：B\n\nA（誤り）：正常コピーが残る場合には有効だが、すべてのコピーが失われた条件では適用できない。\n\nB（正しい）：すべての現行制御ファイルを失った場合はバックアップ制御ファイルの復元などによる復旧が必要である。\n\nC（誤り）：V$CONTROLFILEの表示内容を変更しても失われた現行制御ファイルは再生されない。\n\nD（誤り）：制御ファイルがない状態でOPENできず、OPEN文にはその自動再生成機能がない。",
+      "topic": "全制御ファイル損失の復旧",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q056",
+      "chapter": 37,
+      "question": "ALTER PLUGGABLE DATABASEでアンプラグして生成したPDBアーカイブ（.pdbファイル）がある。接続先CDBとの互換性を事前確認する方法として適切なのはどれか。",
+      "choices": {
+        "A": "DBMS_PDB.DESCRIBEに.pdbファイルを渡し、互換性の真偽を戻り値で判定する",
+        "B": "CREATE PLUGGABLE DATABASEを実行した後、DBMS_PDB.DESCRIBEで成否を判定する",
+        "C": "DBMS_PDB.CHECK_PLUG_COMPATIBILITYにアーカイブファイル名を指定して判定する",
+        "D": "PDB_PLUG_IN_VIOLATIONSにアーカイブファイル名をINSERTして判定を要求する"
+      },
+      "correctChoice": "C",
+      "correctText": "DBMS_PDB.CHECK_PLUG_COMPATIBILITYにアーカイブファイル名を指定して判定する",
+      "explanation": "正解：C\n\nA（誤り）：DESCRIBEは非CDB等の記述用XMLを生成するための処理で、接続先との互換性を判定するファンクションではない。\n\nB（誤り）：互換性はプラグ実行前に確認でき、DESCRIBEがプラグ後の成否を返すわけではない。\n\nC（正しい）：CHECK_PLUG_COMPATIBILITYはPDBの接続互換性を確認するファンクションで、PDBアーカイブも対象となる。\n\nD（誤り）：PDB_PLUG_IN_VIOLATIONSは違反状況を調査するビューであり、INSERTによるチェック要求先ではない。",
+      "topic": "PDBアーカイブの互換性確認",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q057",
+      "chapter": 37,
+      "question": "非CDBを既存CDBのPDBへ変換するため、DBMS_PDB.DESCRIBEで記述ファイルを作成する。PDBのUNPLUG INTOで生成するアーカイブと比較した説明として適切なのはどれか。",
+      "choices": {
+        "A": "非CDBの変換ではDESCRIBEが.pdbアーカイブを生成し、そのまま接続できる",
+        "B": "非CDBの変換ではRMANのBACKUP PLUGGABLE DATABASEで作った.pdbファイルを使う",
+        "C": "非CDBの変換ではUNPLUG INTOを非CDBに実行して.pdbアーカイブを作る",
+        "D": "非CDBの変換では記述XMLを作成してプラグでき、UNPLUG INTOのPDBアーカイブ生成とは別の経路である"
+      },
+      "correctChoice": "D",
+      "correctText": "非CDBの変換では記述XMLを作成してプラグでき、UNPLUG INTOのPDBアーカイブ生成とは別の経路である",
+      "explanation": "正解：D\n\nA（誤り）：DBMS_PDB.DESCRIBEが出力するのは非CDBの構造を記述したXMLであり、PDBアーカイブではない。\n\nB（誤り）：非CDBからPDBへの変換にRMANのPDBアーカイブを作る手順は対応しない。\n\nC（誤り）：UNPLUG INTOは既存PDBのアンプラグ操作に使用し、非CDBを直接アンプラグしない。\n\nD（正しい）：非CDBをプラグ可能にするための記述XMLと、既存PDBをアンプラグしたアーカイブは異なる形式・用途である。",
+      "topic": "非CDBプラグとPDBアーカイブの差",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q058",
+      "chapter": 37,
+      "question": "Oracle Database 19cのPDBスナップショットを作成する環境で、記憶域のスパースファイル機能とCDBのUNDOモードを検討している。適切な説明はどれか。",
+      "choices": {
+        "A": "PDBスナップショットにはローカルUNDOが前提で、スパース化には対応記憶域が必要となる",
+        "B": "PDBスナップショットには共有UNDOが前提で、スパース化には対応記憶域が必要となる",
+        "C": "PDBスナップショットにはローカルUNDOが前提で、スパース化は記憶域機能の影響を受けない",
+        "D": "PDBスナップショットには共有UNDOが前提で、スパース化は記憶域機能の影響を受けない"
+      },
+      "correctChoice": "A",
+      "correctText": "PDBスナップショットにはローカルUNDOが前提で、スパース化には対応記憶域が必要となる",
+      "explanation": "正解：A\n\nA（正しい）：PDBスナップショットにはローカルUNDOが必要で、スパースなスナップショットにするには記憶域がスパースファイルをサポートする必要がある。\n\nB（誤り）：スパースファイル条件は適切だが、PDBスナップショットの前提は共有UNDOではなくローカルUNDOである。\n\nC（誤り）：ローカルUNDOの条件は適切だが、スパース化はファイルシステム等の対応有無に左右される。\n\nD（誤り）：UNDOモードとスパースファイルの双方について前提条件を取り違えている。",
+      "topic": "PDBスナップショットの技術要件",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q059",
+      "chapter": 37,
+      "question": "19cへのアップグレードに先立ってpreupgrade.jarでCDB内のPDBを検査する。検査対象PDBのOPEN状態に関する準備として適切なのはどれか。",
+      "choices": {
+        "A": "検査したいPDBをすべてMOUNTEDにしてpreupgrade.jarを実行する",
+        "B": "検査したいPDBをOPENし、必要に応じて対象コンテナの指定も行う",
+        "C": "PDB$SEEDをREAD WRITEでOPENし、他のPDBはMOUNTEDのまま実行する",
+        "D": "CDBルートをNOMOUNTにし、PDBの状態を参照せずファイルだけ検査する"
+      },
+      "correctChoice": "B",
+      "correctText": "検査したいPDBをOPENし、必要に応じて対象コンテナの指定も行う",
+      "explanation": "正解：B\n\nA（誤り）：preupgrade.jarは対象の開いているPDBを解析するため、検査予定のPDBを閉じたままにしない。\n\nB（正しい）：Oracleのアップグレードガイドは検査対象PDBを事前にOPENするよう求め、対象指定オプションも用意する。\n\nC（誤り）：シードPDBをREAD WRITEに変更する操作を準備要件とはせず、検査対象PDBのOPENが重要である。\n\nD（誤り）：ツールは稼働中の旧リリース環境で情報収集する。NOMOUNTのままではコンテナ検査の前提を満たさない。",
+      "topic": "preupgrade.jarのPDB検査対象",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q060",
+      "chapter": 37,
+      "question": "オプティマイザ統計アドバイザのタスクをDBMS_STATS.EXECUTE_ADVISOR_TASKで実行した。推奨事項の適用について適切な説明はどれか。",
+      "choices": {
+        "A": "タスク実行と同時に推奨統計が反映され、IMPLEMENT_ADVISOR_TASKはレポート出力専用となる",
+        "B": "タスク実行では推奨事項が作成され、SCRIPT_ADVISOR_TASKはタスクを削除する",
+        "C": "推奨の実装は別操作で、IMPLEMENT_ADVISOR_TASKまたは生成したスクリプトの実行を検討できる",
+        "D": "推奨の実装は別操作で、CREATE_ADVISOR_TASKを再実行すると統計収集が始まる"
+      },
+      "correctChoice": "C",
+      "correctText": "推奨の実装は別操作で、IMPLEMENT_ADVISOR_TASKまたは生成したスクリプトの実行を検討できる",
+      "explanation": "正解：C\n\nA（誤り）：EXECUTE_ADVISOR_TASKは分析を行う操作で、IMPLEMENT_ADVISOR_TASKは推奨アクションを実装する用途がある。\n\nB（誤り）：SCRIPT_ADVISOR_TASKは推奨内容を反映するスクリプトを生成する操作でありタスク削除ではない。\n\nC（正しい）：実行と推奨事項の適用は別で、IMPLEMENT_ADVISOR_TASKまたはSCRIPT_ADVISOR_TASKで取得した処理の実行が可能である。\n\nD（誤り）：CREATE_ADVISOR_TASKはタスク作成であって、既存タスクの推奨事項の適用ではない。",
+      "topic": "統計アドバイザの推奨適用",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q061",
+      "chapter": 37,
+      "question": "Rapid Home Provisioningで既存データベースを移動する際、rhpctl move databaseの-sourcewcオプションの指定対象として適切なのはどれか。",
+      "choices": {
+        "A": "データベースの移動先として使用するパッチ適用済み作業用コピー",
+        "B": "データベースの移動先クライアントクラスタの識別子",
+        "C": "データベースを移動する際に使うゴールドイメージの登録名",
+        "D": "データベースが現在利用している移動元の作業用コピー"
+      },
+      "correctChoice": "D",
+      "correctText": "データベースが現在利用している移動元の作業用コピー",
+      "explanation": "正解：D\n\nA（誤り）：移動先のパッチ適用済み作業用コピーはpatchedwcなどの別オプションで指定する。\n\nB（誤り）：クライアントクラスタの識別子はclientオプションで指定する。\n\nC（誤り）：ゴールドイメージの名前と既存の作業用コピーは別の管理対象である。\n\nD（正しい）：sourcewcは既存データベースが現在使用している移動元作業用コピーの名前を指定する。",
+      "topic": "rhpctl -sourcewc指定",
+      "difficulty": "hard",
+      "multiple": false
+    },
+    {
+      "id": "ch37q062",
+      "chapter": 37,
+      "question": "Oracle Database 19cのDBCAサイレントモードで、別CDBのPDBを-createFromRemotePDBにより複製した。作成完了直後の複製先PDBのOPEN状態について、OracleのDBCA操作例に合致するのはどれか。",
+      "choices": {
+        "A": "複製元PDBと複製先PDBの両方がMOUNTEDでなければ処理完了とならない",
+        "B": "複製先PDBがREAD WRITEでOPENされ、接続して確認できる",
+        "C": "複製先PDBはREAD ONLYでOPENされ、手動でREAD WRITEへ変更する",
+        "D": "複製先PDBはMOUNTEDのままで、DBCA終了後の手動OPENが必須となる"
+      },
+      "correctChoice": "B",
+      "correctText": "複製先PDBがREAD WRITEでOPENされ、接続して確認できる",
+      "explanation": "正解：B\n\nA（誤り）：複製元PDBと複製先PDBをともにMOUNTEDで停止させることは操作完了条件ではない。\n\nB（正しい）：Oracleの19c DBCAリモートクローン操作例では、複製完了後のSHOW PDBSで複製先がREAD WRITEと表示される。\n\nC（誤り）：複製先PDBがREAD ONLYでOPENされるという説明は公式の操作例の状態と異なる。\n\nD（誤り）：DBCAによる当該リモートクローン操作例では複製先がOPENされており、手動OPENが必須という説明は成り立たない。",
+      "topic": "DBCAリモートクローン後のOPEN状態",
+      "difficulty": "hard",
+      "multiple": false
     }
   ]
 }
